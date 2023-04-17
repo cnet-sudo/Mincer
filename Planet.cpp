@@ -12,7 +12,7 @@ int createBackground(sf::VertexArray& rVA, sf::IntRect planet)
         // размер плитки
         const int TILE_SIZE = 200;
         // количество вариантов плиток
-        const int TILE_TYPES = 3;
+        const int TILE_TYPES = 9;
         // количество вершин
         const int VERTS_IN_QUAD = 4;
         // ширина мира

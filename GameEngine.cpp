@@ -1,5 +1,15 @@
 #include "GameEngine.h"
 
+GameEngine::GameEngine():resolution(sf::Vector2f(static_cast<float>(sf::VideoMode::getDesktopMode().width), 
+static_cast<float>(sf::VideoMode::getDesktopMode().height)))
+{
+	//  Загрузка иконки приложения
+	if (!icon.loadFromFile("game.png")) exit(3); 
+	window->setIcon(128, 128, icon.getPixelsPtr());
+	textureBackground.loadFromFile("graphics/plan.png");
+	restart();
+}
+
 void GameEngine::input()
 {
 	sf::Event event;
@@ -142,15 +152,7 @@ void GameEngine::restart()
 	//clock.restart();
 }
 
-GameEngine::GameEngine():resolution(sf::Vector2f(static_cast<float>(sf::VideoMode::getDesktopMode().width), 
-static_cast<float>(sf::VideoMode::getDesktopMode().height)))
-{
-	//  Загрузка иконки приложения
-	if (!icon.loadFromFile("game.png")) exit(3); 
-	window->setIcon(128, 128, icon.getPixelsPtr());
-	textureBackground.loadFromFile("graphics/plan.png");
-	restart();
-}
+
 
 void GameEngine::run()
 {
