@@ -1,5 +1,6 @@
 #pragma once
 #include<SFML/Graphics.hpp>
+#include"Animator.h"
 
 class Player
 {
@@ -9,6 +10,7 @@ private:
 	// Player position (Позиция игрока)
 	sf::Vector2f m_Position;
 	sf::Sprite m_Sprite;
+	Animator m_AnimPlayer = Animator(m_Sprite);
 	sf::Texture m_Texture;
 	// Screen resolution (Разрешение экрана)
 	sf::Vector2f m_Resolution;
@@ -69,7 +71,7 @@ public:
 	void stopDown();
 	// We will call this function once every frame
 	// Мы будем вызывать эту функцию один раз в каждом кадре
-	void update(float elapsedTime, sf::Vector2i mousePosition);
+	void update(sf::Time deltaTime, sf::Vector2i mousePosition);
 	// Give the player a speed boost
 	// Дайте игроку ускорение
 	void upgradeSpeed();

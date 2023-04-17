@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include"AssetManager.h"
+#include <random>
 
 class Monster
 {
@@ -18,7 +19,7 @@ private:
 	// Заставьте каждого монстра немного изменить свою скорость
 	// Make each monster change its speed a little
 	const int MAX_VARRIANCE = 30;
-	const int OFFSET = 101 - MAX_VARRIANCE;
+	const int OFFSET = 100;
 	// Где этот монстр?
 	// Where is this monster?
 	sf::Vector2f m_Position;
@@ -43,7 +44,7 @@ public:
 	bool isAlive();
 	// Создаем нового монстра
 	// Spawn a new monster
-	void spawn(float startX, float startY, int type, int seed);
+	void spawn(float startX, float startY, int type);
 	// Возвращаем прямоугольник, который является позицией в мире
 	// Return a rectangle that is the position in the world
 	sf::FloatRect getPosition();

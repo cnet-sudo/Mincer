@@ -1,33 +1,36 @@
 #include "Monster.h"
 
-void Monster::spawn(float startX, float startY, int type, int seed)
+void Monster::spawn(float startX, float startY, int type)
 {
+	// Будет использоваться для получения начального числа для механизма случайных чисел
+	std::random_device rd;
+	// Standard mersenne_twister_engine seeded with rd()
+	std::mt19937 gen(rd());
+
 	switch (type)
 	{
 	case 0:
 		// Bloater
-		m_Sprite = sf::Sprite(AssetManager::GetTexture("graphics/bloater.png"));
+		m_Sprite = sf::Sprite(AssetManager::GetTexture("graphics/mon1.png"));
 		m_Speed = BLOATER_SPEED;
 		m_Health = BLOATER_HEALTH;
 		break;
 	case 1:
 		// Chaser
-		m_Sprite = sf::Sprite(AssetManager::GetTexture("graphics/chaser.png"));
+		m_Sprite = sf::Sprite(AssetManager::GetTexture("graphics/mon2.png"));
 		m_Speed = CHASER_SPEED;
 		m_Health = CHASER_HEALTH;
 		break;
 	case 2:
 		// Crawler
-		m_Sprite = sf::Sprite(AssetManager::GetTexture("graphics/crawler.png"));
+		m_Sprite = sf::Sprite(AssetManager::GetTexture("graphics/mon3.png"));
 		m_Speed = CRAWLER_SPEED;
 		m_Health = CRAWLER_HEALTH;
 		break;
 	}
-	// Modify the speed to make the zombie unique
-	// Every zombie is unique. Create a speed modifier
-	srand((int)time(0)* seed);
-	// Somewhere between 80 and 100
-	float modifier = (rand() % MAX_VARRIANCE) + OFFSET;
+	std::uniform_int_distribution<> dis(MAX_VARRIANCE, OFFSET);
+
+	auto modifier = static_cast<float>(dis(gen));
 	// Express this as a fraction of 1
 	modifier /= 100; // Now equals between .7 and 1
 	m_Speed *= modifier;

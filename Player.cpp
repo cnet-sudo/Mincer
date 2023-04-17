@@ -5,16 +5,17 @@ Player::Player()
 		m_Speed = START_SPEED;
 		m_Health = START_HEALTH;
 		m_MaxHealth = START_HEALTH;
-		// Associate a texture with the sprite
-		// Свяжем текстуру со спрайтом
-		m_Texture.loadFromFile("graphics/sp.png");
-		m_Sprite.setTexture(m_Texture);
-		m_Sprite.setTextureRect(sf::IntRect(0,0,135,256));
+		
+		auto& idleForward = m_AnimPlayer.CreateAnimation("idleForward", "graphics/player.png", sf::seconds(0.8), true);
+		idleForward.AddFrames(sf::Vector2i(0, 0), sf::Vector2i(179, 135), 8, 1);
+		m_AnimPlayer.SwitchAnimation("idleForward");
+		m_AnimPlayer.Update(sf::seconds(0));
 		// Set the origin of the sprite to the center,
 		// for smooth rotation
 		// Устанавливаем начало спрайта в центр,
         // для плавного вращения
-		m_Sprite.setOrigin(50, 50);
+		m_Sprite.setOrigin(50, 60);
+		
 }
 
 void Player::spawn(sf::IntRect arena, sf::Vector2f resolution, int tileSize)
@@ -122,25 +123,33 @@ void Player::stopDown()
 	m_DownPressed = false;
 }
 
-void Player::update(float elapsedTime, sf::Vector2i mousePosition)
+void Player::update(sf::Time deltaTime, sf::Vector2i mousePosition)
 {
+	// Make a decimal fraction of 1 from the delta time
+	float elapsedTime = deltaTime.asSeconds();
+
 	if (m_UpPressed)
 	{
 		m_Position.y -= m_Speed * elapsedTime;
+		
 	}
 	if (m_DownPressed)
 	{
 		m_Position.y += m_Speed * elapsedTime;
+		
 	}
 	if (m_RightPressed)
 	{
 		m_Position.x += m_Speed * elapsedTime;
+		
 	}
 	if (m_LeftPressed)
 	{
 		m_Position.x -= m_Speed * elapsedTime;
+		
 	}
 	m_Sprite.setPosition(m_Position);
+	if (m_UpPressed|| m_DownPressed|| m_RightPressed|| m_LeftPressed)m_AnimPlayer.Update(deltaTime);
 
 	// Keep the player in the arena
 	// Держите игрока на арене

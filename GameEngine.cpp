@@ -86,14 +86,12 @@ void GameEngine::update(sf::Time const& deltaTime)
 	{
 		// Update the total game time
 		gameTimeTotal += deltaTime;
-		// Make a decimal fraction of 1 from the delta time
-		float dtAsSeconds = deltaTime.asSeconds();
 		// Where is the mouse pointer
 		mouseScreenPosition = sf::Mouse::getPosition();
 		// Convert mouse position to world coordinates of mainView
 		mouseWorldPosition = window->mapPixelToCoords(sf::Mouse::getPosition(), mainView);
 		// Update the player
-		player.update(dtAsSeconds, sf::Mouse::getPosition());
+		player.update(deltaTime, sf::Mouse::getPosition());
 		// Make a note of the players new position
 		sf::Vector2f playerPosition(player.getCenter());
 		// Make the view centre around the player
