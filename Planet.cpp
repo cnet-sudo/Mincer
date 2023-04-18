@@ -1,4 +1,5 @@
 #include "Planet.h"
+#include "MonsterPlanet.h"
 
 int createBackground(sf::VertexArray& rVA, sf::IntRect planet)
 {
@@ -71,3 +72,4 @@ int createBackground(sf::VertexArray& rVA, sf::IntRect planet)
 
         return TILE_SIZE;   
 }
+

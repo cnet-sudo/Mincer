@@ -11,7 +11,6 @@ private:
 	sf::Vector2f m_Position;
 	sf::Sprite m_Sprite;
 	Animator m_AnimPlayer = Animator(m_Sprite);
-	sf::Texture m_Texture;
 	// Screen resolution (Разрешение экрана)
 	sf::Vector2f m_Resolution;
 	// Battlefield size (Размер поля боя)

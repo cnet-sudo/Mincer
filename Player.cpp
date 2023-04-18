@@ -125,9 +125,7 @@ void Player::stopDown()
 
 void Player::update(sf::Time deltaTime, sf::Vector2i mousePosition)
 {
-	// Make a decimal fraction of 1 from the delta time
 	float elapsedTime = deltaTime.asSeconds();
-
 	if (m_UpPressed)
 	{
 		m_Position.y -= m_Speed * elapsedTime;

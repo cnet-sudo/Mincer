@@ -137,9 +137,12 @@
   <ItemGroup>
     <ClCompile Include="Animator.cpp" />
     <ClCompile Include="AssetManager.cpp" />
+    <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Monster.cpp" />
+    <ClCompile Include="MonsterPlanet.cpp" />
+    <ClCompile Include="Pickup.cpp" />
     <ClCompile Include="Planet.cpp" />
     <ClCompile Include="Player.cpp" />
   </ItemGroup>
@@ -159,8 +162,11 @@
   <ItemGroup>
     <ClInclude Include="Animator.h" />
     <ClInclude Include="AssetManager.h" />
+    <ClInclude Include="Bullet.h" />
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="Monster.h" />
+    <ClInclude Include="MonsterPlanet.h" />
+    <ClInclude Include="Pickup.h" />
     <ClInclude Include="Planet.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="resource.h" />

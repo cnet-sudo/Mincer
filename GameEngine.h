@@ -3,6 +3,12 @@
 #include"AssetManager.h"
 #include"Player.h"
 #include"Planet.h"
+#include"Monster.h"
+#include "MonsterPlanet.h"
+#include "Bullet.h"
+#include "Pickup.h"
+#include "array"
+#include <sstream>
 
 class GameEngine
 {
@@ -52,12 +58,51 @@ private:
 
 	// Create the background
 	sf::VertexArray background;
-	// Load the texture for our background vertex array
-	sf::Texture textureBackground;
-	
+		
 	// The boundaries of the arena
 	sf::IntRect planet;
 
+	// Prepare for a horde of zombies
+	int numMonster;
+	int numMonsterAlive;
+	Monster* monster = nullptr;
+
+	// 100 bullets should do
+	std::array<Bullet,100> bullets;
+	int currentBullet = 0;
+	int bulletsSpare = 50;
+	int bulletsInClip = 10;
+	int clipSize = 6;
+	float fireRate = 1;
+	// When was the fire button last pressed?
+	Time lastPressed;
+
+	Sprite spriteCrosshair;
+	Pickup healthPickup= Pickup(1);
+	Pickup ammoPickup= Pickup(2);
+	// About the game
+	int score = 0;
+	int hiScore = 0;
 	void restart();
+	// Create a view for the HUD
+	View hudView=sf::View(sf::FloatRect(0, 0, resolution.x, resolution.y));
+	Sprite spriteGameOver;
+	Sprite spriteAmmoIcon;
+	Text pausedText;
+	Text gameOverText;
+	Text levelUpText;
+	Text ammoText;
+	Text scoreText;
+	Text hiScoreText;
+	Text zombiesRemainingText;
+	Text waveNumberText;
+	int wave = 0;
+	RectangleShape healthBar;
+	Text debugText;
+	std::ostringstream ss;
+	// When did we last update the HUD?
+	int framesSinceLastHUDUpdate = 0;
+	// How often (in frames) should we update the HUD
+	int fpsMeasurementFrameInterval = 1000;
 };
 
