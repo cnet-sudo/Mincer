@@ -1,7 +1,6 @@
 #include "GameEngine.h"
 
-GameEngine::GameEngine():resolution(sf::Vector2f(static_cast<float>(sf::VideoMode::getDesktopMode().width), 
-static_cast<float>(sf::VideoMode::getDesktopMode().height)))
+GameEngine::GameEngine()
 {
 	//  Загрузка иконки приложения
 	if (!icon.loadFromFile("game.png")) exit(3); 
@@ -10,14 +9,15 @@ static_cast<float>(sf::VideoMode::getDesktopMode().height)))
 	window->setMouseCursorVisible(false);
 	spriteCrosshair.setTexture(AssetManager::GetTexture("graphics/crosshair.png"));
 	spriteCrosshair.setOrigin(25, 25);
-
+	spriteCrosshair1.setTexture(AssetManager::GetTexture("graphics/crosshair1.png"));
+	spriteCrosshair1.setOrigin(25, 25);
 	
 	// For the home/game over screen
 	spriteGameOver.setTexture(AssetManager::GetTexture("graphics/back.jpg"));
 	spriteGameOver.setPosition(0, 0);
 	// Create a sprite for the ammo icon
 	spriteAmmoIcon.setTexture(AssetManager::GetTexture("graphics/ammo.png"));
-	spriteAmmoIcon.setPosition(20, 980);
+	spriteAmmoIcon.setPosition(100, 970);
 	
 	// Paused
 	pausedText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
@@ -39,62 +39,68 @@ static_cast<float>(sf::VideoMode::getDesktopMode().height)))
 	std::stringstream levelUpStream;
 	levelUpStream <<
 		"1- Increased rate of fire" <<
-		"\n2- Increased clip size(next reload)" <<
-		"\n3- Increased max health" <<
-		"\n4- Increased run speed" <<
-		"\n5- More and better health pickups" <<
 		"\n6- More and better ammo pickups";
 	levelUpText.setString(levelUpStream.str());
-	// Ammo
+	
+	// Патроны
 	ammoText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
 	ammoText.setCharacterSize(55);
-	ammoText.setFillColor(Color::White);
+	ammoText.setFillColor(sf::Color(99,124,0));
+	ammoText.setOutlineColor(Color::Yellow);
+	ammoText.setOutlineThickness(1);
 	ammoText.setPosition(200, 980);
-	// Score
+	
+	// Очки
 	scoreText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
 	scoreText.setCharacterSize(55);
-	scoreText.setFillColor(Color::White);
-	scoreText.setPosition(20, 0);
+	scoreText.setFillColor(sf::Color(99, 124, 0));
+	scoreText.setOutlineColor(Color::Yellow);
+	scoreText.setOutlineThickness(1);
+	scoreText.setPosition(100, 20);
 
-	// Load the high score from a text file
+	// Загрузка рекорда
 	std::ifstream inputFile("gamedata/scores.txt");
 	if (inputFile.is_open())
 	{
-		// >> Reads the data
+		//Обновление переменной
 		inputFile >> hiScore;
 		inputFile.close();
 	}
-	// Hi Score
+	// Рекорд
 	hiScoreText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
 	hiScoreText.setCharacterSize(55);
-	hiScoreText.setFillColor(Color::White);
-	hiScoreText.setPosition(1400, 0);
-	std::stringstream s;
-	s << "Hi Score:" << hiScore;
-	hiScoreText.setString(s.str());
-	// Zombies remaining
-	zombiesRemainingText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
-	zombiesRemainingText.setCharacterSize(55);
-	zombiesRemainingText.setFillColor(Color::White);
-	zombiesRemainingText.setPosition(1500, 980);
-	zombiesRemainingText.setString("Zombies: 100");
-	// Wave number
+	hiScoreText.setFillColor(sf::Color(99, 124, 0));
+	hiScoreText.setOutlineColor(Color::Yellow);
+	hiScoreText.setOutlineThickness(1);
+	hiScoreText.setPosition(1400, 20);
+	
+	// Монстры
+	monsterRemainingText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
+	monsterRemainingText.setCharacterSize(55);
+	monsterRemainingText.setFillColor(sf::Color(99, 124, 0));
+	monsterRemainingText.setOutlineColor(Color::Yellow);
+	monsterRemainingText.setOutlineThickness(1);
+	monsterRemainingText.setPosition(1400, 980);
+	
+	// Номер волны
 	waveNumberText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
 	waveNumberText.setCharacterSize(55);
-	waveNumberText.setFillColor(Color::White);
-	waveNumberText.setPosition(1250, 980);
-	waveNumberText.setString("Wave: 0");
-	// Health bar
+	waveNumberText.setFillColor(sf::Color(99, 124, 0));
+	waveNumberText.setOutlineColor(Color::Yellow);
+	waveNumberText.setOutlineThickness(1);
+	waveNumberText.setPosition(800, 20);
+	
+	// Линия жизни
+	healthBar.setOutlineColor(Color::Yellow);
+	healthBar.setOutlineThickness(2);
 	healthBar.setFillColor(Color::Red);
-	healthBar.setPosition(450, 980);
-
-	// Debug HUD
-	
-	debugText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
-	debugText.setCharacterSize(25);
-	debugText.setFillColor(Color::White);
-	debugText.setPosition(20, 220);
-	
+	healthBar.setPosition(550, 980);
+	// Сосуд жизни 
+	healthBar1.setOutlineColor(Color::Yellow);
+	healthBar1.setOutlineThickness(5);
+	healthBar1.setFillColor(sf::Color(0,0,0,0));
+	healthBar1.setPosition(550, 980);
+	healthBar1.setSize(Vector2f(800, 50));
 	restart();
 }
 
@@ -107,54 +113,62 @@ void GameEngine::input()
 		if (event.type == sf::Event::KeyPressed)
 		{
 			// Pause a game while playing
-			if (event.key.code == sf::Keyboard::Return &&
-				state == State::playing)
+			if (event.key.code == sf::Keyboard::Return && state == State::playing)
 			{
 				state = State::paused;
 			}
 			// Restart while paused
-			else if (event.key.code == sf::Keyboard::Return &&
-				state == State::paused)
+			else 
+			if (event.key.code == sf::Keyboard::Return && state == State::paused)
 			{
 				state = State::playing;
 				// Reset the clock so there isn't a frame jump
 				//clock.restart();
 			}
 			// Start a new game while in GAME_OVER state
-			else if (event.key.code == sf::Keyboard::Return &&
-				state == State::game_over)
+			else 
+			if (event.key.code == sf::Keyboard::Return &&	state == State::game_over)
 			{
 				state = State::leveling_up;
 			}
-			if (state == State::playing)
-			{
-			}
+			
 
 			// Обработка события нажатия на клавишу Esc
 			if ((event.key.code == sf::Keyboard::Escape) || (event.type == sf::Event::Closed)) 	window->close();
 
+			if (state == State::leveling_up)
+			{
+				if (event.key.code == sf::Keyboard::Return )
+				{
+					restart();
+					state = State::playing;
+				}
+			}
 			// Handle WASD while playing
 			if (state == State::playing)
 			{
 				// Reloading
 				if (event.key.code == Keyboard::R)
 				{
-					if (bulletsSpare >= clipSize)
+					if (bulletsSpare > 0)
 					{
-						// Plenty of bullets. Reload.
-						bulletsInClip = clipSize;
-						bulletsSpare -= clipSize;
+						if (bulletsInClip < clipSize)
+						{
+							if (bulletsSpare >= (clipSize - bulletsInClip)) 
+							{
+								int myammo = clipSize - bulletsInClip;
+							bulletsInClip+= myammo;
+							bulletsSpare -= myammo;
+							}
+							else 
+							{
+								bulletsInClip += bulletsSpare;
+								bulletsSpare = 0;
+							}
+						}
+					
 					}
-					else if (bulletsSpare > 0)
-					{
-						// Only few bullets left
-						bulletsInClip = bulletsSpare;
-						bulletsSpare = 0;
-					}
-					else
-					{
-						// More here soon?!
-					}
+					
 				}
 				// Handle the pressing and releasing of the WASD keys
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
@@ -190,15 +204,26 @@ void GameEngine::input()
 					player.stopRight();
 				}
 
+				
+
+			} // End Handle WASD while playing
+
+			
+		}
+		if (event.type == sf::Event::MouseButtonPressed)
+		{
+		
+		if (state == State::playing)
+		{
 				// Fire a bullet
 				if (Mouse::isButtonPressed(sf::Mouse::Left))
 				{
-					if (gameTimeTotal.asMilliseconds()- lastPressed.asMilliseconds()> 100 / fireRate && bulletsInClip > 0)
+					if (gameTimeTotal.asMilliseconds() - lastPressed.asMilliseconds() > 100 / fireRate && bulletsInClip > 0)
 					{
 						// Pass the centre of the player
 						// and the centre of the cross-hair
 						// to the shoot function
-						bullets[currentBullet].shoot(player.getCenter().x, player.getCenter().y,mouseWorldPosition.x, mouseWorldPosition.y);
+						bullets[currentBullet].shoot(player.getCenter().x, player.getCenter().y, mouseWorldPosition.x, mouseWorldPosition.y);
 						currentBullet++;
 						if (currentBullet > 99)
 						{
@@ -208,10 +233,7 @@ void GameEngine::input()
 						bulletsInClip--;
 					}
 				}// End fire a bullet
-
-			} // End Handle WASD while playing
-								
-
+		}
 		}
 	}
 }
@@ -230,6 +252,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 		mouseWorldPosition = window->mapPixelToCoords(sf::Mouse::getPosition(), mainView);
 		// Set the crosshair to the mouse world location
 		spriteCrosshair.setPosition(mouseWorldPosition);
+		spriteCrosshair1.setPosition(mouseWorldPosition);
 		// Update the player
 		player.update(deltaTime, sf::Mouse::getPosition());
 		// Make a note of the players new position
@@ -325,33 +348,22 @@ void GameEngine::update(sf::Time const& deltaTime)
 		}
 
 		// size up the health bar
-		healthBar.setSize(Vector2f(player.getHealth() * 3, 50));
+		healthBar.setSize(Vector2f(player.getHealth() * 4, 50));
 		// Increment the number of frames since the previous update
 		framesSinceLastHUDUpdate++;
 		// re-calculate every fpsMeasurementFrameInterval frames
 		if (framesSinceLastHUDUpdate > fpsMeasurementFrameInterval)
 		{
-			// Update game HUD text
-			std::stringstream ssAmmo;
-			std::stringstream ssScore;
-			std::stringstream ssHiScore;
-			std::stringstream ssWave;
-			std::stringstream ssZombiesAlive;
 			// Update the ammo text
-			ssAmmo << bulletsInClip << "/" << bulletsSpare;
-			ammoText.setString(ssAmmo.str());
+			ammoText.setString(std::to_string(bulletsInClip)+"/" + std::to_string(bulletsSpare));
 			// Update the score text
-			ssScore << "Score:" << score;
-			scoreText.setString(ssScore.str());
+			scoreText.setString(L"Очки: " + std::to_string(score));
 			// Update the high score text
-			ssHiScore << "Hi Score:" << hiScore;
-			hiScoreText.setString(ssHiScore.str());
+			hiScoreText.setString(L"Рекорд: "+std::to_string(hiScore));
 			// Update the wave
-			ssWave << "Wave:" << wave;
-			waveNumberText.setString(ssWave.str());
+			waveNumberText.setString(L"Волна: "+ std::to_string(wave));
 			// Update the high score text
-			ssZombiesAlive << "Zombies:" << numMonsterAlive;
-			zombiesRemainingText.setString(ssZombiesAlive.str());
+			monsterRemainingText.setString(L"Монстры: "+ std::to_string(numMonsterAlive));
 			framesSinceLastHUDUpdate = 0;
 		}// End HUD update
 
@@ -366,6 +378,7 @@ void GameEngine::draw()
 	maxview.x = player.getSprite().getPosition().x + resolution.x / 2;
 	minview.y = player.getSprite().getPosition().y - resolution.y / 2;
 	maxview.y = player.getSprite().getPosition().y + resolution.y / 2;
+
 	if (state == State::playing)
 	{
 		window->clear();
@@ -378,12 +391,18 @@ void GameEngine::draw()
 		// Draw the zombies
 		for (int i = 0; i < numMonster; i++)
 		{
-			if (monster[i].isAlive() != true) 
+			bool pass = true;
+			if (!deadMonster.empty()) for (int j = 0; j < deadMonster.size();j++) if (i == deadMonster[j]) pass = false;
+			
+			if ((monster[i].isAlive() == false) && (pass)) 
 			{
 				window->draw(monster[i].getSprite());
+				
 				if (monster[i].getSprite().getPosition().x > maxview.x || monster[i].getSprite().getPosition().x < minview.x
 					|| monster[i].getSprite().getPosition().y > maxview.y || monster[i].getSprite().getPosition().y < minview.y) 
-				{}
+				{
+					deadMonster.push_back(i);
+				}
 			}
 		}
 		for (int i = 0; i < numMonster; i++)
@@ -409,8 +428,18 @@ void GameEngine::draw()
 			window->draw(healthPickup.getSprite());
 		}
 		// Draw the crosshair
-		window->draw(spriteCrosshair);
-
+		
+		for (int j = 0; j < numMonster; j++)
+		{
+			if ((spriteCrosshair1.getGlobalBounds().intersects(monster[j].getPosition())) && (monster[j].isAlive()))
+			{
+				window->draw(spriteCrosshair1); break;
+			}
+			else
+			{
+				window->draw(spriteCrosshair);
+			}
+		}
 		// Switch to the HUD view
 		window->setView(hudView);
 		// Draw all the HUD elements
@@ -419,8 +448,9 @@ void GameEngine::draw()
 		window->draw(scoreText);
 		window->draw(hiScoreText);
 		window->draw(healthBar);
+		window->draw(healthBar1);
 		window->draw(waveNumberText);
-		window->draw(zombiesRemainingText);
+		window->draw(monsterRemainingText);
 	}
 	
 	if (state == State::leveling_up)
@@ -444,10 +474,15 @@ void GameEngine::draw()
 
 void GameEngine::restart()
 {
+	player.resetPlayerStats();
+	score = 0;
+	wave = 0;
+	bulletsSpare = 50;
+	bulletsInClip = 10;
 	// Prepare the level
 	// We will modify the next two lines later
-	planet.width = 5000;
-	planet.height = 5000;
+	planet.width = 3000;
+	planet.height = 3000;
 	planet.left = 0;
 	planet.top = 0;
 	// Pass the vertex array by reference
@@ -459,7 +494,7 @@ void GameEngine::restart()
 	healthPickup.setArena(planet);
 	ammoPickup.setArena(planet);
 	// Create a horde of zombies
-	numMonster = 50;
+	numMonster = 2;
 	// Delete the previously allocated memory (if it exists)
 	delete[] monster;
 	monster = createHorde(numMonster, planet);
@@ -482,5 +517,5 @@ void GameEngine::run()
 		draw();
 	}
 
-	delete[] monster;
+	delete [] monster;
 }

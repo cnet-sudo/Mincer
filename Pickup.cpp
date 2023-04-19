@@ -13,7 +13,7 @@ Pickup::Pickup(int type)
 	}
 	else
 	{
-		m_Sprite = Sprite(AssetManager::GetTexture("graphics/ammo.png"));
+		m_Sprite = Sprite(AssetManager::GetTexture("graphics/ammo1.png"));
 		// How much is pickup worth
 		m_Value = AMMO_START_VALUE;
 	}

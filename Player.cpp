@@ -14,7 +14,7 @@ Player::Player()
 		// for smooth rotation
 		// Устанавливаем начало спрайта в центр,
         // для плавного вращения
-		m_Sprite.setOrigin(50, 60);
+		m_Sprite.setOrigin(m_Sprite.getGlobalBounds().width / 2, m_Sprite.getGlobalBounds().height / 2);
 		
 }
 
@@ -67,7 +67,10 @@ bool Player::hit(sf::Time timeHit)
 
 sf::FloatRect Player::getPosition() const
 {
-	return m_Sprite.getGlobalBounds();
+	auto myGlobalBounds = sf::FloatRect(m_Sprite.getGlobalBounds().left+20,
+	m_Sprite.getGlobalBounds().top+20, m_Sprite.getGlobalBounds().width - 40, m_Sprite.getGlobalBounds().height - 40);
+
+	return myGlobalBounds;
 }
 
 sf::Vector2f Player::getCenter() const

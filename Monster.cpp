@@ -2,6 +2,8 @@
 
 Monster::Monster()
 {
+	auto& d2 = m_AnimPlayer.CreateAnimation("d2", "graphics/mon4.png", sf::seconds(0.5), false);
+	d2.AddFrames(sf::Vector2i(0, 1098), sf::Vector2i(170, 140), 4, 1);
 	auto& d1 = m_AnimPlayer.CreateAnimation("d1", "graphics/mon4.png", sf::seconds(0.5), false);
 	d1.AddFrames(sf::Vector2i(0, 928), sf::Vector2i(170, 140), 4, 1);
 	auto& mon1 = m_AnimPlayer.CreateAnimation("mon1", "graphics/mon4.png", sf::seconds(0.5), true);
@@ -9,11 +11,12 @@ Monster::Monster()
 	auto& mon2 = m_AnimPlayer.CreateAnimation("mon2", "graphics/mon4.png", sf::seconds(1), true);
 	mon2.AddFrames(sf::Vector2i(0, 556), sf::Vector2i(170, 185), 4, 1);
 	auto& mon3 = m_AnimPlayer.CreateAnimation("mon3", "graphics/mon4.png", sf::seconds(1), true);
-	mon3.AddFrames(sf::Vector2i(0, 391), sf::Vector2i(170, 160), 4, 1);
+	mon3.AddFrames(sf::Vector2i(0, 390), sf::Vector2i(160, 160), 4, 1);
 	auto& mon4 = m_AnimPlayer.CreateAnimation("mon4", "graphics/mon4.png", sf::seconds(1), true);
 	mon4.AddFrames(sf::Vector2i(0, 210), sf::Vector2i(170, 160), 4, 1);
 	auto& mon5 = m_AnimPlayer.CreateAnimation("mon5", "graphics/mon4.png", sf::seconds(1), true);
 	mon5.AddFrames(sf::Vector2i(0, 0), sf::Vector2i(195, 206), 4, 1);
+	m_Sprite.setOrigin(m_Sprite.getGlobalBounds().width/2, m_Sprite.getGlobalBounds().height/2);	
 }
 
 void Monster::spawn(float startX, float startY, int type)
@@ -79,7 +82,11 @@ bool Monster::hit()
 	if (m_Health <= 0)
 	{
 		// dead
-		if (m_AnimPlayer.GetCurrentAnimationName() != "d1") m_AnimPlayer.SwitchAnimation("d1");
+		if (m_AnimPlayer.GetCurrentAnimationName() == "mon2" || m_AnimPlayer.GetCurrentAnimationName() == "mon3")
+		{if (m_AnimPlayer.GetCurrentAnimationName() != "d2") m_AnimPlayer.SwitchAnimation("d2");}
+		else 
+		{if (m_AnimPlayer.GetCurrentAnimationName() != "d1") m_AnimPlayer.SwitchAnimation("d1");}
+		
 		return true;
 	}
 	// injured but not dead yet
@@ -92,7 +99,10 @@ bool Monster::isAlive()
 }
 sf::FloatRect Monster::getPosition()
 {
-	return m_Sprite.getGlobalBounds();
+	auto myGlobalBounds = sf::FloatRect(m_Sprite.getGlobalBounds().left+40,
+	m_Sprite.getGlobalBounds().top+40, m_Sprite.getGlobalBounds().width-80, m_Sprite.getGlobalBounds().height - 80);
+	
+	return myGlobalBounds;
 }
 sf::Sprite Monster::getSprite()
 {

@@ -11,6 +11,7 @@
 #include <sstream>
 #include <fstream>
 
+
 class GameEngine
 {
 public:
@@ -43,7 +44,8 @@ private:
 	State state = State::playing;
 	// Get the screen resolution and
 	// create an SFML window
-	sf::Vector2f resolution;
+	sf::Vector2f resolution = sf::Vector2f(static_cast<float>(sf::VideoMode::getDesktopMode().width),
+		static_cast<float>(sf::VideoMode::getDesktopMode().height));
 	// Create a an SFML View for the main action
 	sf::View mainView=sf::View(sf::FloatRect(0, 0,resolution.x, resolution.y));
 	// How long has the PLAYING state been active
@@ -70,18 +72,23 @@ private:
 	// 100 bullets should do
 	std::array<Bullet,100> bullets;
 	int currentBullet = 0;
-	int bulletsSpare = 50;
-	int bulletsInClip = 10;
-	int clipSize = 6;
+	// ящик с патронами
+	int bulletsSpare;
+	// ќбойма
+	int bulletsInClip;
+	// ћаксимальный размер обоймы
+	const int clipSize = 10;
+
 	float fireRate = 1;
 	// When was the fire button last pressed?
 	Time lastPressed;
 
 	Sprite spriteCrosshair;
+	Sprite spriteCrosshair1;
 	Pickup healthPickup= Pickup(1);
 	Pickup ammoPickup= Pickup(2);
 	// About the game
-	int score = 0;
+	int score;
 	int hiScore = 0;
 	void restart();
 	// Create a view for the HUD
@@ -94,10 +101,11 @@ private:
 	Text ammoText;
 	Text scoreText;
 	Text hiScoreText;
-	Text zombiesRemainingText;
+	Text monsterRemainingText;
 	Text waveNumberText;
-	int wave = 0;
+	int wave;
 	RectangleShape healthBar;
+	RectangleShape healthBar1;
 	Text debugText;
 	std::ostringstream ss;
 	// When did we last update the HUD?
@@ -105,6 +113,6 @@ private:
 	// How often (in frames) should we update the HUD
 	int fpsMeasurementFrameInterval = 1000;
 
-
+	std::vector<int> deadMonster;
 };
 

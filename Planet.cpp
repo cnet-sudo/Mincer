@@ -20,7 +20,7 @@ int createBackground(sf::VertexArray& rVA, sf::IntRect planet)
         int worldWidth = planet.width / TILE_SIZE;
         // высота мира
         int worldHeight = planet.height / TILE_SIZE;
-        // What type of primitive are we using? ( акой тип примитива мы используем?)
+        // тип примитива
         rVA.setPrimitiveType(sf::Quads);
         // Set the size of the vertex array (”становить размер массива вершин)
         rVA.resize(worldWidth * worldHeight * VERTS_IN_QUAD);

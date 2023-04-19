@@ -6,7 +6,7 @@ class Player
 {
 private:
 	const float START_SPEED = 200;
-	const float START_HEALTH = 100;
+	const float START_HEALTH = 200;
 	// Player position (Позиция игрока)
 	sf::Vector2f m_Position;
 	sf::Sprite m_Sprite;
