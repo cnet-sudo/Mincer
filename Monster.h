@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include"AssetManager.h"
+#include"Animator.h"
 #include <random>
 
 class Monster
@@ -26,6 +27,7 @@ private:
 	// Спрайт для монстра
 	// Sprite for the monster
 	sf::Sprite m_Sprite;
+	Animator m_AnimPlayer = Animator(m_Sprite);
 	// Как быстро это может работать/сканировать?
 	// How fast can this one run/crawl?
 	float m_Speed;
@@ -35,7 +37,8 @@ private:
 	// Он еще жив?
 	// Is it still alive?
 	bool m_Alive;
-public:
+	public:
+	Monster();
 	// Обработка попадания пули в монстра
 	// Handling a bullet hitting a monster
 	bool hit();
@@ -53,6 +56,7 @@ public:
 	sf::Sprite getSprite();
 	// Обновляем монстров каждый кадр
 	// Update the monsters each frame
-	void update(float elapsedTime, sf::Vector2f playerLocation);
+	void update(sf::Time deltaTime, sf::Vector2f playerLocation);
+	
 };
 

@@ -139,6 +139,7 @@
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="GameEngine.cpp" />
+    <ClCompile Include="GameSound.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Monster.cpp" />
     <ClCompile Include="MonsterPlanet.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="GameEngine.h" />
+    <ClInclude Include="GameSound.h" />
     <ClInclude Include="Monster.h" />
     <ClInclude Include="MonsterPlanet.h" />
     <ClInclude Include="Pickup.h" />

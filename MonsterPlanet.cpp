@@ -1,6 +1,6 @@
 #include "MonsterPlanet.h"
 #include "Monster.h"
-Monster* createHorde(int numZombies, IntRect arena)
+Monster* createHorde(int numZombies, sf::IntRect arena)
 {
 	// Will be used to obtain a seed for the random number engine
 	// Будет использоваться для получения начального числа для механизма случайных чисел
@@ -15,7 +15,7 @@ Monster* createHorde(int numZombies, IntRect arena)
     std::uniform_int_distribution<> rside(0, 4);
 	std::uniform_int_distribution<> rLR(min.y, max.y);
 	std::uniform_int_distribution<> rTB(min.x, max.x);
-	std::uniform_int_distribution<> rtype(0, 3);
+	std::uniform_int_distribution<> rtype(0, 4);
 	for (int i = 0; i < numZombies; i++)
 	{
 		// Which side should the zombie spawn

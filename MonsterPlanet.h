@@ -2,8 +2,6 @@
 
 #include "Monster.h"
 
-using namespace sf;
+int createBackground(sf::VertexArray& rVA, sf::IntRect arena);
 
-int createBackground(VertexArray& rVA, IntRect arena);
-
-Monster* createHorde(int numZombies, IntRect arena);
+Monster* createHorde(int numZombies, sf::IntRect arena);

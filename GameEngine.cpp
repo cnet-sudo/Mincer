@@ -55,6 +55,15 @@ static_cast<float>(sf::VideoMode::getDesktopMode().height)))
 	scoreText.setCharacterSize(55);
 	scoreText.setFillColor(Color::White);
 	scoreText.setPosition(20, 0);
+
+	// Load the high score from a text file
+	std::ifstream inputFile("gamedata/scores.txt");
+	if (inputFile.is_open())
+	{
+		// >> Reads the data
+		inputFile >> hiScore;
+		inputFile.close();
+	}
 	// Hi Score
 	hiScoreText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
 	hiScoreText.setCharacterSize(55);
@@ -232,7 +241,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 		{
 			if (monster[i].isAlive())
 			{
-				monster[i].update(deltaTime.asSeconds(), playerPosition);
+				monster[i].update(deltaTime, playerPosition);
 			}
 		}
 
@@ -294,6 +303,10 @@ void GameEngine::update(sf::Time const& deltaTime)
 				if (player.getHealth() <= 0)
 				{
 					state = State::game_over;
+					std::ofstream outputFile("gamedata/scores.txt");
+					// << writes the data
+					outputFile << hiScore;
+					outputFile.close();
 				}
 			}
 		}// End player touched
@@ -347,6 +360,12 @@ void GameEngine::update(sf::Time const& deltaTime)
 
 void GameEngine::draw()
 {
+	sf::Vector2f minview;
+	sf::Vector2f maxview;
+	minview.x = player.getSprite().getPosition().x - resolution.x / 2;
+	maxview.x = player.getSprite().getPosition().x + resolution.x / 2;
+	minview.y = player.getSprite().getPosition().y - resolution.y / 2;
+	maxview.y = player.getSprite().getPosition().y + resolution.y / 2;
 	if (state == State::playing)
 	{
 		window->clear();
@@ -359,9 +378,18 @@ void GameEngine::draw()
 		// Draw the zombies
 		for (int i = 0; i < numMonster; i++)
 		{
-			window->draw(monster[i].getSprite());
+			if (monster[i].isAlive() != true) 
+			{
+				window->draw(monster[i].getSprite());
+				if (monster[i].getSprite().getPosition().x > maxview.x || monster[i].getSprite().getPosition().x < minview.x
+					|| monster[i].getSprite().getPosition().y > maxview.y || monster[i].getSprite().getPosition().y < minview.y) 
+				{}
+			}
 		}
-
+		for (int i = 0; i < numMonster; i++)
+		{
+			if (monster[i].isAlive()) window->draw(monster[i].getSprite());
+		}
 		for (int i = 0; i < 100; i++)
 		{
 			if (bullets[i].isInFlight())
@@ -431,7 +459,7 @@ void GameEngine::restart()
 	healthPickup.setArena(planet);
 	ammoPickup.setArena(planet);
 	// Create a horde of zombies
-	numMonster = 100;
+	numMonster = 50;
 	// Delete the previously allocated memory (if it exists)
 	delete[] monster;
 	monster = createHorde(numMonster, planet);

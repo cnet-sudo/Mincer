@@ -6,8 +6,8 @@ Player::Player()
 		m_Health = START_HEALTH;
 		m_MaxHealth = START_HEALTH;
 		
-		auto& idleForward = m_AnimPlayer.CreateAnimation("idleForward", "graphics/player.png", sf::seconds(0.8), true);
-		idleForward.AddFrames(sf::Vector2i(0, 0), sf::Vector2i(179, 135), 8, 1);
+		auto& idleForward = m_AnimPlayer.CreateAnimation("idleForward", "graphics/player.png", sf::seconds(1), true);
+		idleForward.AddFrames(sf::Vector2i(0, 0), sf::Vector2i(142, 105), 8, 1);
 		m_AnimPlayer.SwitchAnimation("idleForward");
 		m_AnimPlayer.Update(sf::seconds(0));
 		// Set the origin of the sprite to the center,
@@ -126,6 +126,7 @@ void Player::stopDown()
 void Player::update(sf::Time deltaTime, sf::Vector2i mousePosition)
 {
 	float elapsedTime = deltaTime.asSeconds();
+
 	if (m_UpPressed)
 	{
 		m_Position.y -= m_Speed * elapsedTime;
@@ -147,7 +148,8 @@ void Player::update(sf::Time deltaTime, sf::Vector2i mousePosition)
 		
 	}
 	m_Sprite.setPosition(m_Position);
-	if (m_UpPressed|| m_DownPressed|| m_RightPressed|| m_LeftPressed)m_AnimPlayer.Update(deltaTime);
+
+	if (m_UpPressed|| m_DownPressed|| m_RightPressed|| m_LeftPressed) m_AnimPlayer.Update(deltaTime);
 
 	// Keep the player in the arena
 	// Держите игрока на арене

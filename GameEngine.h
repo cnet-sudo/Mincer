@@ -9,6 +9,7 @@
 #include "Pickup.h"
 #include "array"
 #include <sstream>
+#include <fstream>
 
 class GameEngine
 {
@@ -66,7 +67,6 @@ private:
 	int numMonster;
 	int numMonsterAlive;
 	Monster* monster = nullptr;
-
 	// 100 bullets should do
 	std::array<Bullet,100> bullets;
 	int currentBullet = 0;
@@ -104,5 +104,7 @@ private:
 	int framesSinceLastHUDUpdate = 0;
 	// How often (in frames) should we update the HUD
 	int fpsMeasurementFrameInterval = 1000;
+
+
 };
 
