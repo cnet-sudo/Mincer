@@ -1,47 +1,40 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-using namespace sf;
+
 class Pickup
 {
 private:
-	//Start value for health pickups
-	const int HEALTH_START_VALUE = 50;
-	const int AMMO_START_VALUE = 12;
-	const int START_WAIT_TIME = 10;
-	const int START_SECONDS_TO_LIVE = 5;
-	// The sprite that represents this pickup
-	Sprite m_Sprite;
-	// The arena it exists in
-	IntRect m_Arena;
-	// How much is this pickup worth?
+	//Начальные значения для подбора 
+	const int HEALTH_START_VALUE = 100;
+	const int AMMO_START_VALUE = 100;
+
+	// Спрайт, представляющий этот пикап
+	sf::Sprite m_Sprite;
+	// Сколько стоит этот пикап?
 	int m_Value;
-	// What type of pickup is this?
-	// 1 = health, 2 = ammo
+	// Что это за пикап?
+    // 1 = здоровье, 2 = патроны
 	int m_Type;
-	// Handle spawning and disappearing
+	// Обработка появления и исчезновения
 	bool m_Spawned;
 	float m_SecondsSinceSpawn;
 	float m_SecondsSinceDeSpawn;
-	float m_SecondsToLive;
-	float m_SecondsToWait;
-	// Public prototypes go here
-	// Public prototypes go here
+	float m_SecondsToLive=10;
+		
 public:
-	Pickup(int type);
-	// Prepare a new pickup
-	void setArena(IntRect arena);
-	void spawn();
-	// Check the position of a pickup
-	FloatRect getPosition();
-	// Get the sprite for drawing
-	Sprite getSprite();
-	// Let the pickup update itself each frame
+	Pickup();
+	// Готовим новый пикап
+	void spawn(sf::Vector2f pos, int type);
+	// Проверяем положение пикапа
+	sf::FloatRect getPosition();
+	// Получаем спрайт для рисования
+	sf::Sprite getSprite();
+	// Разрешить пикапу обновлять себя каждый кадр
 	void update(float elapsedTime);
-	// Is this pickup currently spawned?
+	// Создан ли этот пикап в настоящее время?
 	bool isSpawned();
-	// Get the goodness from the pickup
+	// Получаем добро из пикапа
 	int gotIt();
-	// Upgrade the value of each pickup
-	void upgrade();
-
+	// Получаем тип
+	int getType();
 };

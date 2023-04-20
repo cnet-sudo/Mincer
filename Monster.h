@@ -9,14 +9,18 @@ class Monster
 private:
 	// Насколько быстр каждый тип монстров?
 	// How fast is each monster type?
-	const float BLOATER_SPEED = 40;
-	const float CHASER_SPEED = 80;
-	const float CRAWLER_SPEED = 20;
+	const float mon1_speed = 70;
+	const float mon2_speed = 60;
+	const float mon3_speed = 50;
+	const float mon4_speed = 40;
+	const float mon5_speed = 30;
 	// Насколько силён каждый тип монстров
 	// How strong each monster type is
-	const float BLOATER_HEALTH = 5;
-	const float CHASER_HEALTH = 1;
-	const float CRAWLER_HEALTH = 3;
+	const float mon1_HEALTH = 1;
+	const float mon2_HEALTH = 2;
+	const float mon3_HEALTH = 3;
+	const float mon4_HEALTH = 4;
+	const float mon5_HEALTH = 5;
 	// Заставьте каждого монстра немного изменить свою скорость
 	// Make each monster change its speed a little
 	const int MAX_VARRIANCE = 30;

@@ -15,32 +15,37 @@ GameEngine::GameEngine()
 	// For the home/game over screen
 	spriteGameOver.setTexture(AssetManager::GetTexture("graphics/back.jpg"));
 	spriteGameOver.setPosition(0, 0);
+	spriteGameBegin.setTexture(AssetManager::GetTexture("graphics/back2.jpg"));
+	spriteGameBegin.setPosition(0, 0);
 	// Create a sprite for the ammo icon
 	spriteAmmoIcon.setTexture(AssetManager::GetTexture("graphics/ammo.png"));
 	spriteAmmoIcon.setPosition(100, 970);
 	
 	// Paused
 	pausedText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
-	pausedText.setCharacterSize(155);
-	pausedText.setFillColor(Color::White);
-	pausedText.setPosition(400, 400);
-	pausedText.setString("Press Enter \nto continue");
+	pausedText.setCharacterSize(100);
+
+	pausedText.setFillColor(sf::Color(99, 124, 0));
+	pausedText.setOutlineColor(Color::Yellow);
+	pausedText.setOutlineThickness(1);
+
+	pausedText.setString(L"\t\tПАУЗА\nнажмите enter");
+	pausedText.setPosition(resolution.x / 2 - pausedText.getGlobalBounds().width/2, resolution.y / 2 - pausedText.getGlobalBounds().height/2);
+	
 	// Game Over
 	gameOverText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
-	gameOverText.setCharacterSize(125);
-	gameOverText.setFillColor(Color::White);
-	gameOverText.setPosition(250, 850);
-	gameOverText.setString("Press Enter to play");
-	// LEVELING up
-	levelUpText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
-	levelUpText.setCharacterSize(80);
-	levelUpText.setFillColor(Color::White);
-	levelUpText.setPosition(150, 250);
-	std::stringstream levelUpStream;
-	levelUpStream <<
-		"1- Increased rate of fire" <<
-		"\n6- More and better ammo pickups";
-	levelUpText.setString(levelUpStream.str());
+	gameOverText.setCharacterSize(80);
+	gameOverText.setFillColor(sf::Color(99, 124, 0));
+	gameOverText.setOutlineColor(Color::Yellow);
+	gameOverText.setOutlineThickness(1);
+	gameOverText.setString(L"Нажмите enter");
+	gameOverText.setPosition(resolution.x / 2 - gameOverText.getGlobalBounds().width / 2, resolution.y - gameOverText.getGlobalBounds().height-50);
+	// Следующая волна
+	WaveUpText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
+	WaveUpText.setCharacterSize(70);
+	WaveUpText.setFillColor(Color::Red);
+	WaveUpText.setString(L"\t\t\tТревога!\n Следующая волна !");
+	WaveUpText.setPosition(resolution.x/2- WaveUpText.getGlobalBounds().width/2, resolution.y / 2- WaveUpText.getGlobalBounds().height / 2);
 	
 	// Патроны
 	ammoText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
@@ -112,66 +117,69 @@ void GameEngine::input()
 	{
 		if (event.type == sf::Event::KeyPressed)
 		{
-			// Pause a game while playing
-			if (event.key.code == sf::Keyboard::Return && state == State::playing)
-			{
-				state = State::paused;
-			}
-			// Restart while paused
-			else 
-			if (event.key.code == sf::Keyboard::Return && state == State::paused)
-			{
-				state = State::playing;
-				// Reset the clock so there isn't a frame jump
-				//clock.restart();
-			}
-			// Start a new game while in GAME_OVER state
-			else 
-			if (event.key.code == sf::Keyboard::Return &&	state == State::game_over)
-			{
-				state = State::leveling_up;
-			}
 			
-
-			// Обработка события нажатия на клавишу Esc
-			if ((event.key.code == sf::Keyboard::Escape) || (event.type == sf::Event::Closed)) 	window->close();
-
-			if (state == State::leveling_up)
+			// Начало игры
+			if (state == State::game_begin)
 			{
-				if (event.key.code == sf::Keyboard::Return )
+				if ((event.key.code == sf::Keyboard::Return))
+				{
+					state = State::playing;
+				}
+			}
+
+			// Конец игры
+			if (state == State::game_over)
+			{
+				if ((event.key.code == sf::Keyboard::Return) )
 				{
 					restart();
 					state = State::playing;
 				}
 			}
-			// Handle WASD while playing
+			
+			if (state == State::paused)
+			{
+				if ((event.key.code == sf::Keyboard::Return))
+				{
+					state = State::playing;
+				}
+			}
+
+			// Выход из игры
+			if ((event.key.code == sf::Keyboard::Escape) || (event.type == sf::Event::Closed)) 
+			{
+				std::ofstream outFile("gamedata/scores.txt");
+				if (outFile.is_open())
+				{
+					//Обновление переменной
+					outFile << hiScore;
+					outFile.close();
+				}
+				
+				window->close();
+			}
+			
+			
+
+			// Игра
 			if (state == State::playing)
 			{
-				// Reloading
+
+			// Игровая пауза
+			if (event.key.code == sf::Keyboard::Pause)
+			{
+				state = State::paused;
+			}
+			 
+			
+
+				// Перезарядка
 				if (event.key.code == Keyboard::R)
 				{
-					if (bulletsSpare > 0)
-					{
-						if (bulletsInClip < clipSize)
-						{
-							if (bulletsSpare >= (clipSize - bulletsInClip)) 
-							{
-								int myammo = clipSize - bulletsInClip;
-							bulletsInClip+= myammo;
-							bulletsSpare -= myammo;
-							}
-							else 
-							{
-								bulletsInClip += bulletsSpare;
-								bulletsSpare = 0;
-							}
-						}
-					
-					}
-					
+					recharge();	
 				}
-				// Handle the pressing and releasing of the WASD keys
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+				// Перемещение
+				if (event.key.code==sf::Keyboard::W || event.key.code == sf::Keyboard::Up)
 				{
 					player.moveUp();
 				}
@@ -179,7 +187,7 @@ void GameEngine::input()
 				{
 					player.stopUp();
 				}
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+				if (event.key.code == sf::Keyboard::S || event.key.code == sf::Keyboard::Down)
 				{
 					player.moveDown();
 				}
@@ -187,7 +195,7 @@ void GameEngine::input()
 				{
 					player.stopDown();
 				}
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+				if (event.key.code == sf::Keyboard::A || event.key.code == sf::Keyboard::Left)
 				{
 					player.moveLeft();
 				}
@@ -195,7 +203,7 @@ void GameEngine::input()
 				{
 					player.stopLeft();
 				}
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+				if (event.key.code == sf::Keyboard::D || event.key.code == sf::Keyboard::Right)
 				{
 					player.moveRight();
 				}
@@ -203,13 +211,12 @@ void GameEngine::input()
 				{
 					player.stopRight();
 				}
-
-				
-
 			} // End Handle WASD while playing
 
 			
 		}
+
+
 		if (event.type == sf::Event::MouseButtonPressed)
 		{
 		
@@ -233,6 +240,12 @@ void GameEngine::input()
 						bulletsInClip--;
 					}
 				}// End fire a bullet
+
+				if (Mouse::isButtonPressed(sf::Mouse::Right))
+				{
+					recharge();
+				}
+
 		}
 		}
 	}
@@ -242,10 +255,21 @@ void GameEngine::input()
 
 void GameEngine::update(sf::Time const& deltaTime)
 {
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> tis(1, 10);
 	if (state == State::playing)
 	{
 		// Update the total game time
 		gameTimeTotal += deltaTime;
+		if (textWave) 
+		{
+			timewave += deltaTime;
+			if (timewave.asSeconds() > 3) 
+			{
+				textWave = false; timewave = seconds(0);
+			}
+		}
 		// Where is the mouse pointer
 		mouseScreenPosition = sf::Mouse::getPosition();
 		// Convert mouse position to world coordinates of mainView
@@ -278,8 +302,29 @@ void GameEngine::update(sf::Time const& deltaTime)
 		}
 
 		// Update the pickups
-		healthPickup.update(deltaTime.asSeconds());
-		ammoPickup.update(deltaTime.asSeconds());
+		if (!pickup.empty()) 
+		{
+			
+			for (int i = 0; i < pickup.size(); i++) 
+			{
+				if (pickup[i].isSpawned()) 
+				{
+			pickup[i].update(deltaTime.asSeconds());
+			// Подбор предметов
+			if (player.getPosition().intersects(pickup[i].getPosition()))
+			{
+				switch (pickup[i].getType())
+				{
+				case 1: {player.increaseHealthLevel(pickup[i].gotIt()); break;}
+				case 2: {bulletsSpare += pickup[i].gotIt(); break;}
+				default:
+					break;
+				}
+			}
+				}
+			}
+						
+		}
 
 		// Collision detection
 // Have any zombies been shot?
@@ -287,8 +332,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 		{
 			for (int j = 0; j < numMonster; j++)
 			{
-				if (bullets[i].isInFlight() &&
-					monster[j].isAlive())
+				if (bullets[i].isInFlight() &&	monster[j].isAlive())
 				{
 					if (bullets[i].getPosition().intersects
 					(monster[j].getPosition()))
@@ -299,6 +343,12 @@ void GameEngine::update(sf::Time const& deltaTime)
 						if (monster[j].hit())
 						{// Not just a hit but a kill too
 							score += 10;
+							int typ = tis(gen);
+							if (typ<3) 
+							{
+								pickup.push_back(Pickup());
+								pickup[pickup.size() - 1].spawn(monster[j].getSprite().getPosition(),typ);
+							}
 							if (score >= hiScore)
 							{
 								hiScore = score;
@@ -306,7 +356,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 							numMonsterAlive--;
 							// When all the zombies are dead (again)
 							if (numMonsterAlive == 0) {
-								state = State::leveling_up;
+								state = State::wave_up;
 							}
 						}
 					}
@@ -334,19 +384,6 @@ void GameEngine::update(sf::Time const& deltaTime)
 			}
 		}// End player touched
 
-		// Has the player touched health pickup
-		if (player.getPosition().intersects
-		(healthPickup.getPosition()) && healthPickup.isSpawned())
-		{
-			player.increaseHealthLevel(healthPickup.gotIt());
-		}
-		// Has the player touched ammo pickup
-		if (player.getPosition().intersects
-		(ammoPickup.getPosition()) && ammoPickup.isSpawned())
-		{
-			bulletsSpare += ammoPickup.gotIt();
-		}
-
 		// size up the health bar
 		healthBar.setSize(Vector2f(player.getHealth() * 4, 50));
 		// Increment the number of frames since the previous update
@@ -365,30 +402,51 @@ void GameEngine::update(sf::Time const& deltaTime)
 			// Update the high score text
 			monsterRemainingText.setString(L"Монстры: "+ std::to_string(numMonsterAlive));
 			framesSinceLastHUDUpdate = 0;
+
 		}// End HUD update
 
 	}// End updating the scene
+	
+	if (state == State::wave_up)
+	{
+		wave++;
+		textWave = true;
+		newWave();
+	    state = State::playing;	
+	}
 }
 
 void GameEngine::draw()
 {
+	if (state == State::game_begin)
+	{
+		window->draw(spriteGameBegin);
+	}
+
 	sf::Vector2f minview;
 	sf::Vector2f maxview;
 	minview.x = player.getSprite().getPosition().x - resolution.x / 2;
 	maxview.x = player.getSprite().getPosition().x + resolution.x / 2;
 	minview.y = player.getSprite().getPosition().y - resolution.y / 2;
 	maxview.y = player.getSprite().getPosition().y + resolution.y / 2;
-
+	
 	if (state == State::playing)
 	{
 		window->clear();
-		// set the mainView to be displayed in the window
-        // And draw everything related to it
+		// Игровое окно
 		window->setView(mainView);
-		// Draw the background
+		// Фон
 		window->draw(background, &AssetManager::GetTexture("graphics/plan.png"));
-		
-		// Draw the zombies
+		// Пикапы
+		if (!pickup.empty())
+		{
+			for (int i = 0; i < pickup.size(); i++)
+			{
+				if (pickup[i].isSpawned())	window->draw(pickup[i].getSprite());
+
+			}
+		}
+		// Монстры
 		for (int i = 0; i < numMonster; i++)
 		{
 			bool pass = true;
@@ -416,19 +474,10 @@ void GameEngine::draw()
 				window->draw(bullets[i].getShape());
 			}
 		}
-		// Draw the player
+		// Игрок
 		window->draw(player.getSprite());
-		// Draw the pick-ups, if currently spawned
-		if (ammoPickup.isSpawned())
-		{
-			window->draw(ammoPickup.getSprite());
-		}
-		if (healthPickup.isSpawned())
-		{
-			window->draw(healthPickup.getSprite());
-		}
-		// Draw the crosshair
-		
+				
+		// Курсор
 		for (int j = 0; j < numMonster; j++)
 		{
 			if ((spriteCrosshair1.getGlobalBounds().intersects(monster[j].getPosition())) && (monster[j].isAlive()))
@@ -440,9 +489,13 @@ void GameEngine::draw()
 				window->draw(spriteCrosshair);
 			}
 		}
-		// Switch to the HUD view
+		if (textWave)
+		{
+		window->draw(WaveUpText);
+		}
+		// Интерфейс
 		window->setView(hudView);
-		// Draw all the HUD elements
+		// Элементы интерфейса
 		window->draw(spriteAmmoIcon);
 		window->draw(ammoText);
 		window->draw(scoreText);
@@ -451,17 +504,15 @@ void GameEngine::draw()
 		window->draw(healthBar1);
 		window->draw(waveNumberText);
 		window->draw(monsterRemainingText);
+		
 	}
 	
-	if (state == State::leveling_up)
-	{
-		window->draw(spriteGameOver);
-		window->draw(levelUpText);
-	}
+	
 	if (state == State::paused)
 	{
 		window->draw(pausedText);
 	}
+	
 	if (state == State::game_over)
 	{
 		window->draw(spriteGameOver);
@@ -469,6 +520,8 @@ void GameEngine::draw()
 		window->draw(scoreText);
 		window->draw(hiScoreText);
 	}
+	
+	
 	window->display();
 }
 
@@ -477,12 +530,12 @@ void GameEngine::restart()
 	player.resetPlayerStats();
 	score = 0;
 	wave = 0;
-	bulletsSpare = 50;
-	bulletsInClip = 10;
+	bulletsSpare = 200;
+	bulletsInClip = 50;
 	// Prepare the level
 	// We will modify the next two lines later
-	planet.width = 3000;
-	planet.height = 3000;
+	planet.width = 10000;
+	planet.height = 10000;
 	planet.left = 0;
 	planet.top = 0;
 	// Pass the vertex array by reference
@@ -491,14 +544,91 @@ void GameEngine::restart()
 	// Spawn the player in the middle of the arena
 	player.spawn(planet, resolution, tileSize);
 	// Configure the pick-ups
-	healthPickup.setArena(planet);
-	ammoPickup.setArena(planet);
+	pickup.clear();
 	// Create a horde of zombies
-	numMonster = 2;
+	numMonster = 100;
 	// Delete the previously allocated memory (if it exists)
 	delete[] monster;
-	monster = createHorde(numMonster, planet);
+	monster = createHorde(numMonster,sf::Vector2i(0,0), planet);
 	numMonsterAlive = numMonster;
+}
+
+void GameEngine::newWave()
+{   
+	delete[] monster;
+	pickup.clear();
+	switch (wave)
+	{
+	case 1: 
+	{   // Количество монстров
+		numMonster = 150;
+		// Delete the previously allocated memory (if it exists)
+		
+		monster = createHorde(numMonster, sf::Vector2i(0, 1), planet);
+		numMonsterAlive = numMonster; 
+		break; 
+	}
+	case 2:
+	{   // Количество монстров
+		numMonster = 200;
+		// Delete the previously allocated memory (if it exists)
+		
+		monster = createHorde(numMonster, sf::Vector2i(0, 3), planet);
+		numMonsterAlive = numMonster;
+		break;
+	}
+	case 3:
+	{   // Количество монстров
+		numMonster = 250;
+		// Delete the previously allocated memory (if it exists)
+		
+		monster = createHorde(numMonster, sf::Vector2i(0, 4), planet);
+		numMonsterAlive = numMonster;
+		break;
+	}
+	case 4:
+	{   // Количество монстров
+		numMonster = 250;
+		// Delete the previously allocated memory (if it exists)
+		
+		monster = createHorde(numMonster, sf::Vector2i(1, 4), planet);
+		numMonsterAlive = numMonster;
+		break;
+	}
+	case 5:
+	{   // Количество монстров
+		numMonster = 250;
+		// Delete the previously allocated memory (if it exists)
+		
+		monster = createHorde(numMonster, sf::Vector2i(2, 4), planet);
+		numMonsterAlive = numMonster;
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+void GameEngine::recharge()
+{
+	if (bulletsSpare > 0)
+	{
+		if (bulletsInClip < clipSize)
+		{
+			if (bulletsSpare >= (clipSize - bulletsInClip))
+			{
+				int myammo = clipSize - bulletsInClip;
+				bulletsInClip += myammo;
+				bulletsSpare -= myammo;
+			}
+			else
+			{
+				bulletsInClip += bulletsSpare;
+				bulletsSpare = 0;
+			}
+		}
+
+	}
 }
 
 

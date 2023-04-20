@@ -1,6 +1,6 @@
 #include "MonsterPlanet.h"
 #include "Monster.h"
-Monster* createHorde(int numZombies, sf::IntRect arena)
+Monster* createHorde(int numMonster, sf::Vector2i type, sf::IntRect arena)
 {
 	// Will be used to obtain a seed for the random number engine
 	// Ѕудет использоватьс€ дл€ получени€ начального числа дл€ механизма случайных чисел
@@ -8,15 +8,15 @@ Monster* createHorde(int numZombies, sf::IntRect arena)
 	// Standard mersenne_twister_engine seeded with rd()
 	std::mt19937 gen(rd());
 	
-	auto * zombies = new Monster[numZombies];
+	auto * zombies = new Monster[numMonster];
 	
-	auto max= sf::Vector2i(arena.width - 20, arena.height - 20);
-	auto min= sf::Vector2i(arena.left + 20, arena.top + 20);
+	auto max= sf::Vector2i(arena.width - 300, arena.height - 300);
+	auto min= sf::Vector2i(arena.left + 300, arena.top + 300);
     std::uniform_int_distribution<> rside(0, 4);
-	std::uniform_int_distribution<> rLR(min.y, max.y);
-	std::uniform_int_distribution<> rTB(min.x, max.x);
-	std::uniform_int_distribution<> rtype(0, 4);
-	for (int i = 0; i < numZombies; i++)
+	std::uniform_int_distribution<> rLR(min.x, max.x);
+	std::uniform_int_distribution<> rTB(min.y, max.y);
+	std::uniform_int_distribution<> rtype(type.x, type.y);
+	for (int i = 0; i < numMonster; i++)
 	{
 		// Which side should the zombie spawn
 		// — какой стороны должен по€витьс€ зомби
@@ -27,28 +27,29 @@ Monster* createHorde(int numZombies, sf::IntRect arena)
 		switch (side)
 		{
 		case 0:
-			// left
 			// слева
-			pos.x = static_cast<float>(min.x);
-			pos.y = static_cast<float>(rLR(gen));
-			break;
+			pos.x = static_cast<float>(rLR(gen));
+			pos.y = static_cast<float>(min.y);
+		break;
 		case 1:
-			// right
 			// справа
-			pos.x = static_cast<float>(max.x);
-			pos.y = static_cast<float>(rLR(gen));
+			pos.x = static_cast<float>(rLR(gen));
+			pos.y = static_cast<float>(max.y);
 			break;
 		case 2:
-			// top
 			// верх
-			pos.x = static_cast<float>(rTB(gen));
-			pos.y = static_cast<float>(min.y);
+			pos.x = static_cast<float>(min.x);
+			pos.y = static_cast<float>(rTB(gen));
 			break;
 		case 3:
-			// bottom
 			// низ
-			pos.x = static_cast<float>(rTB(gen));
-			pos.y = static_cast<float>(max.y);
+			pos.x = static_cast<float>(max.x);
+			pos.y = static_cast<float>(rTB(gen));
+			break;
+		case 4:
+			// везде
+			pos.x = static_cast<float>(rLR(gen));
+			pos.y = static_cast<float>(rTB(gen));
 			break;
 		}
 		// Bloater, crawler or runner

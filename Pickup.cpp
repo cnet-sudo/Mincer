@@ -1,54 +1,43 @@
 #include "Pickup.h"
 #include "AssetManager.h"
-Pickup::Pickup(int type)
+Pickup::Pickup()
+{
+	
+}
+
+void Pickup::spawn(sf::Vector2f pos, int type)
 {
 	// Store the type of this pickup
 	m_Type = type;
-	// Associate the texture with the sprite
-	if (m_Type == 1)
-	{
-		m_Sprite = Sprite(AssetManager::GetTexture("graphics/medical.png"));
-		// How much is pickup worth
-		m_Value = HEALTH_START_VALUE;
-	}
-	else
-	{
-		m_Sprite = Sprite(AssetManager::GetTexture("graphics/ammo1.png"));
-		// How much is pickup worth
-		m_Value = AMMO_START_VALUE;
-	}
-	m_Sprite.setOrigin(25, 25);
-	m_SecondsToLive = START_SECONDS_TO_LIVE;
-	m_SecondsToWait = START_WAIT_TIME;
-}
 
-void Pickup::setArena(IntRect arena)
-{
-	// Copy the details of the arena to the pickup's m_Arena
-	m_Arena.left = arena.left + 50;
-	m_Arena.width = arena.width - 50;
-	m_Arena.top = arena.top + 50;
-	m_Arena.height = arena.height - 50;
-	spawn();
-}
-
-void Pickup::spawn()
-{
-	// Spawn at a random location
-	srand((int)time(0) / m_Type);
-	int x = (rand() % m_Arena.width);
-	srand((int)time(0) * m_Type);
-	int y = (rand() % m_Arena.height);
+	switch (m_Type)
+	{
+	case 1:
+	{
+	m_Value = HEALTH_START_VALUE;
+	m_Sprite = sf::Sprite(AssetManager::GetTexture("graphics/medical.png"));
+	break;
+	}
+	case 2: 
+	{
+	m_Value = AMMO_START_VALUE;
+	m_Sprite = sf::Sprite(AssetManager::GetTexture("graphics/ammo1.png"));
+	break;
+	}
+	default:
+		break;
+	}
 	m_SecondsSinceSpawn = 0;
 	m_Spawned = true;
-	m_Sprite.setPosition(x, y);
+	m_Sprite.setOrigin(25, 25);
+	m_Sprite.setPosition(pos.x, pos.y);
 }
 
-FloatRect Pickup::getPosition()
+sf::FloatRect Pickup::getPosition()
 {
 	return m_Sprite.getGlobalBounds();
 }
-Sprite Pickup::getSprite()
+sf::Sprite Pickup::getSprite()
 {
 	return m_Sprite;
 }
@@ -62,6 +51,11 @@ int Pickup::gotIt()
 	m_Spawned = false;
 	m_SecondsSinceDeSpawn = 0;
 	return m_Value;
+}
+
+int Pickup::getType()
+{
+	return m_Type;
 }
 
 void Pickup::update(float elapsedTime)
@@ -81,26 +75,6 @@ void Pickup::update(float elapsedTime)
 		m_Spawned = false;
 		m_SecondsSinceDeSpawn = 0;
 	}
-	// Do we need to spawn a pickup
-	if (m_SecondsSinceDeSpawn > m_SecondsToWait && !m_Spawned)
-	{
-		// spawn the pickup and reset the timer
-		spawn();
-	}
-
+	
 }
 
-void Pickup::upgrade()
-{
-	if (m_Type == 1)
-	{
-		m_Value += (HEALTH_START_VALUE * .5);
-	}
-	else
-	{
-		m_Value += (AMMO_START_VALUE * .5);
-	}
-	// Make them more frequent and last longer
-	m_SecondsToLive += (START_SECONDS_TO_LIVE / 10);
-	m_SecondsToWait -= (START_WAIT_TIME / 10);
-}

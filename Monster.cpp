@@ -30,32 +30,32 @@ void Monster::spawn(float startX, float startY, int type)
 	case 0:
 		// монстр 1
 		m_AnimPlayer.SwitchAnimation("mon1");
-		m_Speed = BLOATER_SPEED;
-		m_Health = BLOATER_HEALTH;
+		m_Speed = mon1_speed;
+		m_Health = mon1_HEALTH;
 		break;
 	case 1:
 		// монстр 2
 		m_AnimPlayer.SwitchAnimation("mon2");
-		m_Speed = CHASER_SPEED;
-		m_Health = CHASER_HEALTH;
+		m_Speed = mon2_speed;
+		m_Health = mon2_HEALTH;
 		break;
 	case 2:
 		// монстр 3
 		m_AnimPlayer.SwitchAnimation("mon3");
-		m_Speed = CRAWLER_SPEED;
-		m_Health = CRAWLER_HEALTH;
+		m_Speed = mon3_speed;
+		m_Health = mon3_HEALTH;
 		break;
 	case 3:
 		// монстр 3
 		m_AnimPlayer.SwitchAnimation("mon4");
-		m_Speed = CRAWLER_SPEED;
-		m_Health = CRAWLER_HEALTH;
+		m_Speed = mon4_speed;
+		m_Health = mon4_HEALTH;
 		break;
 	case 4:
 		// монстр 3
 		m_AnimPlayer.SwitchAnimation("mon5");
-		m_Speed = CRAWLER_SPEED;
-		m_Health = CRAWLER_HEALTH;
+		m_Speed = mon5_speed;
+		m_Health = mon5_HEALTH;
 		break;
 	}
 	std::uniform_int_distribution<> dis(MAX_VARRIANCE, OFFSET);
@@ -78,6 +78,7 @@ void Monster::spawn(float startX, float startY, int type)
 
 bool Monster::hit()
 {
+	if (m_Health <= 0) return false;
 	m_Health--;
 	if (m_Health <= 0)
 	{

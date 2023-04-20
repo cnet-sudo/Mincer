@@ -8,7 +8,6 @@
 #include "Bullet.h"
 #include "Pickup.h"
 #include "array"
-#include <sstream>
 #include <fstream>
 
 
@@ -16,33 +15,33 @@ class GameEngine
 {
 public:
 	GameEngine();
-	// Game Loop Launch Method
+	
 	// Метод запуска игрового цикла
 	void run();
 private:
-	// Resource manager
+	
 	// Менеджер ресурсов
 	AssetManager manager; 
-	// Smart pointer to graphics window
+	
 	// Умный указатель на графическое окно 
 	std::unique_ptr<sf::RenderWindow> window = std::make_unique<sf::RenderWindow>(sf::VideoMode(resolution.x, resolution.y),L"Мясорубка", sf::Style::Fullscreen);
 	sf::Image icon;
-	// Event handling method
+	
 	// Метод обработки событий 
 	void input();
-	// Method for updating variables, properties and methods
+	
 	// Метод обновления переменных, свойств и методов 
 	void update(sf::Time const& deltaTime);
-	// Method for drawing objects in the graphics window
+	
 	// Метод отрисовки объектов в графическом окне
 	void draw();
-	// The game will always be in one of four states
+	
 	// Игра всегда будет в одном из четырех состояний
-	enum class State {paused, leveling_up,game_over, playing};
-	// Start with the GAME_OVER state
+	enum class State {paused, wave_up,game_over, playing, game_victory,game_begin};
+	
 	// Начните с состояния GAME_OVER
-	State state = State::playing;
-	// Get the screen resolution and
+	State state = State::game_begin;
+	
 	// create an SFML window
 	sf::Vector2f resolution = sf::Vector2f(static_cast<float>(sf::VideoMode::getDesktopMode().width),
 		static_cast<float>(sf::VideoMode::getDesktopMode().height));
@@ -61,7 +60,6 @@ private:
 
 	// Create the background
 	sf::VertexArray background;
-		
 	// The boundaries of the arena
 	sf::IntRect planet;
 
@@ -77,37 +75,41 @@ private:
 	// Обойма
 	int bulletsInClip;
 	// Максимальный размер обоймы
-	const int clipSize = 10;
+	const int clipSize = 50;
 
 	float fireRate = 1;
 	// When was the fire button last pressed?
 	Time lastPressed;
-
 	Sprite spriteCrosshair;
 	Sprite spriteCrosshair1;
-	Pickup healthPickup= Pickup(1);
-	Pickup ammoPickup= Pickup(2);
+    std::vector<Pickup>  pickup;
 	// About the game
 	int score;
 	int hiScore = 0;
+	// рестарт
 	void restart();
+	// новая волна
+	void newWave();
+	int wave;
+	sf::Time timewave;
+	bool textWave=false;
+	// перезарядка оружия
+	void recharge();
 	// Create a view for the HUD
 	View hudView=sf::View(sf::FloatRect(0, 0, resolution.x, resolution.y));
 	Sprite spriteGameOver;
+	Sprite spriteGameBegin;
 	Sprite spriteAmmoIcon;
 	Text pausedText;
 	Text gameOverText;
-	Text levelUpText;
+	Text WaveUpText;
 	Text ammoText;
 	Text scoreText;
 	Text hiScoreText;
 	Text monsterRemainingText;
 	Text waveNumberText;
-	int wave;
 	RectangleShape healthBar;
 	RectangleShape healthBar1;
-	Text debugText;
-	std::ostringstream ss;
 	// When did we last update the HUD?
 	int framesSinceLastHUDUpdate = 0;
 	// How often (in frames) should we update the HUD

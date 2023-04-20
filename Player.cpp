@@ -10,8 +10,6 @@ Player::Player()
 		idleForward.AddFrames(sf::Vector2i(0, 0), sf::Vector2i(142, 105), 8, 1);
 		m_AnimPlayer.SwitchAnimation("idleForward");
 		m_AnimPlayer.Update(sf::seconds(0));
-		// Set the origin of the sprite to the center,
-		// for smooth rotation
 		// ”станавливаем начало спрайта в центр,
         // дл€ плавного вращени€
 		m_Sprite.setOrigin(m_Sprite.getGlobalBounds().width / 2, m_Sprite.getGlobalBounds().height / 2);
@@ -20,20 +18,16 @@ Player::Player()
 
 void Player::spawn(sf::IntRect arena, sf::Vector2f resolution, int tileSize)
 {
-	// Place the player in the middle of the arena
 	// ѕоместите игрока в центр арены
 	m_Position.x = static_cast<float>(arena.width / 2);
 	m_Position.y = static_cast<float>(arena.height / 2);
-	// Copy the details of the arena
 	//  опируем детали арены
 	m_Arena.left = arena.left;
 	m_Arena.width = arena.width;
 	m_Arena.top = arena.top;
 	m_Arena.height = arena.height;
-	// Remember how big the tiles are in this arena
 	// ѕомните, насколько большие плитки на этой арене
 	m_TileSize = tileSize;
-	// Store the resolution for future use
 	// —охраните разрешение дл€ использовани€ в будущем
 	m_Resolution.x = resolution.x;
 	m_Resolution.y = resolution.y;
@@ -154,25 +148,25 @@ void Player::update(sf::Time deltaTime, sf::Vector2i mousePosition)
 
 	if (m_UpPressed|| m_DownPressed|| m_RightPressed|| m_LeftPressed) m_AnimPlayer.Update(deltaTime);
 
-	// Keep the player in the arena
 	// ƒержите игрока на арене
-	if (m_Position.x > static_cast<float>(m_Arena.width - m_TileSize))
+	if (m_Position.x > static_cast<float>((m_Arena.width - m_TileSize)-(m_Sprite.getGlobalBounds().width/2)))
 	{
-		m_Position.x = static_cast<float>(m_Arena.width - m_TileSize);
+		m_Position.x = static_cast<float>((m_Arena.width - m_TileSize) - (m_Sprite.getGlobalBounds().width / 2));
 	}
-	if (m_Position.x < static_cast<float>(m_Arena.left + m_TileSize))
+
+	if (m_Position.x < static_cast<float>((m_Arena.left + m_TileSize)+ (m_Sprite.getGlobalBounds().width / 2)))
 	{
-		m_Position.x = static_cast<float>(m_Arena.left + m_TileSize);
+		m_Position.x = static_cast<float>((m_Arena.left + m_TileSize) + (m_Sprite.getGlobalBounds().width / 2));
 	}
-	if (m_Position.y > static_cast<float>(m_Arena.height - m_TileSize))
+
+	if (m_Position.y > static_cast<float>((m_Arena.height - m_TileSize) - (m_Sprite.getGlobalBounds().height / 2)))
 	{
-		m_Position.y = static_cast<float>(m_Arena.height - m_TileSize);
+		m_Position.y = static_cast<float>((m_Arena.height - m_TileSize) - (m_Sprite.getGlobalBounds().height / 2));
 	}
-	if (m_Position.y < static_cast<float>(m_Arena.top + m_TileSize))
+	if (m_Position.y < static_cast<float>((m_Arena.top + m_TileSize)+(m_Sprite.getGlobalBounds().height / 2)))
 	{
-		m_Position.y = static_cast<float>(m_Arena.top + m_TileSize);
+		m_Position.y = static_cast<float>((m_Arena.top + m_TileSize)+(m_Sprite.getGlobalBounds().height / 2));
 	}
-	// Calculate the angle the player is facing
 	// ¬ычислить угол, на который смотрит игрок
 	auto angle = static_cast<float>((atan2(static_cast<float>(mousePosition.y) - m_Resolution.y / 2, static_cast<float>(mousePosition.x) - m_Resolution.x / 2)* 180) / 3.141);
 	m_Sprite.setRotation(angle);
@@ -180,20 +174,17 @@ void Player::update(sf::Time deltaTime, sf::Vector2i mousePosition)
 
 void Player::upgradeSpeed()
 {
-	// 20% speed upgrade
 	// 20% повышение скорости
 	m_Speed += (START_SPEED * 0.2f);
 }
 void Player::upgradeHealth()
 {
-	// 20% max health upgrade
 	// 20% максимальное улучшение здоровь€
 	m_MaxHealth += (START_HEALTH * 0.2f);
 }
 void Player::increaseHealthLevel(float amount)
 {
 	m_Health += amount;
-	// But not beyond the maximum
 	// Ќо не выше максимума
 	if (m_Health > m_MaxHealth)
 	{
