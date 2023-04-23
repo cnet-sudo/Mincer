@@ -9,6 +9,8 @@
 #include "Pickup.h"
 #include "array"
 #include <fstream>
+#include <vector>
+#include "GameSound.h"
 
 
 class GameEngine
@@ -24,9 +26,9 @@ private:
 	AssetManager manager; 
 	
 	// Умный указатель на графическое окно 
-	std::unique_ptr<sf::RenderWindow> window = std::make_unique<sf::RenderWindow>(sf::VideoMode(resolution.x, resolution.y),L"Мясорубка", sf::Style::Fullscreen);
+	sf::RenderWindow window = sf::RenderWindow(sf::VideoMode(resolution.x, resolution.y),L"Мясорубка", sf::Style::Fullscreen);
 	sf::Image icon;
-	
+	GameSound m_musik;
 	// Метод обработки событий 
 	void input();
 	
@@ -89,8 +91,8 @@ private:
 	// рестарт
 	void restart();
 	// новая волна
-	void newWave();
-	int wave;
+	void newLevel();
+	int level=1;
 	sf::Time timewave;
 	bool textWave=false;
 	// перезарядка оружия

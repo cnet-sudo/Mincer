@@ -24,7 +24,7 @@ void Monster::spawn(float startX, float startY, int type)
 	// Будет использоваться для получения начального числа для механизма случайных чисел
 	std::random_device rd;
 	std::mt19937 gen(rd());
-
+	m_Type = type;
 	switch (type)
 	{
 	case 0:
@@ -110,7 +110,7 @@ sf::Sprite Monster::getSprite()
 	return m_Sprite;
 }
 
-void Monster::update(sf::Time deltaTime,	sf::Vector2f playerLocation)
+void Monster::update(sf::Time deltaTime, sf::Vector2f playerLocation)
 {
 	m_AnimPlayer.Update(deltaTime);
 	if (m_AnimPlayer.getEndAnim())
@@ -146,4 +146,9 @@ void Monster::update(sf::Time deltaTime,	sf::Vector2f playerLocation)
 	// Face the sprite in the correct direction
 	float angle = (atan2(playerY - m_Position.y, playerX - m_Position.x)* 180) / 3.141;
 	m_Sprite.setRotation(angle);
+}
+
+int Monster::getMonster()
+{
+	return m_Type;
 }

@@ -1,9 +1,5 @@
 #include "Pickup.h"
 #include "AssetManager.h"
-Pickup::Pickup()
-{
-	
-}
 
 void Pickup::spawn(sf::Vector2f pos, int type)
 {
@@ -28,7 +24,6 @@ void Pickup::spawn(sf::Vector2f pos, int type)
 		break;
 	}
 	m_SecondsSinceSpawn = 0;
-	m_Spawned = true;
 	m_Sprite.setOrigin(25, 25);
 	m_Sprite.setPosition(pos.x, pos.y);
 }
@@ -41,7 +36,7 @@ sf::Sprite Pickup::getSprite()
 {
 	return m_Sprite;
 }
-bool Pickup::isSpawned()
+bool Pickup::isSpawned() const
 {
 	return m_Spawned;
 }

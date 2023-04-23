@@ -16,13 +16,12 @@ private:
     // 1 = здоровье, 2 = патроны
 	int m_Type;
 	// Обработка появления и исчезновения
-	bool m_Spawned;
+	bool m_Spawned=true;
 	float m_SecondsSinceSpawn;
 	float m_SecondsSinceDeSpawn;
 	float m_SecondsToLive=10;
 		
 public:
-	Pickup();
 	// Готовим новый пикап
 	void spawn(sf::Vector2f pos, int type);
 	// Проверяем положение пикапа
@@ -32,7 +31,7 @@ public:
 	// Разрешить пикапу обновлять себя каждый кадр
 	void update(float elapsedTime);
 	// Создан ли этот пикап в настоящее время?
-	bool isSpawned();
+	bool isSpawned() const;
 	// Получаем добро из пикапа
 	int gotIt();
 	// Получаем тип

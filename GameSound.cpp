@@ -1,20 +1,47 @@
 
-
 #include "GameSound.h"
 
-void GameSound::play(int index) 
+void GameSound::create_sound(std::vector<std::string>& sound)
 {
-	if (GSound[index].getStatus() == sf::SoundSource::Status::Stopped ) GSound[index].play();
+	for (int i = 0; i < sound.size(); i++){
+
+		m_sound.emplace_back(sf::Sound());
+		m_sound[i].setBuffer(AssetManager::GetSoundBuffer(sound[i]));
+	}
 }
 
-void GameSound::stop(int index) 
-{
-	if (GSound[index].getStatus() == sf::SoundSource::Status::Playing) GSound[index].stop();
+bool GameSound::play(int index, bool loop){
+
+	if (!m_sound.empty()){
+
+		if (m_sound[index].getStatus() == sf::SoundSource::Status::Stopped) {
+
+			m_sound[index].setLoop(loop);
+			m_sound[index].play();
+		}
+		else return true;
+	}
+
+	return false;
 }
 
-void GameSound::AllStop()
-{
-	for (int i = 0; i < n; i++) if (GSound[i].getStatus() == sf::SoundSource::Status::Playing) GSound[i].stop();
+void GameSound::stop(int index){
+
+	if (!m_sound.empty()) {
+
+		if (m_sound[index].getStatus() == sf::SoundSource::Status::Playing) m_sound[index].stop();
+	}
+}
+
+void GameSound::all_stop(){
+
+	if (!m_sound.empty()) {
+
+		for (int i = 0; i < m_sound.size(); i++) {
+
+			if (m_sound[i].getStatus() == sf::SoundSource::Status::Playing) m_sound[i].stop();
+		}
+	}
 }
 
 

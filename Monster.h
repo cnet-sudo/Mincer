@@ -9,7 +9,7 @@ class Monster
 private:
 	// Насколько быстр каждый тип монстров?
 	// How fast is each monster type?
-	const float mon1_speed = 70;
+	const float mon1_speed = 100;
 	const float mon2_speed = 60;
 	const float mon3_speed = 50;
 	const float mon4_speed = 40;
@@ -41,6 +41,7 @@ private:
 	// Он еще жив?
 	// Is it still alive?
 	bool m_Alive;
+	int m_Type;
 	public:
 	Monster();
 	// Обработка попадания пули в монстра
@@ -61,6 +62,8 @@ private:
 	// Обновляем монстров каждый кадр
 	// Update the monsters each frame
 	void update(sf::Time deltaTime, sf::Vector2f playerLocation);
+	int getMonster();
+	
 	
 };
 
