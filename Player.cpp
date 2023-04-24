@@ -98,9 +98,42 @@ void Player::moveUp()
 {
 	m_UpPressed = true;
 }
+void Player::moveUpRg()
+{
+	m_UpRg = true;
+}
+void Player::stopUpRg()
+{
+	m_UpRg = false;
+}
+void Player::moveUpLf()
+{
+	m_UpLf = true;
+}
+void Player::stopUpLf()
+{
+	m_UpLf = false;
+}
 void Player::moveDown()
 {
 	m_DownPressed = true;
+}
+
+void Player::moveDownRg()
+{
+	m_DownRg = true;
+}
+void Player::stopDownRg()
+{
+	m_DownRg = false;
+}
+void Player::moveDownLf()
+{
+	m_DownLf = true;
+}
+void Player::stopDownLf()
+{
+	m_DownLf = false;
 }
 
 void Player::stopLeft()
@@ -122,31 +155,52 @@ void Player::stopDown()
 
 void Player::update(sf::Time deltaTime, sf::Vector2i mousePosition)
 {
-	float elapsedTime = deltaTime.asSeconds();
+	m_time_moving += deltaTime;
+	if (m_UpPressed|| m_DownPressed|| m_RightPressed|| m_LeftPressed || m_UpRg || m_DownLf || m_DownRg || m_UpLf) m_AnimPlayer.Update(deltaTime);
+	if (m_time_moving> sf::microseconds(5000)) {
 
-	if (m_UpPressed)
-	{
-		m_Position.y -= m_Speed * elapsedTime;
-		
+		m_time_moving = sf::microseconds(0);
+
+	if (m_UpPressed){
+
+		m_Position.y -= m_Speed;	
+	}
+
+	if (m_UpLf) {
+		m_Position.y -= m_Speed /(100/(m_Resolution.y/(m_Resolution.x/100)));
+		m_Position.x-= m_Speed;
+	}
+
+	if (m_UpRg) {
+		m_Position.y -= m_Speed / (100 / (m_Resolution.y / (m_Resolution.x / 100)));
+		m_Position.x += m_Speed;
 	}
 	if (m_DownPressed)
 	{
-		m_Position.y += m_Speed * elapsedTime;
+		m_Position.y += m_Speed;
 		
+	}
+	if (m_DownLf) {
+		m_Position.y += m_Speed / (100 / (m_Resolution.y / (m_Resolution.x / 100)));
+		m_Position.x -= m_Speed;
+	}
+
+	if (m_DownRg) {
+		m_Position.y += m_Speed / (100 / (m_Resolution.y / (m_Resolution.x / 100)));
+		m_Position.x += m_Speed;
 	}
 	if (m_RightPressed)
 	{
-		m_Position.x += m_Speed * elapsedTime;
+		m_Position.x += m_Speed;
 		
 	}
 	if (m_LeftPressed)
 	{
-		m_Position.x -= m_Speed * elapsedTime;
+		m_Position.x -= m_Speed;
 		
 	}
 	m_Sprite.setPosition(m_Position);
-
-	if (m_UpPressed|| m_DownPressed|| m_RightPressed|| m_LeftPressed) m_AnimPlayer.Update(deltaTime);
+		
 
 	// Держите игрока на арене
 	if (m_Position.x > static_cast<float>((m_Arena.width - m_TileSize)-(m_Sprite.getGlobalBounds().width/2)))
@@ -170,6 +224,8 @@ void Player::update(sf::Time deltaTime, sf::Vector2i mousePosition)
 	// Вычислить угол, на который смотрит игрок
 	auto angle = static_cast<float>((atan2(static_cast<float>(mousePosition.y) - m_Resolution.y / 2, static_cast<float>(mousePosition.x) - m_Resolution.x / 2)* 180) / 3.141);
 	m_Sprite.setRotation(angle);
+
+	}
 }
 
 void Player::upgradeSpeed()

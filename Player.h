@@ -5,82 +5,82 @@
 class Player
 {
 private:
-	const float START_SPEED = 200;
+	const float START_SPEED = 2;
 	const float START_HEALTH = 200;
-	// Player position (Позиция игрока)
+	//Позиция игрока
 	sf::Vector2f m_Position;
 	sf::Sprite m_Sprite;
 	Animator m_AnimPlayer = Animator(m_Sprite);
-	// Screen resolution (Разрешение экрана)
+	// Разрешение экрана
 	sf::Vector2f m_Resolution;
-	// Battlefield size (Размер поля боя)
+	//Размер поля поля
 	sf::IntRect m_Arena;
-	// Battlefield texture size (Размер текстур поля боя)
+	// Размер текстур поля поля
 	int m_TileSize;
-	// Which direction(s) is the player currently moving in
 	// В каком направлении(ях) движется игрок в данный момент
 	bool m_UpPressed;
+	bool m_UpRg;
+	bool m_UpLf;
 	bool m_DownPressed;
+	bool m_DownRg;
+	bool m_DownLf;
 	bool m_LeftPressed;
 	bool m_RightPressed;
-	// Player Health (Здоровье игрока)
+	// Здоровье игрока
 	float m_Health;
-	// Player maximum health (Максимальное здоровье у игрока)
+	// Максимальное здоровье у игрока
 	float m_MaxHealth;
-	// The time of the last hit on the player
 	// Время нанесения последнего удара по игроку 
 	sf::Time m_LastHit;
-	// Speed in pixels per second (Скорость в пикселях в секунду)
+	// Частота перемещения игрока
+	sf::Time m_time_moving;
+	// Скорость в пикселях в секунду
 	float m_Speed;
 public:
 
 	Player();
 	void spawn(sf::IntRect arena, sf::Vector2f resolution, int tileSize);
-	// restart (перезапуск)
+	// перезапуск
 	void resetPlayerStats();
-	// Player control when hit by a monster
-	// Управление игроком, когда его сбил монстр
+	// Время получения урона игроком
 	bool hit(sf::Time timeHit);
-	// How long ago was the player last hit
 	// Как давно был последний удар игрока
 	sf::Time getLastHitTime() const;
-	// Where is the player
 	// Где игрок
 	sf::FloatRect getPosition() const;
-	// Where is the center of the player
 	// Где находится центр игрока
 	sf::Vector2f getCenter() const;
 	// What angle is the player facing
 	// Под каким углом смотрит игрок
 	float getRotation() const;
-	// Send a copy of the sprite to the main function
 	// Отправить копию спрайта в основную функцию
 	sf::Sprite getSprite() const;
-	// The next four functions move the player
 	// Следующие четыре функции перемещают игрока
 	void moveLeft();
 	void moveRight();
 	void moveUp();
+	void moveUpRg();
+	void moveUpLf();
 	void moveDown();
-	// Stop the player moving in a specific direction
+	void moveDownRg();
+	void moveDownLf();
 	// Остановить движение игрока в определенном направлении
 	void stopLeft();
 	void stopRight();
 	void stopUp();
+	void stopUpRg();
+	void stopUpLf();
 	void stopDown();
-	// We will call this function once every frame
+	void stopDownRg();
+	void stopDownLf();
 	// Мы будем вызывать эту функцию один раз в каждом кадре
 	void update(sf::Time deltaTime, sf::Vector2i mousePosition);
-	// Give the player a speed boost
 	// Дайте игроку ускорение
 	void upgradeSpeed();
-	// Give the player some health
 	// Дайте игроку немного здоровья
 	void upgradeHealth();
-	// Increase the maximum amount of health the player can have
 	// Увеличьте максимальное количество здоровья, которое может иметь игрок
 	void increaseHealthLevel(float amount);
-	// How much health has the player currently got?
 	// Сколько здоровья у игрока на данный момент?
 	float getHealth() const;
 };

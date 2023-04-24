@@ -1,7 +1,21 @@
 #include "GameEngine.h"
 
 GameEngine::GameEngine()
-{
+{   
+	// Загрузка
+	state = State::game_load;
+	spriteGameBegin.setTexture(AssetManager::GetTexture("graphics/back2.jpg"));
+	spriteGameBegin.setPosition(0, 0);
+	
+	WaveUpText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
+	WaveUpText.setCharacterSize(40);
+	WaveUpText.setFillColor(sf::Color::White);
+	WaveUpText.setString(L"Загрузка ...");
+	WaveUpText.setPosition(m_resolution.x / 2 - WaveUpText.getGlobalBounds().width / 2, m_resolution.y - WaveUpText.getGlobalBounds().height-50);
+	window.draw(spriteGameBegin);
+	window.draw(WaveUpText);
+	window.display();
+	//-------------------------------------------
 	std::vector<std::string> str{ "sound/level1.wav","sound/plasma.wav","sound/mobv.wav","sound/per.wav",
 	"sound/mobb.wav","sound/hit1.wav","sound/bonus1.wav"};
 	m_musik.create_sound(str);
@@ -18,8 +32,7 @@ GameEngine::GameEngine()
 	// For the home/game over screen
 	spriteGameOver.setTexture(AssetManager::GetTexture("graphics/back.jpg"));
 	spriteGameOver.setPosition(0, 0);
-	spriteGameBegin.setTexture(AssetManager::GetTexture("graphics/back2.jpg"));
-	spriteGameBegin.setPosition(0, 0);
+	
 	// Create a sprite for the ammo icon
 	spriteAmmoIcon.setTexture(AssetManager::GetTexture("graphics/ammo.png"));
 	spriteAmmoIcon.setPosition(100, 970);
@@ -33,7 +46,7 @@ GameEngine::GameEngine()
 	pausedText.setOutlineThickness(1);
 
 	pausedText.setString(L"\t\tПАУЗА\nнажмите enter");
-	pausedText.setPosition(resolution.x / 2 - pausedText.getGlobalBounds().width/2, resolution.y / 2 - pausedText.getGlobalBounds().height/2);
+	pausedText.setPosition(m_resolution.x / 2 - pausedText.getGlobalBounds().width/2, m_resolution.y / 2 - pausedText.getGlobalBounds().height/2);
 	
 	// Game Over
 	gameOverText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
@@ -42,14 +55,8 @@ GameEngine::GameEngine()
 	gameOverText.setOutlineColor(Color::Yellow);
 	gameOverText.setOutlineThickness(1);
 	gameOverText.setString(L"Нажмите enter");
-	gameOverText.setPosition(resolution.x / 2 - gameOverText.getGlobalBounds().width / 2, resolution.y - gameOverText.getGlobalBounds().height-50);
-	// Следующая волна
-	WaveUpText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
-	WaveUpText.setCharacterSize(70);
-	WaveUpText.setFillColor(Color::Red);
-	WaveUpText.setString(L"\t\t\tТревога!\n Следующая волна !");
-	WaveUpText.setPosition(resolution.x/2- WaveUpText.getGlobalBounds().width/2, resolution.y / 2- WaveUpText.getGlobalBounds().height / 2);
-	
+	gameOverText.setPosition(m_resolution.x / 2 - gameOverText.getGlobalBounds().width / 2, m_resolution.y - gameOverText.getGlobalBounds().height-50);
+		
 	// Патроны
 	ammoText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
 	ammoText.setCharacterSize(55);
@@ -110,6 +117,7 @@ GameEngine::GameEngine()
 	healthBar1.setPosition(550, 980);
 	healthBar1.setSize(Vector2f(800, 50));
 	restart();
+	
 }
 
 void GameEngine::input()
@@ -121,14 +129,16 @@ void GameEngine::input()
 		if (event.type == sf::Event::KeyPressed)
 		{
 			
-			// Начало игры
-			if (state == State::game_begin)
+			// Загрузка
+			if (state == State::game_load)
 			{
 				if ((event.key.code == sf::Keyboard::Return))
 				{
 					state = State::playing;
 				}
 			}
+
+
 
 			// Конец игры
 			if (state == State::game_over)
@@ -189,7 +199,8 @@ void GameEngine::input()
 					recharge();	
 				}
 				// Перемещение
-				if (event.key.code==sf::Keyboard::W || event.key.code == sf::Keyboard::Up)
+				
+				if (event.key.code==sf::Keyboard::W)
 				{
 					player.moveUp();
 				}
@@ -197,7 +208,24 @@ void GameEngine::input()
 				{
 					player.stopUp();
 				}
-				if (event.key.code == sf::Keyboard::S || event.key.code == sf::Keyboard::Down)
+
+				if (event.key.code == sf::Keyboard::E)
+				{
+					player.moveUpRg();
+				}
+				else
+				{
+					player.stopUpRg();
+				}
+				if (event.key.code == sf::Keyboard::C)
+				{
+					player.moveDownRg();
+				}
+				else
+				{
+					player.stopDownRg();
+				}
+				if (event.key.code == sf::Keyboard::S)
 				{
 					player.moveDown();
 				}
@@ -205,7 +233,24 @@ void GameEngine::input()
 				{
 					player.stopDown();
 				}
-				if (event.key.code == sf::Keyboard::A || event.key.code == sf::Keyboard::Left)
+				if (event.key.code == sf::Keyboard::Z)
+				{
+					player.moveDownLf();
+				}
+				else
+				{
+					player.stopDownLf();
+				}
+
+				if (event.key.code == sf::Keyboard::Q)
+				{
+					player.moveUpLf();
+				}
+				else
+				{
+					player.stopUpLf();
+				}
+				if (event.key.code == sf::Keyboard::A)
 				{
 					player.moveLeft();
 				}
@@ -213,7 +258,7 @@ void GameEngine::input()
 				{
 					player.stopLeft();
 				}
-				if (event.key.code == sf::Keyboard::D || event.key.code == sf::Keyboard::Right)
+				if (event.key.code == sf::Keyboard::D)
 				{
 					player.moveRight();
 				}
@@ -297,9 +342,10 @@ void GameEngine::update(sf::Time const& deltaTime)
 
 		for (int i = 0; i < numMonster; i++)
 		{
-			if (monster[i].isAlive())
-			{
-				monster[i].update(deltaTime, playerPosition);
+			if (monster[i].isAlive()){
+
+				monster[i].update(deltaTime, playerPosition, m_resolution, monster,numMonster, i);
+
 			}
 		}
 
@@ -445,17 +491,12 @@ void GameEngine::update(sf::Time const& deltaTime)
 
 void GameEngine::draw()
 {
-	if (state == State::game_begin)
-	{
-		window.draw(spriteGameBegin);
-	}
-
 	sf::Vector2f minview;
 	sf::Vector2f maxview;
-	minview.x = player.getSprite().getPosition().x - resolution.x / 2;
-	maxview.x = player.getSprite().getPosition().x + resolution.x / 2;
-	minview.y = player.getSprite().getPosition().y - resolution.y / 2;
-	maxview.y = player.getSprite().getPosition().y + resolution.y / 2;
+	minview.x = player.getSprite().getPosition().x - m_resolution.x / 2;
+	maxview.x = player.getSprite().getPosition().x + m_resolution.x / 2;
+	minview.y = player.getSprite().getPosition().y - m_resolution.y / 2;
+	maxview.y = player.getSprite().getPosition().y + m_resolution.y / 2;
 	
 	if (state == State::playing)
 	{
@@ -533,11 +574,18 @@ void GameEngine::draw()
 		window.draw(monsterRemainingText);
 		
 	}
-	
-	
+	if (state == State::game_load)
+	{
+		window.clear();
+		WaveUpText.setString(L"Для продолжения нажмите Enter ");
+		WaveUpText.setPosition(m_resolution.x / 2 - WaveUpText.getGlobalBounds().width / 2, m_resolution.y - WaveUpText.getGlobalBounds().height - 50);
+		window.draw(spriteGameBegin);
+		window.draw(WaveUpText);		
+	}
 	if (state == State::paused)
 	{
 		window.draw(pausedText);
+		
 	}
 	
 	if (state == State::game_over)
@@ -547,8 +595,7 @@ void GameEngine::draw()
 		window.draw(scoreText);
 		window.draw(hiScoreText);
 	}
-	
-	
+		
 	window.display();
 }
 
@@ -561,15 +608,15 @@ void GameEngine::restart()
 	bulletsInClip = 50;
 	// Prepare the level
 	// We will modify the next two lines later
-	planet.width = 10000;
-	planet.height = 10000;
+	planet.width = 20000;
+	planet.height = 20000;
 	planet.left = 0;
 	planet.top = 0;
 	// Pass the vertex array by reference
 	// to the createBackground function
 	int tileSize = createBackground(background, planet);
 	// Spawn the player in the middle of the arena
-	player.spawn(planet, resolution, tileSize);
+	player.spawn(planet, m_resolution, tileSize);
 	// Configure the pick-ups
 	newLevel();
 	numMonsterAlive = numMonster;

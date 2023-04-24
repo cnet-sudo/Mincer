@@ -100,8 +100,8 @@ bool Monster::isAlive()
 }
 sf::FloatRect Monster::getPosition()
 {
-	auto myGlobalBounds = sf::FloatRect(m_Sprite.getGlobalBounds().left+40,
-	m_Sprite.getGlobalBounds().top+40, m_Sprite.getGlobalBounds().width-80, m_Sprite.getGlobalBounds().height - 80);
+	auto myGlobalBounds = sf::FloatRect(m_Sprite.getGlobalBounds().left+40,	m_Sprite.getGlobalBounds().top+40, 
+	m_Sprite.getGlobalBounds().width-80, m_Sprite.getGlobalBounds().height - 80);
 	
 	return myGlobalBounds;
 }
@@ -110,45 +110,52 @@ sf::Sprite Monster::getSprite()
 	return m_Sprite;
 }
 
-void Monster::update(sf::Time deltaTime, sf::Vector2f playerLocation)
+void Monster::update(sf::Time deltaTime, sf::Vector2f playerLocation, sf::Vector2f resolution, Monster* monster, int numMonster, int index)
 {
 	m_AnimPlayer.Update(deltaTime);
 	if (m_AnimPlayer.getEndAnim())
 	{
 		m_Alive = false;
 	}
-	float elapsedTime = deltaTime.asSeconds();
+
+	m_moveTime+= deltaTime;
+	
+	if (m_moveTime > sf::microseconds(5000)) {
 	float playerX = playerLocation.x;
 	float playerY = playerLocation.y;
-	// Update the zombie position variables
+	m_moveTime = sf::microseconds(0);
+
 	if (playerX > m_Position.x)
 	{
-		m_Position.x = m_Position.x +
-			m_Speed * elapsedTime;
+		m_Position.x = m_Position.x + m_Speed;
 	}
 	if (playerY > m_Position.y)
 	{
-		m_Position.y = m_Position.y +
-			m_Speed * elapsedTime;
+		m_Position.y = m_Position.y +m_Speed / (100 / (resolution.y / (resolution.x / 100)));
+
 	}
 	if (playerX < m_Position.x)
 	{
-		m_Position.x = m_Position.x -
-			m_Speed * elapsedTime;
+		m_Position.x = m_Position.x - m_Speed;
+
 	}
 	if (playerY < m_Position.y)
 	{
-		m_Position.y = m_Position.y -
-			m_Speed * elapsedTime;
+		m_Position.y = m_Position.y - m_Speed / (100 / (resolution.y / (resolution.x / 100)));
+
 	}
-	// Move the sprite
+
+	
+
 	m_Sprite.setPosition(m_Position);
 	// Face the sprite in the correct direction
 	float angle = (atan2(playerY - m_Position.y, playerX - m_Position.x)* 180) / 3.141;
 	m_Sprite.setRotation(angle);
+	}
 }
 
 int Monster::getMonster()
 {
 	return m_Type;
 }
+

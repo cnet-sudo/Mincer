@@ -26,7 +26,7 @@ private:
 	AssetManager manager; 
 	
 	// Умный указатель на графическое окно 
-	sf::RenderWindow window = sf::RenderWindow(sf::VideoMode(resolution.x, resolution.y),L"Мясорубка", sf::Style::Fullscreen);
+	sf::RenderWindow window = sf::RenderWindow(sf::VideoMode(m_resolution.x, m_resolution.y),L"Мясорубка", sf::Style::Fullscreen);
 	sf::Image icon;
 	GameSound m_musik;
 	// Метод обработки событий 
@@ -39,16 +39,16 @@ private:
 	void draw();
 	
 	// Игра всегда будет в одном из четырех состояний
-	enum class State {paused, wave_up,game_over, playing, game_victory,game_begin};
+	enum class State {paused, wave_up,game_over, playing, game_victory,game_load};
 	
 	// Начните с состояния GAME_OVER
-	State state = State::game_begin;
+	State state;
 	
 	// create an SFML window
-	sf::Vector2f resolution = sf::Vector2f(static_cast<float>(sf::VideoMode::getDesktopMode().width),
+	sf::Vector2f m_resolution = sf::Vector2f(static_cast<float>(sf::VideoMode::getDesktopMode().width),
 		static_cast<float>(sf::VideoMode::getDesktopMode().height));
 	// Create a an SFML View for the main action
-	sf::View mainView=sf::View(sf::FloatRect(0, 0,resolution.x, resolution.y));
+	sf::View mainView=sf::View(sf::FloatRect(0, 0,m_resolution.x, m_resolution.y));
 	// How long has the PLAYING state been active
 	sf::Time gameTimeTotal;
 	// Where is the mouse in
@@ -98,7 +98,7 @@ private:
 	// перезарядка оружия
 	void recharge();
 	// Create a view for the HUD
-	View hudView=sf::View(sf::FloatRect(0, 0, resolution.x, resolution.y));
+	View hudView=sf::View(sf::FloatRect(0, 0, m_resolution.x, m_resolution.y));
 	Sprite spriteGameOver;
 	Sprite spriteGameBegin;
 	Sprite spriteAmmoIcon;
