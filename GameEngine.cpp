@@ -624,52 +624,43 @@ void GameEngine::restart()
 
 void GameEngine::newLevel()
 {   
-	delete[] monster;
+	monster.clear();
 	pickup.clear();
+
 	switch (level)
 	{
 	case 1: 
 	{   // Количество монстров
 		numMonster = 100;
-		// Delete the previously allocated memory (if it exists)
-		
-		monster = createHorde(numMonster, sf::Vector2i(0, 1), planet);
+		createHorde(numMonster,monster, sf::Vector2i(0, 1), planet);
 		numMonsterAlive = numMonster; 
 		break; 
 	}
 	case 2:
 	{   // Количество монстров
 		numMonster = 150;
-		// Delete the previously allocated memory (if it exists)
-		
-		monster = createHorde(numMonster, sf::Vector2i(0, 2), planet);
+		createHorde(numMonster, monster,sf::Vector2i(0, 2), planet);
 		numMonsterAlive = numMonster;
 		break;
 	}
 	case 3:
 	{   // Количество монстров
 		numMonster = 200;
-		// Delete the previously allocated memory (if it exists)
-		
-		monster = createHorde(numMonster, sf::Vector2i(1, 3), planet);
+		createHorde(numMonster,monster, sf::Vector2i(1, 3), planet);
 		numMonsterAlive = numMonster;
 		break;
 	}
 	case 4:
 	{   // Количество монстров
 		numMonster = 250;
-		// Delete the previously allocated memory (if it exists)
-		
-		monster = createHorde(numMonster, sf::Vector2i(2, 4), planet);
+		createHorde(numMonster, monster, sf::Vector2i(2, 4), planet);
 		numMonsterAlive = numMonster;
 		break;
 	}
 	case 5:
 	{   // Количество монстров
 		numMonster = 300;
-		// Delete the previously allocated memory (if it exists)
-		
-		monster = createHorde(numMonster, sf::Vector2i(3, 4), planet);
+		createHorde(numMonster, monster, sf::Vector2i(3, 4), planet);
 		numMonsterAlive = numMonster;
 		break;
 	}
@@ -716,5 +707,4 @@ void GameEngine::run()
 		draw();
 	}
 
-	delete [] monster;
 }

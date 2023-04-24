@@ -3,6 +3,7 @@
 #include"AssetManager.h"
 #include"Animator.h"
 #include <random>
+#include <deque>
 
 class Monster
 {
@@ -62,7 +63,7 @@ private:
 	sf::Sprite getSprite();
 	// Обновляем монстров каждый кадр
 	// Update the monsters each frame
-	void update(sf::Time deltaTime, sf::Vector2f playerLocation, sf::Vector2f resolution,Monster * monster, int numMonster,int index);
+	void update(sf::Time deltaTime, sf::Vector2f playerLocation, sf::Vector2f resolution, std::deque<Monster> & monster, int numMonster,int index);
 	int getMonster();
 	
 	};

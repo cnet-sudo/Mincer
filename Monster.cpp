@@ -110,7 +110,7 @@ sf::Sprite Monster::getSprite()
 	return m_Sprite;
 }
 
-void Monster::update(sf::Time deltaTime, sf::Vector2f playerLocation, sf::Vector2f resolution, Monster* monster, int numMonster, int index)
+void Monster::update(sf::Time deltaTime, sf::Vector2f playerLocation, sf::Vector2f resolution, std::deque<Monster>& monster, int numMonster, int index)
 {
 	m_AnimPlayer.Update(deltaTime);
 	if (m_AnimPlayer.getEndAnim())
@@ -148,7 +148,6 @@ void Monster::update(sf::Time deltaTime, sf::Vector2f playerLocation, sf::Vector
 	
 
 	m_Sprite.setPosition(m_Position);
-	// Face the sprite in the correct direction
 	float angle = (atan2(playerY - m_Position.y, playerX - m_Position.x)* 180) / 3.141;
 	m_Sprite.setRotation(angle);
 	}

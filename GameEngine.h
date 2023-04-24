@@ -10,6 +10,7 @@
 #include "array"
 #include <fstream>
 #include <vector>
+#include <deque>
 #include "GameSound.h"
 
 
@@ -68,7 +69,8 @@ private:
 	// Prepare for a horde of zombies
 	int numMonster;
 	int numMonsterAlive;
-	Monster* monster = nullptr;
+	// массив монстров
+	std::deque<Monster> monster;
 	// 100 bullets should do
 	std::array<Bullet,100> bullets;
 	int currentBullet = 0;
