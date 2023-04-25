@@ -1,22 +1,23 @@
 #include "Pickup.h"
 #include "AssetManager.h"
 
-void Pickup::spawn(sf::Vector2f pos, int type)
-{
-	// Store the type of this pickup
-	m_Type = type;
+void Pickup::spawn(sf::Vector2f pos, int type){
+	
+	std::random_device rd;
 
-	switch (m_Type)
-	{
-	case 1:
-	{
-	m_Value = HEALTH_START_VALUE;
+	std::mt19937 gen(rd());
+	// тип предмета
+	m_Type = type;
+	std::uniform_int_distribution<> health(50, 200);
+	std::uniform_int_distribution<> ammo(50, 150);
+	switch (m_Type){
+	case 1:{
+	m_Value = health(gen);
 	m_Sprite = sf::Sprite(AssetManager::GetTexture("graphics/medical.png"));
 	break;
 	}
-	case 2: 
-	{
-	m_Value = AMMO_START_VALUE;
+	case 2:{
+	m_Value = ammo(gen);
 	m_Sprite = sf::Sprite(AssetManager::GetTexture("graphics/ammo1.png"));
 	break;
 	}
@@ -28,11 +29,11 @@ void Pickup::spawn(sf::Vector2f pos, int type)
 	m_Sprite.setPosition(pos.x, pos.y);
 }
 
-sf::FloatRect Pickup::getPosition()
+sf::FloatRect Pickup::getPosition() const
 {
 	return m_Sprite.getGlobalBounds();
 }
-sf::Sprite Pickup::getSprite()
+sf::Sprite Pickup::getSprite() const
 {
 	return m_Sprite;
 }
@@ -48,7 +49,7 @@ int Pickup::gotIt()
 	return m_Value;
 }
 
-int Pickup::getType()
+int Pickup::getType() const
 {
 	return m_Type;
 }

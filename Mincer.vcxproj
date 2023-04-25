@@ -146,7 +146,6 @@
     <ClCompile Include="Monster.cpp" />
     <ClCompile Include="MonsterPlanet.cpp" />
     <ClCompile Include="Pickup.cpp" />
-    <ClCompile Include="Planet.cpp" />
     <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -171,7 +170,6 @@
     <ClInclude Include="Monster.h" />
     <ClInclude Include="MonsterPlanet.h" />
     <ClInclude Include="Pickup.h" />
-    <ClInclude Include="Planet.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>

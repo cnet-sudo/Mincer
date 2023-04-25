@@ -2,7 +2,6 @@
 #include<iostream>
 #include"AssetManager.h"
 #include"Player.h"
-#include"Planet.h"
 #include"Monster.h"
 #include "MonsterPlanet.h"
 #include "Bullet.h"
@@ -12,6 +11,8 @@
 #include <vector>
 #include <deque>
 #include "GameSound.h"
+#include <algorithm>
+#include <iterator>
 
 class GameEngine
 {
@@ -39,7 +40,7 @@ private:
 	void draw();
 	
 	// Игра всегда будет в одном из четырех состояний
-	enum class State {paused, wave_up,game_over, playing, game_victory,game_load};
+	enum class State {paused, level_up,game_over, playing, game_victory,game_load};
 	
 	// Состояние игры
 	State state;
@@ -78,8 +79,7 @@ private:
 	// Максимальный размер обоймы
 	const int clipSize = 50;
 
-	float fireRate = 1;
-	
+	// интервал стрельбы
 	Time lastPressed;
     
 	// Прицел
@@ -108,8 +108,6 @@ private:
 	// патроны в интерфейсе
 	Sprite spriteAmmoIcon;
 	// текст
-	Text pausedText;
-	Text gameOverText;
 	Text levelText;
 	Text ammoText;
 	Text scoreText;

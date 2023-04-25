@@ -26,6 +26,7 @@ private:
 	bool m_DownLf;
 	bool m_LeftPressed;
 	bool m_RightPressed;
+	bool m_live = true;
 	// Здоровье игрока
 	float m_Health;
 	// Максимальное здоровье у игрока
@@ -42,6 +43,8 @@ public:
 	void spawn(sf::IntRect arena, sf::Vector2f resolution, int tileSize);
 	// перезапуск
 	void resetPlayerStats();
+	// жизнь
+	bool getLive() const;
 	// Время получения урона игроком
 	bool hit(sf::Time timeHit);
 	// Как давно был последний удар игрока
@@ -83,5 +86,6 @@ public:
 	void increaseHealthLevel(float amount);
 	// Сколько здоровья у игрока на данный момент?
 	float getHealth() const;
+	
 };
 

@@ -19,44 +19,24 @@ GameEngine::GameEngine()
 	std::vector<std::string> str{ "sound/level1.wav","sound/plasma.wav","sound/mobv.wav","sound/per.wav",
 	"sound/mobb.wav","sound/hit1.wav","sound/bonus1.wav"};
 	m_musik.create_sound(str);
-	//  Загрузка иконки приложения
+	// загрузка иконки приложения
 	if (!icon.loadFromFile("game.png")) exit(3); 
 	window.setIcon(128, 128, icon.getPixelsPtr());
-	// Hide the mouse pointer and replace it with crosshair
+	// прячем курсор
 	window.setMouseCursorVisible(false);
 	spriteCrosshair.setTexture(AssetManager::GetTexture("graphics/crosshair.png"));
 	spriteCrosshair.setOrigin(25, 25);
 	spriteCrosshair1.setTexture(AssetManager::GetTexture("graphics/crosshair1.png"));
 	spriteCrosshair1.setOrigin(25, 25);
 	
-	// For the home/game over screen
-	spriteGameOver.setTexture(AssetManager::GetTexture("graphics/back.jpg"));
+	// заставка конец игры
+	spriteGameOver.setTexture(AssetManager::GetTexture("graphics/game_over.jpg"));
 	spriteGameOver.setPosition(0, 0);
 	
-	// Create a sprite for the ammo icon
+	// иконка патроны
 	spriteAmmoIcon.setTexture(AssetManager::GetTexture("graphics/ammo.png"));
 	spriteAmmoIcon.setPosition(100, 970);
 	
-	// Paused
-	pausedText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
-	pausedText.setCharacterSize(100);
-
-	pausedText.setFillColor(sf::Color(99, 124, 0));
-	pausedText.setOutlineColor(Color::Yellow);
-	pausedText.setOutlineThickness(1);
-
-	pausedText.setString(L"\t\tПАУЗА\nнажмите enter");
-	pausedText.setPosition(m_resolution.x / 2 - pausedText.getGlobalBounds().width/2, m_resolution.y / 2 - pausedText.getGlobalBounds().height/2);
-	
-	// Game Over
-	gameOverText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
-	gameOverText.setCharacterSize(80);
-	gameOverText.setFillColor(sf::Color(99, 124, 0));
-	gameOverText.setOutlineColor(Color::Yellow);
-	gameOverText.setOutlineThickness(1);
-	gameOverText.setString(L"Нажмите enter");
-	gameOverText.setPosition(m_resolution.x / 2 - gameOverText.getGlobalBounds().width / 2, m_resolution.y - gameOverText.getGlobalBounds().height-50);
-		
 	// Патроны
 	ammoText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
 	ammoText.setCharacterSize(55);
@@ -132,7 +112,7 @@ void GameEngine::input()
 			// Загрузка
 			if (state == State::game_load)
 			{
-				if ((event.key.code == sf::Keyboard::Return))
+				if ((event.key.code == sf::Keyboard::Space))
 				{
 					state = State::playing;
 				}
@@ -143,7 +123,7 @@ void GameEngine::input()
 			// Конец игры
 			if (state == State::game_over)
 			{
-				if ((event.key.code == sf::Keyboard::Return) )
+				if ((event.key.code == sf::Keyboard::Space) )
 				{
 					restart();
 					state = State::playing;
@@ -152,7 +132,7 @@ void GameEngine::input()
 			
 			if (state == State::paused)
 			{
-				if ((event.key.code == sf::Keyboard::Return))
+				if ((event.key.code == sf::Keyboard::Space))
 				{
 					state = State::playing;
 				}
@@ -277,10 +257,10 @@ void GameEngine::input()
 		
 		if (state == State::playing)
 		{
-				// Fire a bullet
+				// стрельба
 				if (Mouse::isButtonPressed(sf::Mouse::Left))
 				{
-					if (gameTimeTotal.asMilliseconds() - lastPressed.asMilliseconds() > 100 / fireRate && bulletsInClip > 0)
+					if (gameTimeTotal.asMilliseconds() - lastPressed.asMilliseconds() > 100 && bulletsInClip > 0)
 					{
 						m_musik.play(1, false);
 						// Стрельба в прицел
@@ -293,7 +273,7 @@ void GameEngine::input()
 						lastPressed = gameTimeTotal;
 						bulletsInClip--;
 					}
-				}// End fire a bullet
+				}// конец стрельбы
 
 				if (Mouse::isButtonPressed(sf::Mouse::Right))
 				{
@@ -314,6 +294,8 @@ void GameEngine::update(sf::Time const& deltaTime)
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_int_distribution<> tis(1, 10);
+
+	// Игровая сцена
 	if (state == State::playing)
 	{
 		// Обновление общего игрового времени
@@ -325,7 +307,16 @@ void GameEngine::update(sf::Time const& deltaTime)
 		// Положение курсора
 		spriteCrosshair.setPosition(mouseWorldPosition);
 		spriteCrosshair1.setPosition(mouseWorldPosition);
-		// Обновление свойств игрока
+
+		if (!player.getLive()) {
+			state = State::game_over;
+			std::ofstream outputFile("gamedata/scores.txt");
+			// << writes the data
+			outputFile << hiScore;
+			outputFile.close();
+		}
+
+		// Обновление логики игрока
 		player.update(deltaTime, sf::Mouse::getPosition());
 		// Записываем положение игрока в переменную 
 		sf::Vector2f playerPosition(player.getCenter());
@@ -338,6 +329,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 		maxview.x = player.getSprite().getPosition().x + m_resolution.x / 2;
 		minview.y = player.getSprite().getPosition().y - m_resolution.y / 2;
 		maxview.y = player.getSprite().getPosition().y + m_resolution.y / 2;
+		// обновление логики монстров
 		for (int i = 0; i < monster.size(); i++)
 		{
 			if (monster[i].isAlive()){
@@ -355,7 +347,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 		}
 
 
-		// Update any bullets that are in-flight
+		// обновление логики пуль
 		for (int i = 0; i < 100; i++)
 		{
 			if (bullets[i].isInFlight())
@@ -364,7 +356,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 			}
 		}
 
-		// Update the pickups
+		// обновление логики предметов
 		if (!pickup.empty()) 
 		{
 			
@@ -405,8 +397,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 			}
 		}
 
-// Collision detection
-// Have any zombies been shot?
+		// проверка столкновения пули с монстром
 		for (int i = 0; i < 100; i++)
 		{
 			for (int j = 0; j < numMonster; j++)
@@ -416,13 +407,13 @@ void GameEngine::update(sf::Time const& deltaTime)
 					if (bullets[i].getPosition().intersects
 					(monster[j].getPosition()))
 					{
-						// Stop the bullet
+						// остановить пулю
 						bullets[i].stop();
-						// Register the hit and see if it was a kill
+						// отмечаем попадание в монстра
 						if (monster[j].hit())
 						{ // Монстр умирает
 							if (monster[j].getTypeMonster() > 0 && monster[j].getTypeMonster() < 3) m_musik.play(2, false); else m_musik.play(4, false);
-							score += 10;
+							score += 5*monster[j].getTypeMonster();
 							int typ = tis(gen);
 							if (typ<3) 
 							{
@@ -436,14 +427,15 @@ void GameEngine::update(sf::Time const& deltaTime)
 							numMonsterAlive--;
 							// When all the zombies are dead (again)
 							if (numMonsterAlive == 0) {
-								state = State::wave_up;
+								state = State::level_up;
 							}
 						}
 					}
 				}
 			}
-		}// End zombie being shot
-		// Have any zombies touched the player
+		}// конец проверки столкновения пули с монстром
+
+		// столкновения монстра с игроком
 		for (int i = 0; i < numMonster; i++)
 		{
 			if (player.getPosition().intersects
@@ -453,36 +445,30 @@ void GameEngine::update(sf::Time const& deltaTime)
 				{
 					m_musik.play(5, false);
 				}
-				if (player.getHealth() <= 0)
-				{
-					state = State::game_over;
-					std::ofstream outputFile("gamedata/scores.txt");
-					// << writes the data
-					outputFile << hiScore;
-					outputFile.close();
-				}
+				
 			}
-		}// End player touched
-
-		    // size up the health bar
+		}// конец столкновения монстра с игроком
+				
+		
+		    // линия жизни
 		    healthBar.setSize(Vector2f(player.getHealth() * 4, 50));
 		
-			// Update the ammo text
-			ammoText.setString(std::to_string(bulletsInClip)+"/" + std::to_string(bulletsSpare));
-			// Update the score text
+			// текст обновления патронов
+			ammoText.setString(std::to_string(bulletsInClip)+"/"+ std::to_string(bulletsSpare));
+			// текст обновления очков
 			scoreText.setString(L"Очки: " + std::to_string(score));
-			// Update the high score text
+			// текст обновления рекорда
 			hiScoreText.setString(L"Рекорд: "+std::to_string(hiScore));
-			// Update the wave
+			// текст обновления уровня
 			levelNumberText.setString(L"Уровень: "+ std::to_string(level));
-			// Update the high score text
+			// текст обновления текущего количества монстров
 			monsterRemainingText.setString(L"Монстры: "+ std::to_string(numMonsterAlive));
 			
 
 
-	}// End updating the scene
+	}// Конец игровой сцены
 	
-	if (state == State::wave_up)
+	if (state == State::level_up)
 	{
 		level++;
 		newLevel();
@@ -492,8 +478,6 @@ void GameEngine::update(sf::Time const& deltaTime)
 
 void GameEngine::draw()
 {
-	
-	
 	if (state == State::playing)
 	{
 		window.clear();
@@ -501,6 +485,11 @@ void GameEngine::draw()
 		window.setView(mainView);
 		// Фон
 		window.draw(background, &AssetManager::GetTexture("graphics/plan.png"));
+		// тела монстров
+		for (int i = 0; i < monster.size(); i++) {
+		if ((!monster[i].isAlive()) && (!monster[i].getnovisible()))  window.draw(monster[i].getSprite());
+		}
+				
 		// Пикапы
 		if (!pickup.empty())
 		{
@@ -510,19 +499,15 @@ void GameEngine::draw()
 
 			}
 		}
-		
+
+		// монстры
 		for (int i = 0; i < monster.size(); i++){
 
-			if (monster[i].isAlive()) window.draw(monster[i].getSprite());
-			else{ 
-
-				if (!monster[i].getnovisible()) {
-				window.draw(monster[i].getSprite());
-				}
-				
-			}
+			if (monster[i].isAlive() ) window.draw(monster[i].getSprite());
 		}
 
+
+		// пули
 		for (int i = 0; i < 100; i++)
 		{
 			if (bullets[i].isInFlight())
@@ -530,10 +515,10 @@ void GameEngine::draw()
 				window.draw(bullets[i].getShape());
 			}
 		}
-		// Игрок
+		// игрок
 		window.draw(player.getSprite());
 				
-		// Курсор
+		// курсор
 		for (int j = 0; j < numMonster; j++)
 		{
 			if ((spriteCrosshair1.getGlobalBounds().intersects(monster[j].getPosition())) && (monster[j].isAlive()))
@@ -562,21 +547,22 @@ void GameEngine::draw()
 	if (state == State::game_load)
 	{
 		window.clear();
-		levelText.setString(L"Для продолжения нажмите Enter ");
+		levelText.setString(L"для продолжения нажмите пробел ");
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
 		window.draw(spriteGameBegin);
 		window.draw(levelText);		
 	}
 	if (state == State::paused)
 	{
-		window.draw(pausedText);
-		
+		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y/2 - levelText.getGlobalBounds().height/2);
+		window.draw(levelText);	
 	}
 	
 	if (state == State::game_over)
 	{
 		window.draw(spriteGameOver);
-		window.draw(gameOverText);
+		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
+		window.draw(levelText);
 		window.draw(scoreText);
 		window.draw(hiScoreText);
 	}

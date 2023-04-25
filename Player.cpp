@@ -6,8 +6,10 @@ Player::Player()
 		m_Health = START_HEALTH;
 		m_MaxHealth = START_HEALTH;
 		
-		auto& idleForward = m_AnimPlayer.CreateAnimation("idleForward", "graphics/player.png", sf::seconds(1), true);
-		idleForward.AddFrames(sf::Vector2i(0, 0), sf::Vector2i(142, 105), 8, 1);
+		auto& idleForward = m_AnimPlayer.CreateAnimation("idleForward", "graphics/player.png", sf::seconds(0.5), true);
+		idleForward.AddFrames(sf::Vector2i(0, 0), sf::Vector2i(135, 105), 4, 1);
+		auto& dead = m_AnimPlayer.CreateAnimation("dead", "graphics/player.png", sf::seconds(0.5), false);
+		dead.AddFrames(sf::Vector2i(405, 0), sf::Vector2i(135, 105), 4, 1);
 		m_AnimPlayer.SwitchAnimation("idleForward");
 		m_AnimPlayer.Update(sf::seconds(0));
 		// Устанавливаем начало спрайта в центр,
@@ -38,6 +40,14 @@ void Player::resetPlayerStats()
 	m_Speed = START_SPEED;
 	m_Health = START_HEALTH;
 	m_MaxHealth = START_HEALTH;
+	m_live = true;
+	m_AnimPlayer.SwitchAnimation("idleForward");
+	m_AnimPlayer.Update(sf::seconds(0));
+}
+
+bool Player::getLive() const
+{
+	return m_live;
 }
 
 sf::Time Player::getLastHitTime() const
@@ -156,8 +166,20 @@ void Player::stopDown()
 void Player::update(sf::Time deltaTime, sf::Vector2i mousePosition)
 {
 	m_time_moving += deltaTime;
-	if (m_UpPressed|| m_DownPressed|| m_RightPressed|| m_LeftPressed || m_UpRg || m_DownLf || m_DownRg || m_UpLf) m_AnimPlayer.Update(deltaTime);
-	if (m_time_moving> sf::microseconds(5000)) {
+	if ((m_UpPressed|| m_DownPressed|| m_RightPressed|| m_LeftPressed || m_UpRg || m_DownLf || m_DownRg || m_UpLf)&& m_Health>0) m_AnimPlayer.Update(deltaTime);
+	if (m_Health < 0) 
+	{
+		if (m_AnimPlayer.GetCurrentAnimationName() != "dead") m_AnimPlayer.SwitchAnimation("dead");
+		m_AnimPlayer.Update(deltaTime);
+	if (m_AnimPlayer.getEndAnim())
+	{
+		m_live = false;
+	}
+	}
+	else {
+
+
+	if (m_time_moving> sf::microseconds(5000)){
 
 		m_time_moving = sf::microseconds(0);
 
@@ -225,6 +247,7 @@ void Player::update(sf::Time deltaTime, sf::Vector2i mousePosition)
 	auto angle = static_cast<float>((atan2(static_cast<float>(mousePosition.y) - m_Resolution.y / 2, static_cast<float>(mousePosition.x) - m_Resolution.x / 2)* 180) / 3.141);
 	m_Sprite.setRotation(angle);
 
+		}
 	}
 }
 

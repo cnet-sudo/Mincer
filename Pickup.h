@@ -1,13 +1,11 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <random>
 
 class Pickup
 {
 private:
-	//Начальные значения для подбора 
-	const int HEALTH_START_VALUE = 100;
-	const int AMMO_START_VALUE = 100;
-
+	
 	// Спрайт, представляющий этот пикап
 	sf::Sprite m_Sprite;
 	// Сколько стоит этот пикап?
@@ -15,19 +13,19 @@ private:
 	// Что это за пикап?
     // 1 = здоровье, 2 = патроны
 	int m_Type;
-	// Обработка появления и исчезновения
+	// Обработка появления и исчезновения пикапа
 	bool m_Spawned=true;
 	float m_SecondsSinceSpawn;
 	float m_SecondsSinceDeSpawn;
-	float m_SecondsToLive=10;
+	float m_SecondsToLive=30;
 		
 public:
 	// Готовим новый пикап
 	void spawn(sf::Vector2f pos, int type);
 	// Проверяем положение пикапа
-	sf::FloatRect getPosition();
+	sf::FloatRect getPosition() const;
 	// Получаем спрайт для рисования
-	sf::Sprite getSprite();
+	sf::Sprite getSprite() const;
 	// Разрешить пикапу обновлять себя каждый кадр
 	void update(float elapsedTime);
 	// Создан ли этот пикап в настоящее время?
@@ -35,5 +33,5 @@ public:
 	// Получаем добро из пикапа
 	int gotIt();
 	// Получаем тип
-	int getType();
+	int getType() const;
 };
