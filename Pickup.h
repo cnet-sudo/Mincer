@@ -17,7 +17,7 @@ private:
 	bool m_Spawned=true;
 	float m_SecondsSinceSpawn;
 	float m_SecondsSinceDeSpawn;
-	float m_SecondsToLive=30;
+	float m_SecondsToLive=15;
 		
 public:
 	// Готовим новый пикап

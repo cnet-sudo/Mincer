@@ -164,13 +164,17 @@ void GameEngine::input()
 			// Игра
 			if (state == State::playing)
 			{
-
+				
 			// Игровая пауза
 			if (event.key.code == sf::Keyboard::Pause)
 			{
 				state = State::paused;
 			}
 			 
+			if (event.key.code == sf::Keyboard::Space)
+			{
+				mainView.setSize(m_resolution.x,m_resolution.y);
+			}
 			
 				// Перезарядка
 				if (event.key.code == Keyboard::R)
@@ -251,6 +255,20 @@ void GameEngine::input()
 			
 		}
 
+		// Масштаб
+		if (event.type == sf::Event::MouseWheelScrolled)
+		{
+			if (event.mouseWheelScroll.delta < 0) {
+				mainView.zoom(0.9f);
+			if (mainView.getSize().x < 1280) mainView.setSize(1280, 720);
+			}
+				
+			else if (event.mouseWheelScroll.delta > 0) {
+				mainView.zoom(1.1f);
+				if (mainView.getSize().x > 3840) mainView.setSize(3840, 2160);
+			}
+				
+		}
 
 		if (event.type == sf::Event::MouseButtonPressed)
 		{
@@ -322,6 +340,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 		sf::Vector2f playerPosition(player.getCenter());
 		// Устанавливаем центр окна mainView, согласно положению игрока
 		mainView.setCenter(player.getCenter());
+		
 		// Область видимости игрока
 		sf::Vector2f minview;
 		sf::Vector2f maxview;
@@ -575,6 +594,7 @@ void GameEngine::restart()
 	player.resetPlayerStats();
 	score = 0;
 	level = 1;
+	mainView.setSize(m_resolution.x, m_resolution.y);
 	bulletsSpare = 200;
 	bulletsInClip = 50;
 	// Prepare the level
