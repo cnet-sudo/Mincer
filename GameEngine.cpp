@@ -7,13 +7,13 @@ GameEngine::GameEngine()
 	spriteGameBegin.setTexture(AssetManager::GetTexture("graphics/back2.jpg"));
 	spriteGameBegin.setPosition(0, 0);
 	
-	WaveUpText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
-	WaveUpText.setCharacterSize(40);
-	WaveUpText.setFillColor(sf::Color::White);
-	WaveUpText.setString(L"Загрузка ...");
-	WaveUpText.setPosition(m_resolution.x / 2 - WaveUpText.getGlobalBounds().width / 2, m_resolution.y - WaveUpText.getGlobalBounds().height-50);
+	levelText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
+	levelText.setCharacterSize(40);
+	levelText.setFillColor(sf::Color::White);
+	levelText.setString(L"Загрузка ...");
+	levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height-50);
 	window.draw(spriteGameBegin);
-	window.draw(WaveUpText);
+	window.draw(levelText);
 	window.display();
 	//-------------------------------------------
 	std::vector<std::string> str{ "sound/level1.wav","sound/plasma.wav","sound/mobv.wav","sound/per.wav",
@@ -98,12 +98,12 @@ GameEngine::GameEngine()
 	monsterRemainingText.setPosition(1400, 980);
 	
 	// Номер волны
-	waveNumberText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
-	waveNumberText.setCharacterSize(55);
-	waveNumberText.setFillColor(sf::Color(99, 124, 0));
-	waveNumberText.setOutlineColor(Color::Yellow);
-	waveNumberText.setOutlineThickness(1);
-	waveNumberText.setPosition(800, 20);
+	levelNumberText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
+	levelNumberText.setCharacterSize(55);
+	levelNumberText.setFillColor(sf::Color(99, 124, 0));
+	levelNumberText.setOutlineColor(Color::Yellow);
+	levelNumberText.setOutlineThickness(1);
+	levelNumberText.setPosition(800, 20);
 	
 	// Линия жизни
 	healthBar.setOutlineColor(Color::Yellow);
@@ -316,38 +316,44 @@ void GameEngine::update(sf::Time const& deltaTime)
 	std::uniform_int_distribution<> tis(1, 10);
 	if (state == State::playing)
 	{
-		// Update the total game time
+		// Обновление общего игрового времени
 		gameTimeTotal += deltaTime;
-		if (textWave) 
-		{
-			timewave += deltaTime;
-			if (timewave.asSeconds() > 3) 
-			{
-				textWave = false; timewave = seconds(0);
-			}
-		}
-		// Where is the mouse pointer
+		// Положение мышки
 		mouseScreenPosition = sf::Mouse::getPosition();
-		// Convert mouse position to world coordinates of mainView
+		// Конвертируем положение мышки в мировые координаты окна mainView
 		mouseWorldPosition = window.mapPixelToCoords(sf::Mouse::getPosition(), mainView);
-		// Set the crosshair to the mouse world location
+		// Положение курсора
 		spriteCrosshair.setPosition(mouseWorldPosition);
 		spriteCrosshair1.setPosition(mouseWorldPosition);
-		// Update the player
+		// Обновление свойств игрока
 		player.update(deltaTime, sf::Mouse::getPosition());
-		// Make a note of the players new position
+		// Записываем положение игрока в переменную 
 		sf::Vector2f playerPosition(player.getCenter());
-		// Make the view centre around the player
+		// Устанавливаем центр окна mainView, согласно положению игрока
 		mainView.setCenter(player.getCenter());
-
-		for (int i = 0; i < numMonster; i++)
+		// Область видимости игрока
+		sf::Vector2f minview;
+		sf::Vector2f maxview;
+		minview.x = player.getSprite().getPosition().x - m_resolution.x / 2;
+		maxview.x = player.getSprite().getPosition().x + m_resolution.x / 2;
+		minview.y = player.getSprite().getPosition().y - m_resolution.y / 2;
+		maxview.y = player.getSprite().getPosition().y + m_resolution.y / 2;
+		for (int i = 0; i < monster.size(); i++)
 		{
 			if (monster[i].isAlive()){
 
-				monster[i].update(deltaTime, playerPosition, m_resolution, monster,numMonster, i);
-
+				monster[i].update(deltaTime, playerPosition, m_resolution);
+			}
+			else
+			{
+				if (monster[i].getSprite().getPosition().x > maxview.x || monster[i].getSprite().getPosition().x < minview.x
+					|| monster[i].getSprite().getPosition().y > maxview.y || monster[i].getSprite().getPosition().y < minview.y)
+				{
+					monster[i].novisible();
+				}
 			}
 		}
+
 
 		// Update any bullets that are in-flight
 		for (int i = 0; i < 100; i++)
@@ -382,7 +388,8 @@ void GameEngine::update(sf::Time const& deltaTime)
 				}
 				}
 			}
-			if (pickup.size()>10) 
+			
+			if (pickup.size()>20) 
 			{
 			std::vector<Pickup> tmp;
 			for (int i = 0; i < pickup.size(); i++)
@@ -414,7 +421,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 						// Register the hit and see if it was a kill
 						if (monster[j].hit())
 						{ // Монстр умирает
-							if (monster[j].getMonster() > 0 && monster[j].getMonster() < 3) m_musik.play(2, false); else m_musik.play(4, false);
+							if (monster[j].getTypeMonster() > 0 && monster[j].getTypeMonster() < 3) m_musik.play(2, false); else m_musik.play(4, false);
 							score += 10;
 							int typ = tis(gen);
 							if (typ<3) 
@@ -457,13 +464,9 @@ void GameEngine::update(sf::Time const& deltaTime)
 			}
 		}// End player touched
 
-		// size up the health bar
-		healthBar.setSize(Vector2f(player.getHealth() * 4, 50));
-		// Increment the number of frames since the previous update
-		framesSinceLastHUDUpdate++;
-		// re-calculate every fpsMeasurementFrameInterval frames
-		if (framesSinceLastHUDUpdate > fpsMeasurementFrameInterval)
-		{
+		    // size up the health bar
+		    healthBar.setSize(Vector2f(player.getHealth() * 4, 50));
+		
 			// Update the ammo text
 			ammoText.setString(std::to_string(bulletsInClip)+"/" + std::to_string(bulletsSpare));
 			// Update the score text
@@ -471,19 +474,17 @@ void GameEngine::update(sf::Time const& deltaTime)
 			// Update the high score text
 			hiScoreText.setString(L"Рекорд: "+std::to_string(hiScore));
 			// Update the wave
-			waveNumberText.setString(L"Уровень: "+ std::to_string(level));
+			levelNumberText.setString(L"Уровень: "+ std::to_string(level));
 			// Update the high score text
 			monsterRemainingText.setString(L"Монстры: "+ std::to_string(numMonsterAlive));
-			framesSinceLastHUDUpdate = 0;
+			
 
-		}// End HUD update
 
 	}// End updating the scene
 	
 	if (state == State::wave_up)
 	{
 		level++;
-		textWave = true;
 		newLevel();
 	    state = State::playing;	
 	}
@@ -491,12 +492,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 
 void GameEngine::draw()
 {
-	sf::Vector2f minview;
-	sf::Vector2f maxview;
-	minview.x = player.getSprite().getPosition().x - m_resolution.x / 2;
-	maxview.x = player.getSprite().getPosition().x + m_resolution.x / 2;
-	minview.y = player.getSprite().getPosition().y - m_resolution.y / 2;
-	maxview.y = player.getSprite().getPosition().y + m_resolution.y / 2;
+	
 	
 	if (state == State::playing)
 	{
@@ -514,27 +510,19 @@ void GameEngine::draw()
 
 			}
 		}
-		// Монстры
-		for (int i = 0; i < numMonster; i++)
-		{
-			bool pass = true;
-			if (!deadMonster.empty()) for (int j = 0; j < deadMonster.size();j++) if (i == deadMonster[j]) pass = false;
-			
-			if ((monster[i].isAlive() == false) && (pass)) 
-			{
+		
+		for (int i = 0; i < monster.size(); i++){
+
+			if (monster[i].isAlive()) window.draw(monster[i].getSprite());
+			else{ 
+
+				if (!monster[i].getnovisible()) {
 				window.draw(monster[i].getSprite());
-				
-				if (monster[i].getSprite().getPosition().x > maxview.x || monster[i].getSprite().getPosition().x < minview.x
-					|| monster[i].getSprite().getPosition().y > maxview.y || monster[i].getSprite().getPosition().y < minview.y) 
-				{
-					deadMonster.push_back(i);
 				}
+				
 			}
 		}
-		for (int i = 0; i < numMonster; i++)
-		{
-			if (monster[i].isAlive()) window.draw(monster[i].getSprite());
-		}
+
 		for (int i = 0; i < 100; i++)
 		{
 			if (bullets[i].isInFlight())
@@ -557,10 +545,7 @@ void GameEngine::draw()
 				window.draw(spriteCrosshair);
 			}
 		}
-		if (textWave)
-		{
-		window.draw(WaveUpText);
-		}
+		
 		// Интерфейс
 		window.setView(hudView);
 		// Элементы интерфейса
@@ -570,17 +555,17 @@ void GameEngine::draw()
 		window.draw(hiScoreText);
 		window.draw(healthBar);
 		window.draw(healthBar1);
-		window.draw(waveNumberText);
+		window.draw(levelNumberText);
 		window.draw(monsterRemainingText);
 		
 	}
 	if (state == State::game_load)
 	{
 		window.clear();
-		WaveUpText.setString(L"Для продолжения нажмите Enter ");
-		WaveUpText.setPosition(m_resolution.x / 2 - WaveUpText.getGlobalBounds().width / 2, m_resolution.y - WaveUpText.getGlobalBounds().height - 50);
+		levelText.setString(L"Для продолжения нажмите Enter ");
+		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
 		window.draw(spriteGameBegin);
-		window.draw(WaveUpText);		
+		window.draw(levelText);		
 	}
 	if (state == State::paused)
 	{
@@ -608,8 +593,8 @@ void GameEngine::restart()
 	bulletsInClip = 50;
 	// Prepare the level
 	// We will modify the next two lines later
-	planet.width = 20000;
-	planet.height = 20000;
+	planet.width = 30000;
+	planet.height = 30000;
 	planet.left = 0;
 	planet.top = 0;
 	// Pass the vertex array by reference

@@ -13,7 +13,6 @@
 #include <deque>
 #include "GameSound.h"
 
-
 class GameEngine
 {
 public:
@@ -26,7 +25,7 @@ private:
 	// Менеджер ресурсов
 	AssetManager manager; 
 	
-	// Умный указатель на графическое окно 
+	// Графическое окно
 	sf::RenderWindow window = sf::RenderWindow(sf::VideoMode(m_resolution.x, m_resolution.y),L"Мясорубка", sf::Style::Fullscreen);
 	sf::Image icon;
 	GameSound m_musik;
@@ -42,36 +41,34 @@ private:
 	// Игра всегда будет в одном из четырех состояний
 	enum class State {paused, wave_up,game_over, playing, game_victory,game_load};
 	
-	// Начните с состояния GAME_OVER
+	// Состояние игры
 	State state;
 	
-	// create an SFML window
+	// разрешение экрана
 	sf::Vector2f m_resolution = sf::Vector2f(static_cast<float>(sf::VideoMode::getDesktopMode().width),
 		static_cast<float>(sf::VideoMode::getDesktopMode().height));
-	// Create a an SFML View for the main action
+	// Окно mainView
 	sf::View mainView=sf::View(sf::FloatRect(0, 0,m_resolution.x, m_resolution.y));
-	// How long has the PLAYING state been active
+	// Общее игровое время
 	sf::Time gameTimeTotal;
-	// Where is the mouse in
-	// relation to world coordinates
+	// мировые координаты мышки
 	sf::Vector2f mouseWorldPosition;
-	// Where is the mouse in
-	// relation to screen coordinates
+	// координаты мышки в окне
 	sf::Vector2i mouseScreenPosition;
-	// Create an instance of the Player class
+	// игрок
 	Player player;
 
-	// Create the background
+	// фон уровня
 	sf::VertexArray background;
-	// The boundaries of the arena
+	// Размер уровня
 	sf::IntRect planet;
 
-	// Prepare for a horde of zombies
+	// Количество монстров
 	int numMonster;
 	int numMonsterAlive;
 	// массив монстров
 	std::deque<Monster> monster;
-	// 100 bullets should do
+	// 100 патронов
 	std::array<Bullet,100> bullets;
 	int currentBullet = 0;
 	// Ящик с патронами
@@ -82,43 +79,46 @@ private:
 	const int clipSize = 50;
 
 	float fireRate = 1;
-	// When was the fire button last pressed?
+	
 	Time lastPressed;
+    
+	// Прицел
 	Sprite spriteCrosshair;
 	Sprite spriteCrosshair1;
+	// Придметы для подъёма
     std::vector<Pickup>  pickup;
-	// About the game
+	// очки
 	int score;
+	// рекорд
 	int hiScore = 0;
 	// рестарт
 	void restart();
-	// новая волна
+	// новый уровень
 	void newLevel();
 	int level=1;
 	sf::Time timewave;
-	bool textWave=false;
 	// перезарядка оружия
 	void recharge();
-	// Create a view for the HUD
+	// окно HUD
 	View hudView=sf::View(sf::FloatRect(0, 0, m_resolution.x, m_resolution.y));
+	// фон конца игры
 	Sprite spriteGameOver;
+	// фон начала игры
 	Sprite spriteGameBegin;
+	// патроны в интерфейсе
 	Sprite spriteAmmoIcon;
+	// текст
 	Text pausedText;
 	Text gameOverText;
-	Text WaveUpText;
+	Text levelText;
 	Text ammoText;
 	Text scoreText;
 	Text hiScoreText;
 	Text monsterRemainingText;
-	Text waveNumberText;
+	Text levelNumberText;
+	// линия жизни
 	RectangleShape healthBar;
 	RectangleShape healthBar1;
-	// When did we last update the HUD?
-	int framesSinceLastHUDUpdate = 0;
-	// How often (in frames) should we update the HUD
-	int fpsMeasurementFrameInterval = 1000;
-
-	std::vector<int> deadMonster;
+	
 };
 

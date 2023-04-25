@@ -21,9 +21,6 @@ Monster::Monster()
 
 void Monster::spawn(float startX, float startY, int type)
 {
-	// Будет использоваться для получения начального числа для механизма случайных чисел
-	std::random_device rd;
-	std::mt19937 gen(rd());
 	m_Type = type;
 	switch (type)
 	{
@@ -58,16 +55,10 @@ void Monster::spawn(float startX, float startY, int type)
 		m_Health = mon5_HEALTH;
 		break;
 	}
-	std::uniform_int_distribution<> dis(MAX_VARRIANCE, OFFSET);
-
-	auto modifier = static_cast<float>(dis(gen));
-	modifier /= 100; 
-	m_Speed *= modifier;
-	// Initialize its location
+	
 	//Инициализировать его местоположение
 	m_Position.x = startX;
 	m_Position.y = startY;
-	// Set its origin to its center
 	// Отцентровуем объект
 	m_Sprite.setOrigin(25, 25);
 	// Устанавливаем место положения на карте
@@ -90,7 +81,6 @@ bool Monster::hit()
 		
 		return true;
 	}
-	// injured but not dead yet
 	return false;
 }
 
@@ -98,6 +88,17 @@ bool Monster::isAlive()
 {
 	return m_Alive;
 }
+
+bool Monster::getnovisible()
+{
+	return m_novisible;
+}
+
+void Monster::novisible()
+{
+	if (!m_Alive) m_novisible = true;
+}
+
 sf::FloatRect Monster::getPosition()
 {
 	auto myGlobalBounds = sf::FloatRect(m_Sprite.getGlobalBounds().left+40,	m_Sprite.getGlobalBounds().top+40, 
@@ -105,12 +106,13 @@ sf::FloatRect Monster::getPosition()
 	
 	return myGlobalBounds;
 }
-sf::Sprite Monster::getSprite()
+
+sf::Sprite Monster::getSprite() const
 {
 	return m_Sprite;
 }
 
-void Monster::update(sf::Time deltaTime, sf::Vector2f playerLocation, sf::Vector2f resolution, std::deque<Monster>& monster, int numMonster, int index)
+void Monster::update(sf::Time deltaTime, sf::Vector2f playerLocation, sf::Vector2f resolution)
 {
 	m_AnimPlayer.Update(deltaTime);
 	if (m_AnimPlayer.getEndAnim())
@@ -145,15 +147,13 @@ void Monster::update(sf::Time deltaTime, sf::Vector2f playerLocation, sf::Vector
 
 	}
 
-	
-
 	m_Sprite.setPosition(m_Position);
-	float angle = (atan2(playerY - m_Position.y, playerX - m_Position.x)* 180) / 3.141;
+	auto angle = static_cast<float>((atan2(playerY - m_Position.y, playerX - m_Position.x)* 180) / 3.141);
 	m_Sprite.setRotation(angle);
 	}
 }
 
-int Monster::getMonster()
+int Monster::getTypeMonster() const
 {
 	return m_Type;
 }
