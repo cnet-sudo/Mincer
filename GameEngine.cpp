@@ -12,18 +12,18 @@ GameEngine::GameEngine()
 	levelText.setFillColor(sf::Color::White);
 	levelText.setString(L"Загрузка ...");
 	levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height-50);
-	window.draw(spriteGameBegin);
-	window.draw(levelText);
-	window.display();
+	window->draw(spriteGameBegin);
+	window->draw(levelText);
+	window->display();
 	//-------------------------------------------
 	std::vector<std::string> str{ "sound/level1.wav","sound/plasma.wav","sound/mobv.wav","sound/per.wav",
 	"sound/mobb.wav","sound/hit1.wav","sound/bonus1.wav"};
 	m_musik.create_sound(str);
 	// загрузка иконки приложения
-	if (!icon.loadFromFile("game.png")) exit(3); 
-	window.setIcon(128, 128, icon.getPixelsPtr());
+	if (!icon.loadFromFile("game.png")) window->close(); 
+	window->setIcon(128, 128, icon.getPixelsPtr());
 	// прячем курсор
-	window.setMouseCursorVisible(false);
+	window->setMouseCursorVisible(false);
 	spriteCrosshair.setTexture(AssetManager::GetTexture("graphics/crosshair.png"));
 	spriteCrosshair.setOrigin(25, 25);
 	spriteCrosshair1.setTexture(AssetManager::GetTexture("graphics/crosshair1.png"));
@@ -104,7 +104,7 @@ void GameEngine::input()
 {
 	sf::Event event;
 
-	while (window.pollEvent(event))
+	while (window->pollEvent(event))
 	{
 		if (event.type == sf::Event::KeyPressed)
 		{
@@ -157,7 +157,7 @@ void GameEngine::input()
 					outFile.close();
 				}
 				
-				window.close();
+				window->close();
 			}
 						
 
@@ -321,7 +321,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 		// Положение мышки
 		mouseScreenPosition = sf::Mouse::getPosition();
 		// Конвертируем положение мышки в мировые координаты окна mainView
-		mouseWorldPosition = window.mapPixelToCoords(sf::Mouse::getPosition(), mainView);
+		mouseWorldPosition = window->mapPixelToCoords(sf::Mouse::getPosition(), mainView);
 		// Положение курсора
 		spriteCrosshair.setPosition(mouseWorldPosition);
 		spriteCrosshair1.setPosition(mouseWorldPosition);
@@ -419,7 +419,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 		// проверка столкновения пули с монстром
 		for (int i = 0; i < 100; i++)
 		{
-			for (int j = 0; j < numMonster; j++)
+			for (int j = 0; j < monster.size(); j++)
 			{
 				if (bullets[i].isInFlight() &&	monster[j].isAlive())
 				{
@@ -455,7 +455,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 		}// конец проверки столкновения пули с монстром
 
 		// столкновения монстра с игроком
-		for (int i = 0; i < numMonster; i++)
+		for (int i = 0; i < monster.size(); i++)
 		{
 			if (player.getPosition().intersects
 			(monster[i].getPosition()) && monster[i].isAlive())
@@ -499,14 +499,14 @@ void GameEngine::draw()
 {
 	if (state == State::playing)
 	{
-		window.clear();
+		window->clear();
 		// Игровое окно
-		window.setView(mainView);
+		window->setView(mainView);
 		// Фон
-		window.draw(background, &AssetManager::GetTexture("graphics/plan.png"));
+		window->draw(background, &AssetManager::GetTexture("graphics/plan.png"));
 		// тела монстров
 		for (int i = 0; i < monster.size(); i++) {
-		if ((!monster[i].isAlive()) && (!monster[i].getnovisible()))  window.draw(monster[i].getSprite());
+		if ((!monster[i].isAlive()) && (!monster[i].getnovisible()))  window->draw(monster[i].getSprite());
 		}
 				
 		// Пикапы
@@ -514,7 +514,7 @@ void GameEngine::draw()
 		{
 			for (int i = 0; i < pickup.size(); i++)
 			{
-				if (pickup[i].isSpawned())	window.draw(pickup[i].getSprite());
+				if (pickup[i].isSpawned())	window->draw(pickup[i].getSprite());
 
 			}
 		}
@@ -522,7 +522,7 @@ void GameEngine::draw()
 		// монстры
 		for (int i = 0; i < monster.size(); i++){
 
-			if (monster[i].isAlive() ) window.draw(monster[i].getSprite());
+			if (monster[i].isAlive() ) window->draw(monster[i].getSprite());
 		}
 
 
@@ -531,133 +531,120 @@ void GameEngine::draw()
 		{
 			if (bullets[i].isInFlight())
 			{
-				window.draw(bullets[i].getShape());
+				window->draw(bullets[i].getShape());
 			}
 		}
 		// игрок
-		window.draw(player.getSprite());
+		window->draw(player.getSprite());
 				
 		// курсор
-		for (int j = 0; j < numMonster; j++)
+		for (int j = 0; j < monster.size(); j++)
 		{
 			if ((spriteCrosshair1.getGlobalBounds().intersects(monster[j].getPosition())) && (monster[j].isAlive()))
 			{
-				window.draw(spriteCrosshair1); break;
+				window->draw(spriteCrosshair1); break;
 			}
 			else
 			{
-				window.draw(spriteCrosshair);
+				window->draw(spriteCrosshair);
 			}
 		}
 		
 		// Интерфейс
-		window.setView(hudView);
+		window->setView(hudView);
 		// Элементы интерфейса
-		window.draw(spriteAmmoIcon);
-		window.draw(ammoText);
-		window.draw(scoreText);
-		window.draw(hiScoreText);
-		window.draw(healthBar);
-		window.draw(healthBar1);
-		window.draw(levelNumberText);
-		window.draw(monsterRemainingText);
+		window->draw(spriteAmmoIcon);
+		window->draw(ammoText);
+		window->draw(scoreText);
+		window->draw(hiScoreText);
+		window->draw(healthBar);
+		window->draw(healthBar1);
+		window->draw(levelNumberText);
+		window->draw(monsterRemainingText);
 		
 	}
 	if (state == State::game_load)
 	{
-		window.clear();
+		window->clear();
 		levelText.setString(L"для продолжения нажмите пробел ");
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
-		window.draw(spriteGameBegin);
-		window.draw(levelText);		
+		window->draw(spriteGameBegin);
+		window->draw(levelText);		
 	}
 	if (state == State::paused)
 	{
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y/2 - levelText.getGlobalBounds().height/2);
-		window.draw(levelText);	
+		window->draw(levelText);	
 	}
 	
 	if (state == State::game_over)
 	{
-		window.draw(spriteGameOver);
+		window->draw(spriteGameOver);
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
-		window.draw(levelText);
-		window.draw(scoreText);
-		window.draw(hiScoreText);
+		window->draw(levelText);
+		window->draw(scoreText);
+		window->draw(hiScoreText);
 	}
 		
-	window.display();
+	window->display();
 }
 
 void GameEngine::restart()
 {
 	player.resetPlayerStats();
 	score = 0;
-	level = 1;
+	level = 5;
 	mainView.setSize(m_resolution.x, m_resolution.y);
 	bulletsSpare = 200;
 	bulletsInClip = 50;
-	// Prepare the level
-	// We will modify the next two lines later
 	planet.width = 30000;
 	planet.height = 30000;
 	planet.left = 0;
 	planet.top = 0;
-	// Pass the vertex array by reference
-	// to the createBackground function
-	int tileSize = createBackground(background, planet);
-	// Spawn the player in the middle of the arena
+	background.clear();
+	int tileSize = createBackground(background, planet,level);
 	player.spawn(planet, m_resolution, tileSize);
-	// Configure the pick-ups
 	newLevel();
-	numMonsterAlive = numMonster;
 }
 
 void GameEngine::newLevel()
 {   
 	monster.clear();
 	pickup.clear();
+	
 
 	switch (level)
 	{
 	case 1: 
 	{   // Количество монстров
-		numMonster = 100;
-		createHorde(numMonster,monster, sf::Vector2i(0, 1), planet);
-		numMonsterAlive = numMonster; 
+		numMonsterAlive=createHorde(100,monster, sf::Vector2i(0, 1), planet);
 		break; 
 	}
 	case 2:
 	{   // Количество монстров
-		numMonster = 150;
-		createHorde(numMonster, monster,sf::Vector2i(0, 2), planet);
-		numMonsterAlive = numMonster;
+		numMonsterAlive = createHorde(150, monster,sf::Vector2i(0, 2), planet);
 		break;
 	}
 	case 3:
 	{   // Количество монстров
-		numMonster = 200;
-		createHorde(numMonster,monster, sf::Vector2i(1, 3), planet);
-		numMonsterAlive = numMonster;
+		numMonsterAlive = createHorde(200,monster, sf::Vector2i(1, 3), planet);
+		
 		break;
 	}
 	case 4:
 	{   // Количество монстров
-		numMonster = 250;
-		createHorde(numMonster, monster, sf::Vector2i(2, 4), planet);
-		numMonsterAlive = numMonster;
+		numMonsterAlive =createHorde(250, monster, sf::Vector2i(2, 4), planet);
 		break;
 	}
 	case 5:
 	{   // Количество монстров
-		numMonster = 300;
-		createHorde(numMonster, monster, sf::Vector2i(3, 4), planet);
-		numMonsterAlive = numMonster;
+		numMonsterAlive = createHorde(300, monster, sf::Vector2i(3, 4), planet);
 		break;
 	}
 	default:
 		break;
 	}
+
 }
 
 void GameEngine::recharge()
@@ -689,7 +676,7 @@ void GameEngine::run()
 	// Объявление переменной часы
 	sf::Clock clock;
 	// Цикл работает пока окно открыто
-	while (window.isOpen())
+	while (window->isOpen())
 	{
 		// Текущее время присваиваем переменной времени dt
 		sf::Time dt = clock.restart();

@@ -14,7 +14,7 @@ private:
 	// Разрешение экрана
 	sf::Vector2f m_Resolution;
 	//Размер поля поля
-	sf::IntRect m_Arena;
+	sf::IntRect m_planet;
 	// Размер текстур поля поля
 	int m_TileSize;
 	// В каком направлении(ях) движется игрок в данный момент
@@ -40,7 +40,7 @@ private:
 public:
 
 	Player();
-	void spawn(sf::IntRect arena, sf::Vector2f resolution, int tileSize);
+	void spawn(sf::IntRect planet, sf::Vector2f resolution, int tileSize);
 	// перезапуск
 	void resetPlayerStats();
 	// жизнь

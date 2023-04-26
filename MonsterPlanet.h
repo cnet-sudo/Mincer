@@ -3,7 +3,7 @@
 #include "Monster.h"
 
 
-int createBackground(sf::VertexArray& rVA, sf::IntRect arena);
+int createBackground(sf::VertexArray& rVA, sf::IntRect planet, int index);
 
-void createHorde(int numMonster, std::deque<Monster> & monster, sf::Vector2i type, sf::IntRect arena);
+int createHorde(int numMonster, std::deque<Monster>& monster, sf::Vector2i type, sf::IntRect planet);
 

@@ -31,7 +31,7 @@ private:
 	// Жизнь монстра
 	float m_Health;
 	// Состояние жив - мёртв
-	bool m_Alive;
+	bool m_Alive = true;
 	// Видно на карте труп или нет
 	bool m_novisible = false;
 	// Тип моснтра

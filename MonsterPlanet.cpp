@@ -1,48 +1,32 @@
 #include "MonsterPlanet.h"
 #include "Monster.h"
-void createHorde(int numMonster, std::deque<Monster>& monster, sf::Vector2i type, sf::IntRect arena)
-{
-	
-	std::random_device rd;
-	
+int createHorde(int numMonster, std::deque<Monster>& monster, sf::Vector2i type, sf::IntRect planet)
+{   
+    auto min= sf::Vector2i(planet.left + 300, planet.top + 300);
+	auto max= sf::Vector2i(planet.width - 300, planet.height - 300);
+    int num = 0;
+    std::random_device rd;
 	std::mt19937 gen(rd());
-	
-	for (int i = 0; i < numMonster; i++)
-	{
-		monster.emplace_back();
-	}
-
-
-	auto max= sf::Vector2i(arena.width - 300, arena.height - 300);
-	auto min= sf::Vector2i(arena.left + 300, arena.top + 300);
-    std::uniform_int_distribution<> rLR(min.x, max.x);
-	std::uniform_int_distribution<> rTB(min.y, max.y);
+	std::uniform_int_distribution<> rx(min.x, max.x);
+	std::uniform_int_distribution<> ry(min.y, max.y);
 	std::uniform_int_distribution<> rtype(type.x, type.y);
-
-	bool collis;
-
+    sf::Vector2f pos;
+    int mtype;
+	
 	for (int i = 0; i < numMonster; i++){
-		auto type = rtype(gen);
-		do {
-			
-			sf::Vector2f pos;
-			collis = false;
-			pos.x = static_cast<float>(rLR(gen));
-			pos.y = static_cast<float>(rTB(gen));
-			monster[i].spawn(pos.x, pos.y, type);
-
-
-			for (int j = 0; j < i; j++)
-			{
-				if (monster[i].getPosition().intersects(monster[j].getPosition())) collis = true;
-			}
-		} while (collis);
-
+		    
+            mtype = rtype(gen);
+		    pos.x = static_cast<float>(rx(gen));
+			pos.y = static_cast<float>(ry(gen));
+            monster.emplace_back();
+            monster[i].spawn(pos.x, pos.y, mtype);
+            num++;
 	}
 	
+    return num;
 }
 
-int createBackground(sf::VertexArray& rVA, sf::IntRect planet)
+int createBackground(sf::VertexArray& rVA, sf::IntRect planet, int index)
 {
     // Will be used to obtain a seed for the random number engine
     // Ѕудет использоватьс€ дл€ получени€ начального числа дл€ механизма случайных чисел
@@ -73,10 +57,10 @@ int createBackground(sf::VertexArray& rVA, sf::IntRect planet)
         for (int h = 0; h < worldHeight; h++)
         {
             // Position each vertex in the current quad (ѕозиционируйте каждую вершину в текущем четырехугольнике)
-            rVA[currentVertex + 0].position = sf::Vector2f(w * TILE_SIZE, h * TILE_SIZE);
-            rVA[currentVertex + 1].position = sf::Vector2f((w * TILE_SIZE) + TILE_SIZE, h * TILE_SIZE);
-            rVA[currentVertex + 2].position = sf::Vector2f((w * TILE_SIZE) + TILE_SIZE, (h * TILE_SIZE) + TILE_SIZE);
-            rVA[currentVertex + 3].position = sf::Vector2f((w * TILE_SIZE), (h * TILE_SIZE) + TILE_SIZE);
+            rVA[currentVertex + 0].position = sf::Vector2f(static_cast<float>(w * TILE_SIZE), static_cast<float>(h * TILE_SIZE));
+            rVA[currentVertex + 1].position = sf::Vector2f(static_cast<float>((w * TILE_SIZE) + TILE_SIZE), static_cast<float>(h * TILE_SIZE));
+            rVA[currentVertex + 2].position = sf::Vector2f(static_cast<float>((w * TILE_SIZE) + TILE_SIZE), static_cast<float>((h * TILE_SIZE) + TILE_SIZE));
+            rVA[currentVertex + 3].position = sf::Vector2f(static_cast<float>(w * TILE_SIZE), static_cast<float>((h * TILE_SIZE) + TILE_SIZE));
 
             // Define the position in the Texture for current quad
             // Either grass, stone, bush or wall
@@ -87,10 +71,10 @@ int createBackground(sf::VertexArray& rVA, sf::IntRect planet)
             {
                 // Use the wall texture
                 // »спользуем текстуру стены
-                rVA[currentVertex + 0].texCoords = sf::Vector2f(TILE_SIZE * TILE_TYPES, 0);
-                rVA[currentVertex + 1].texCoords = sf::Vector2f(TILE_SIZE * TILE_TYPES + TILE_SIZE, 0);
-                rVA[currentVertex + 2].texCoords = sf::Vector2f(TILE_SIZE * TILE_TYPES + TILE_SIZE, TILE_SIZE);
-                rVA[currentVertex + 3].texCoords = sf::Vector2f(TILE_SIZE * TILE_TYPES, TILE_SIZE);
+                rVA[currentVertex + 0].texCoords = sf::Vector2f(TILE_SIZE * TILE_TYPES, TILE_SIZE*(index-1));
+                rVA[currentVertex + 1].texCoords = sf::Vector2f(TILE_SIZE * TILE_TYPES + TILE_SIZE, TILE_SIZE*(index-1));
+                rVA[currentVertex + 2].texCoords = sf::Vector2f(TILE_SIZE * TILE_TYPES + TILE_SIZE, TILE_SIZE*index);
+                rVA[currentVertex + 3].texCoords = sf::Vector2f(TILE_SIZE * TILE_TYPES, TILE_SIZE*index);
             }
             else
             {
@@ -99,10 +83,10 @@ int createBackground(sf::VertexArray& rVA, sf::IntRect planet)
                 // »спользовать случайную текстуру пола
                 int mOrG = dis(gen);
                 int verticalOffset = mOrG * TILE_SIZE;
-                rVA[currentVertex + 0].texCoords = sf::Vector2f(verticalOffset, 0);
-                rVA[currentVertex + 1].texCoords = sf::Vector2f(verticalOffset + TILE_SIZE, 0);
-                rVA[currentVertex + 2].texCoords = sf::Vector2f(verticalOffset + TILE_SIZE, TILE_SIZE);
-                rVA[currentVertex + 3].texCoords = sf::Vector2f(verticalOffset, TILE_SIZE);
+                rVA[currentVertex + 0].texCoords = sf::Vector2f(static_cast<float>(verticalOffset), TILE_SIZE * (index - 1));
+                rVA[currentVertex + 1].texCoords = sf::Vector2f(static_cast<float>(verticalOffset + TILE_SIZE), TILE_SIZE * (index - 1));
+                rVA[currentVertex + 2].texCoords = sf::Vector2f(static_cast<float>(verticalOffset + TILE_SIZE), TILE_SIZE * index);
+                rVA[currentVertex + 3].texCoords = sf::Vector2f(static_cast<float>(verticalOffset), TILE_SIZE * index);
             }
 
             // Position ready for the next four vertices (ѕозици€ готова дл€ следующих четырех вершин)

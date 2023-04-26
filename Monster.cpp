@@ -54,6 +54,12 @@ void Monster::spawn(float startX, float startY, int type)
 		m_Speed = mon5_speed;
 		m_Health = mon5_HEALTH;
 		break;
+	default:
+		// монстр 3
+		m_AnimPlayer.SwitchAnimation("mon5");
+		m_Speed = mon5_speed;
+		m_Health = mon5_HEALTH;
+		break;
 	}
 	
 	//»нициализировать его местоположение

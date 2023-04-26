@@ -18,16 +18,16 @@ Player::Player()
 		
 }
 
-void Player::spawn(sf::IntRect arena, sf::Vector2f resolution, int tileSize)
+void Player::spawn(sf::IntRect planet, sf::Vector2f resolution, int tileSize)
 {
 	// Поместите игрока в центр арены
-	m_Position.x = static_cast<float>(arena.width / 2);
-	m_Position.y = static_cast<float>(arena.height / 2);
+	m_Position.x = static_cast<float>(planet.width / 2);
+	m_Position.y = static_cast<float>(planet.height / 2);
 	// Копируем детали арены
-	m_Arena.left = arena.left;
-	m_Arena.width = arena.width;
-	m_Arena.top = arena.top;
-	m_Arena.height = arena.height;
+	m_planet.left = planet.left;
+	m_planet.width = planet.width;
+	m_planet.top = planet.top;
+	m_planet.height = planet.height;
 	// Помните, насколько большие плитки на этой арене
 	m_TileSize = tileSize;
 	// Сохраните разрешение для использования в будущем
@@ -225,23 +225,23 @@ void Player::update(sf::Time deltaTime, sf::Vector2i mousePosition)
 		
 
 	// Держите игрока на арене
-	if (m_Position.x > static_cast<float>((m_Arena.width - m_TileSize)-(m_Sprite.getGlobalBounds().width/2)))
+	if (m_Position.x > static_cast<float>((m_planet.width - m_TileSize)-(m_Sprite.getGlobalBounds().width/2)))
 	{
-		m_Position.x = static_cast<float>((m_Arena.width - m_TileSize) - (m_Sprite.getGlobalBounds().width / 2));
+		m_Position.x = static_cast<float>((m_planet.width - m_TileSize) - (m_Sprite.getGlobalBounds().width / 2));
 	}
 
-	if (m_Position.x < static_cast<float>((m_Arena.left + m_TileSize)+ (m_Sprite.getGlobalBounds().width / 2)))
+	if (m_Position.x < static_cast<float>((m_planet.left + m_TileSize)+ (m_Sprite.getGlobalBounds().width / 2)))
 	{
-		m_Position.x = static_cast<float>((m_Arena.left + m_TileSize) + (m_Sprite.getGlobalBounds().width / 2));
+		m_Position.x = static_cast<float>((m_planet.left + m_TileSize) + (m_Sprite.getGlobalBounds().width / 2));
 	}
 
-	if (m_Position.y > static_cast<float>((m_Arena.height - m_TileSize) - (m_Sprite.getGlobalBounds().height / 2)))
+	if (m_Position.y > static_cast<float>((m_planet.height - m_TileSize) - (m_Sprite.getGlobalBounds().height / 2)))
 	{
-		m_Position.y = static_cast<float>((m_Arena.height - m_TileSize) - (m_Sprite.getGlobalBounds().height / 2));
+		m_Position.y = static_cast<float>((m_planet.height - m_TileSize) - (m_Sprite.getGlobalBounds().height / 2));
 	}
-	if (m_Position.y < static_cast<float>((m_Arena.top + m_TileSize)+(m_Sprite.getGlobalBounds().height / 2)))
+	if (m_Position.y < static_cast<float>((m_planet.top + m_TileSize)+(m_Sprite.getGlobalBounds().height / 2)))
 	{
-		m_Position.y = static_cast<float>((m_Arena.top + m_TileSize)+(m_Sprite.getGlobalBounds().height / 2));
+		m_Position.y = static_cast<float>((m_planet.top + m_TileSize)+(m_Sprite.getGlobalBounds().height / 2));
 	}
 	// Вычислить угол, на который смотрит игрок
 	auto angle = static_cast<float>((atan2(static_cast<float>(mousePosition.y) - m_Resolution.y / 2, static_cast<float>(mousePosition.x) - m_Resolution.x / 2)* 180) / 3.141);

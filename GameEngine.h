@@ -27,7 +27,7 @@ private:
 	AssetManager manager; 
 	
 	// Графическое окно
-	sf::RenderWindow window = sf::RenderWindow(sf::VideoMode(m_resolution.x, m_resolution.y),L"Мясорубка", sf::Style::Fullscreen);
+	std::unique_ptr<sf::RenderWindow> window = std::make_unique<sf::RenderWindow>(sf::VideoMode(m_resolution.x, m_resolution.y),L"Мясорубка", sf::Style::Fullscreen);
 	sf::Image icon;
 	GameSound m_musik;
 	// Метод обработки событий 
@@ -65,7 +65,6 @@ private:
 	sf::IntRect planet;
 
 	// Количество монстров
-	int numMonster;
 	int numMonsterAlive;
 	// массив монстров
 	std::deque<Monster> monster;
