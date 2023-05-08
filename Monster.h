@@ -1,6 +1,5 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include"AssetManager.h"
 #include"Animator.h"
 #include <random>
 #include <deque>

@@ -186,70 +186,51 @@ void GameEngine::input()
 				
 				if (event.key.code==sf::Keyboard::W)
 				{
-					player.moveUp();
+					player.move(Player::playermove::UpPressed);
 				}
-				else
-				{
-					player.stopUp();
-				}
-
+				
 				if (event.key.code == sf::Keyboard::E)
 				{
-					player.moveUpRg();
+					player.move(Player::playermove::UpRg);
 				}
-				else
-				{
-					player.stopUpRg();
-				}
+				
 				if (event.key.code == sf::Keyboard::C)
 				{
-					player.moveDownRg();
+					player.move(Player::playermove::DownRg);
+					
 				}
-				else
-				{
-					player.stopDownRg();
-				}
+				
 				if (event.key.code == sf::Keyboard::S)
 				{
-					player.moveDown();
+					player.move(Player::playermove::DownPressed);					
 				}
-				else
-				{
-					player.stopDown();
-				}
+				
 				if (event.key.code == sf::Keyboard::Z)
 				{
-					player.moveDownLf();
+					player.move(Player::playermove::DownLf);
 				}
-				else
-				{
-					player.stopDownLf();
-				}
-
+				
 				if (event.key.code == sf::Keyboard::Q)
 				{
-					player.moveUpLf();
+					player.move(Player::playermove::UpLf);
 				}
-				else
-				{
-					player.stopUpLf();
-				}
+				
 				if (event.key.code == sf::Keyboard::A)
 				{
-					player.moveLeft();
+					player.move(Player::playermove::LeftPressed);
+					
 				}
-				else
-				{
-					player.stopLeft();
-				}
+				
 				if (event.key.code == sf::Keyboard::D)
 				{
-					player.moveRight();
+					player.move(Player::playermove::RightPressed);
 				}
-				else
+				
+				if (event.key.code == sf::Keyboard::X)
 				{
-					player.stopRight();
+					player.move(Player::playermove::Stop);
 				}
+
 			} // End Handle WASD while playing
 
 			

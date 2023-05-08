@@ -4,13 +4,51 @@
 
 class Player
 {
+
+public:
+	// направления движения игрока
+	enum class playermove { UpPressed, UpRg, UpLf, DownPressed, DownRg, DownLf, LeftPressed, RightPressed, Stop };
+	Player();
+	// появление игрока на игровом поле
+	void spawn(sf::IntRect planet, sf::Vector2f resolution, int tileSize);
+	// рестарт параметров игрока
+	void resetPlayerStats();
+	// возвращает состояние жизни игрока
+	bool getLive() const;
+	// время получения урона игроком
+	bool hit(sf::Time timeHit);
+	// как давно был последний удар по игроку
+	sf::Time getLastHitTime() const;
+	// координаты игрока
+	sf::FloatRect getPosition() const;
+	// центральные координаты игрока
+	sf::Vector2f getCenter() const;
+	// угол поворота игрока
+	float getRotation() const;
+	// вернуть копию спрайта игрока
+	sf::Sprite getSprite() const;
+	// рисуем игрока
+	void draw(sf::RenderWindow& win) const;
+	// перемещаем игрока
+	void move(playermove mov);
+	// обновление игровой логики 
+	void update(sf::Time deltaTime, sf::Vector2i mousePosition);
+	// увеличиваем максимальное количество здоровья 
+	void upgradeHealth(float heal);
+	// пополняем здоровье игрока
+	void increaseHealthLevel(float amount);
+	// Сколько здоровья у игрока на данный момент?
+	float getHealth() const;
+
 private:
-	const float START_SPEED = 2;
+	// Стартовая жизнь игрока
 	const float START_HEALTH = 200;
-	//Позиция игрока
+	// Позиция игрока
 	sf::Vector2f m_Position;
+	// Отображение игрока
 	sf::Sprite m_Sprite;
 	Animator m_AnimPlayer = Animator(m_Sprite);
+	bool m_animMove = false;
 	// Разрешение экрана
 	sf::Vector2f m_Resolution;
 	//Размер поля поля
@@ -18,14 +56,8 @@ private:
 	// Размер текстур поля поля
 	int m_TileSize;
 	// В каком направлении(ях) движется игрок в данный момент
-	bool m_UpPressed;
-	bool m_UpRg;
-	bool m_UpLf;
-	bool m_DownPressed;
-	bool m_DownRg;
-	bool m_DownLf;
-	bool m_LeftPressed;
-	bool m_RightPressed;
+	playermove m_move;
+	// Живой ли игрок
 	bool m_live = true;
 	// Здоровье игрока
 	float m_Health;
@@ -37,56 +69,5 @@ private:
 	sf::Time m_time_moving;
 	// Скорость в пикселях в секунду
 	float m_Speed;
-public:
-
-	Player();
-	void spawn(sf::IntRect planet, sf::Vector2f resolution, int tileSize);
-	// перезапуск
-	void resetPlayerStats();
-	// жизнь
-	bool getLive() const;
-	// Время получения урона игроком
-	bool hit(sf::Time timeHit);
-	// Как давно был последний удар игрока
-	sf::Time getLastHitTime() const;
-	// Где игрок
-	sf::FloatRect getPosition() const;
-	// Где находится центр игрока
-	sf::Vector2f getCenter() const;
-	// What angle is the player facing
-	// Под каким углом смотрит игрок
-	float getRotation() const;
-	// Отправить копию спрайта в основную функцию
-	sf::Sprite getSprite() const;
-	void draw(sf::RenderWindow& win) const;
-	// Следующие четыре функции перемещают игрока
-	void moveLeft();
-	void moveRight();
-	void moveUp();
-	void moveUpRg();
-	void moveUpLf();
-	void moveDown();
-	void moveDownRg();
-	void moveDownLf();
-	// Остановить движение игрока в определенном направлении
-	void stopLeft();
-	void stopRight();
-	void stopUp();
-	void stopUpRg();
-	void stopUpLf();
-	void stopDown();
-	void stopDownRg();
-	void stopDownLf();
-	// Мы будем вызывать эту функцию один раз в каждом кадре
-	void update(sf::Time deltaTime, sf::Vector2i mousePosition);
-	// Дайте игроку ускорение
-	void upgradeSpeed();
-	// Дайте игроку немного здоровья
-	void upgradeHealth();
-	// Увеличьте максимальное количество здоровья, которое может иметь игрок
-	void increaseHealthLevel(float amount);
-	// Сколько здоровья у игрока на данный момент?
-	float getHealth() const;
-	
 };
 
