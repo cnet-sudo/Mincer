@@ -1,5 +1,6 @@
 #include "MonsterPlanet.h"
 #include "Monster.h"
+
 int createHorde(int numMonster, std::deque<Monster>& monster, sf::Vector2i type, sf::IntRect planet)
 {   
     auto min= sf::Vector2i(planet.left + 300, planet.top + 300);
@@ -28,13 +29,9 @@ int createHorde(int numMonster, std::deque<Monster>& monster, sf::Vector2i type,
 
 int createBackground(sf::VertexArray& rVA, sf::IntRect planet, int index)
 {
-    // Will be used to obtain a seed for the random number engine
     // Ѕудет использоватьс€ дл€ получени€ начального числа дл€ механизма случайных чисел
     std::random_device rd;
-    // Standard mersenne_twister_engine seeded with rd()
     std::mt19937 gen(rd());
-
-
     // размер плитки
     const int TILE_SIZE = 200;
     // количество вариантов плиток
@@ -47,29 +44,26 @@ int createBackground(sf::VertexArray& rVA, sf::IntRect planet, int index)
     int worldHeight = planet.height / TILE_SIZE;
     // тип примитива
     rVA.setPrimitiveType(sf::Quads);
-    // Set the size of the vertex array (”становить размер массива вершин)
+    // ”становить размер массива вершин
     rVA.resize(worldWidth * worldHeight * VERTS_IN_QUAD);
-    // Start at the beginning of the vertex array (Ќачать с начала массива вершин)
+    // Ќачать с начала массива вершин
     int currentVertex = 0;
 
     for (int w = 0; w < worldWidth; w++)
     {
         for (int h = 0; h < worldHeight; h++)
         {
-            // Position each vertex in the current quad (ѕозиционируйте каждую вершину в текущем четырехугольнике)
+            // ѕозиционируйте каждую вершину в текущем четырехугольнике
             rVA[currentVertex + 0].position = sf::Vector2f(static_cast<float>(w * TILE_SIZE), static_cast<float>(h * TILE_SIZE));
             rVA[currentVertex + 1].position = sf::Vector2f(static_cast<float>((w * TILE_SIZE) + TILE_SIZE), static_cast<float>(h * TILE_SIZE));
             rVA[currentVertex + 2].position = sf::Vector2f(static_cast<float>((w * TILE_SIZE) + TILE_SIZE), static_cast<float>((h * TILE_SIZE) + TILE_SIZE));
             rVA[currentVertex + 3].position = sf::Vector2f(static_cast<float>(w * TILE_SIZE), static_cast<float>((h * TILE_SIZE) + TILE_SIZE));
 
-            // Define the position in the Texture for current quad
-            // Either grass, stone, bush or wall
             // ќпредел€ем позицию в текстуре дл€ текущего четырехугольника
             // “рава, камень, куст или стена
             if (h == 0 || h == worldHeight - 1 ||
                 w == 0 || w == worldWidth - 1)
             {
-                // Use the wall texture
                 // »спользуем текстуру стены
                 rVA[currentVertex + 0].texCoords = sf::Vector2f(TILE_SIZE * TILE_TYPES, TILE_SIZE*(index-1));
                 rVA[currentVertex + 1].texCoords = sf::Vector2f(TILE_SIZE * TILE_TYPES + TILE_SIZE, TILE_SIZE*(index-1));
@@ -78,8 +72,7 @@ int createBackground(sf::VertexArray& rVA, sf::IntRect planet, int index)
             }
             else
             {
-                std::uniform_int_distribution<> dis(0, TILE_TYPES - 1); // Same distribution as before, but explicit and without bias
-                // Use a random floor texture
+                std::uniform_int_distribution<> dis(0, TILE_TYPES - 1); 
                 // »спользовать случайную текстуру пола
                 int mOrG = dis(gen);
                 int verticalOffset = mOrG * TILE_SIZE;
@@ -89,7 +82,7 @@ int createBackground(sf::VertexArray& rVA, sf::IntRect planet, int index)
                 rVA[currentVertex + 3].texCoords = sf::Vector2f(static_cast<float>(verticalOffset), TILE_SIZE * index);
             }
 
-            // Position ready for the next four vertices (ѕозици€ готова дл€ следующих четырех вершин)
+            // ѕозици€ готова дл€ следующих четырех вершин
             currentVertex = currentVertex + VERTS_IN_QUAD;
         }
     }

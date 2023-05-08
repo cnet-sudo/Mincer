@@ -58,6 +58,7 @@ public:
 	float getRotation() const;
 	// Отправить копию спрайта в основную функцию
 	sf::Sprite getSprite() const;
+	void draw(sf::RenderWindow& win) const;
 	// Следующие четыре функции перемещают игрока
 	void moveLeft();
 	void moveRight();

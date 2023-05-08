@@ -91,6 +91,11 @@ sf::Sprite Player::getSprite() const
 	return m_Sprite;
 }
 
+void Player::draw(sf::RenderWindow& win) const
+{
+	win.draw(m_Sprite);
+}
+
 float Player::getHealth() const
 {
 	return m_Health;

@@ -535,8 +535,8 @@ void GameEngine::draw()
 			}
 		}
 		// игрок
-		window->draw(player.getSprite());
-				
+		//window->draw(player.getSprite());
+		player.draw(*window);
 		// курсор
 		for (int j = 0; j < monster.size(); j++)
 		{
@@ -593,7 +593,7 @@ void GameEngine::restart()
 {
 	player.resetPlayerStats();
 	score = 0;
-	level = 5;
+	level = 1;
 	mainView.setSize(m_resolution.x, m_resolution.y);
 	bulletsSpare = 200;
 	bulletsInClip = 50;

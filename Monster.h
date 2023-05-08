@@ -4,6 +4,7 @@
 #include"Animator.h"
 #include <random>
 #include <deque>
+#include <array>
 
 class Monster
 {

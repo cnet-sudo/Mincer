@@ -21,47 +21,13 @@ Monster::Monster()
 
 void Monster::spawn(float startX, float startY, int type)
 {
+	std::array<std::string, 5> name_monster{ "mon1","mon2","mon3","mon4","mon5" };
 	m_Type = type;
-	switch (type)
-	{
-	case 0:
-		// монстр 1
-		m_AnimPlayer.SwitchAnimation("mon1");
-		m_Speed = mon1_speed;
-		m_Health = mon1_HEALTH;
-		break;
-	case 1:
-		// монстр 2
-		m_AnimPlayer.SwitchAnimation("mon2");
-		m_Speed = mon2_speed;
-		m_Health = mon2_HEALTH;
-		break;
-	case 2:
-		// монстр 3
-		m_AnimPlayer.SwitchAnimation("mon3");
-		m_Speed = mon3_speed;
-		m_Health = mon3_HEALTH;
-		break;
-	case 3:
-		// монстр 3
-		m_AnimPlayer.SwitchAnimation("mon4");
-		m_Speed = mon4_speed;
-		m_Health = mon4_HEALTH;
-		break;
-	case 4:
-		// монстр 3
-		m_AnimPlayer.SwitchAnimation("mon5");
-		m_Speed = mon5_speed;
-		m_Health = mon5_HEALTH;
-		break;
-	default:
-		// монстр 3
-		m_AnimPlayer.SwitchAnimation("mon5");
-		m_Speed = mon5_speed;
-		m_Health = mon5_HEALTH;
-		break;
-	}
 	
+	m_AnimPlayer.SwitchAnimation(name_monster[type]);
+	m_Speed = 1-(type*0.1f);
+	m_Health = type+1;
+		
 	//Инициализировать его местоположение
 	m_Position.x = startX;
 	m_Position.y = startY;
