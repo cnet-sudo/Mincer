@@ -71,14 +71,14 @@ private:
 	// массив монстров
 	std::deque<Monster> monster;
 	// 100 патронов
-	std::array<Bullet,100> bullets;
+	std::array<Bullet,200> bullets;
 	int currentBullet = 0;
 	// ящик с патронами
 	int bulletsSpare;
 	// ќбойма
 	int bulletsInClip;
 	// ћаксимальный размер обоймы
-	const int clipSize = 50;
+	int clipSize;
 
 	// интервал стрельбы
 	Time lastPressed;

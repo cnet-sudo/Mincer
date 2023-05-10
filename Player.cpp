@@ -97,6 +97,11 @@ float Player::getHealth() const {
 	return m_Health;
 }
 
+float Player::getMaxHealth() const
+{
+	return m_MaxHealth;
+}
+
 void Player::draw(sf::RenderWindow& win) const {
 
 	win.draw(m_Sprite);
@@ -110,16 +115,18 @@ void Player::move(playermove mov) {
 void Player::upgradeHealth(float heal) {
 
 	// увеличиваем макимальное количество жизни игрока
-	m_MaxHealth += heal;
+	if (m_Health!=0) m_MaxHealth += heal;
 }
 
 void Player::increaseHealthLevel(float amount) {
 
+	if (m_Health != 0) {
 	m_Health += amount;
 	// Но не выше максимума
 	if (m_Health > m_MaxHealth)
 	{
 		m_Health = m_MaxHealth;
+	}
 	}
 }
 

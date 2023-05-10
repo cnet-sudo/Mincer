@@ -7,23 +7,38 @@ void Pickup::spawn(sf::Vector2f pos, int type){
 
 	std::mt19937 gen(rd());
 	// тип предмета
-	m_Type = type;
-	std::uniform_int_distribution<> health(50, 200);
-	std::uniform_int_distribution<> ammo(50, 150);
-	switch (m_Type){
-	case 1:{
-	m_Value = health(gen);
+	
+	std::uniform_int_distribution<> health_ammo(25, 250);
+	std::uniform_int_distribution<> extension(5, 25);
+
+	if (type >0 && type < 4) {
+	
+	m_Value = health_ammo(gen);
+
 	m_Sprite = sf::Sprite(AssetManager::GetTexture("graphics/medical.png"));
-	break;
+	
+	m_Type = 1;
 	}
-	case 2:{
-	m_Value = ammo(gen);
+	if (type >= 4 && type < 7) {
+
+	m_Value = health_ammo(gen);
 	m_Sprite = sf::Sprite(AssetManager::GetTexture("graphics/ammo1.png"));
-	break;
+	m_Type = 2;
 	}
-	default:
-		break;
+	if (type == 15) {
+
+		m_Value = extension(gen);
+		m_Sprite = sf::Sprite(AssetManager::GetTexture("graphics/ammo2.png"));
+		m_Type = 3;
 	}
+
+	if (type == 10) {
+
+		m_Value = extension(gen);
+		m_Sprite = sf::Sprite(AssetManager::GetTexture("graphics/medical1.png"));
+		m_Type = 4;
+	}
+
 	m_SecondsSinceSpawn = 0;
 	m_Sprite.setOrigin(25, 25);
 	m_Sprite.setPosition(pos.x, pos.y);

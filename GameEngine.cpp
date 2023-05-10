@@ -248,35 +248,37 @@ void GameEngine::input()
 		}
 
 		// Масштаб
-		if (event.type == sf::Event::MouseWheelScrolled)
+		if (state == State::playing)
 		{
-			if (event.mouseWheelScroll.delta < 0) {
-				mainView.zoom(0.9f);
-			if (mainView.getSize().x < 1280) mainView.setSize(1280, 720);
+			if (event.type == sf::Event::MouseWheelScrolled)
+			{
+				if (event.mouseWheelScroll.delta < 0) {
+					mainView.zoom(0.9f);
+					if (mainView.getSize().x < 1280) mainView.setSize(1280, 720);
+				}
+
+				else if (event.mouseWheelScroll.delta > 0) {
+					mainView.zoom(1.1f);
+					if (mainView.getSize().x > 3840) mainView.setSize(3840, 2160);
+				}
+
 			}
-				
-			else if (event.mouseWheelScroll.delta > 0) {
-				mainView.zoom(1.1f);
-				if (mainView.getSize().x > 3840) mainView.setSize(3840, 2160);
-			}
-				
 		}
 
-		if (event.type == sf::Event::MouseButtonPressed)
-		{
+		
 		
 		if (state == State::playing)
 		{
 				// стрельба
 				if (Mouse::isButtonPressed(sf::Mouse::Left))
 				{
-					if (gameTimeTotal.asMilliseconds() - lastPressed.asMilliseconds() > 100 && bulletsInClip > 0)
+					if (gameTimeTotal.asMilliseconds() - lastPressed.asMilliseconds() > 200 && bulletsInClip > 0)
 					{
 						m_musik.play(1, false);
 						// Стрельба в прицел
 						bullets[currentBullet].shoot(player.getCenter().x, player.getCenter().y, mouseWorldPosition.x, mouseWorldPosition.y);
 						currentBullet++;
-						if (currentBullet > 99)
+						if (currentBullet > 199)
 						{
 							currentBullet = 0;
 						}
@@ -292,7 +294,7 @@ void GameEngine::input()
 				}
 
 		}
-		}
+		
 	}
 }
 
@@ -303,7 +305,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 	
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::uniform_int_distribution<> tis(1, 10);
+	std::uniform_int_distribution<> tis(1, 20);
 
 	// Игровая сцена
 	if (state == State::playing)
@@ -359,7 +361,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 
 
 		// обновление логики пуль
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < bullets.size(); i++)
 		{
 			if (bullets[i].isInFlight())
 			{
@@ -384,6 +386,8 @@ void GameEngine::update(sf::Time const& deltaTime)
 				{
 				case 1: {player.increaseHealthLevel(pickup[i].gotIt()); break;}
 				case 2: {bulletsSpare += pickup[i].gotIt(); break;}
+				case 3: {player.upgradeHealth(pickup[i].gotIt()); break; }
+				case 4: {clipSize += pickup[i].gotIt(); break; }
 				default:
 					break;
 				}
@@ -409,7 +413,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 		}
 
 		// проверка столкновения пули с монстром
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < bullets.size(); i++)
 		{
 			for (int j = 0; j < monster.size(); j++)
 			{
@@ -426,7 +430,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 							if (monster[j].getTypeMonster() > 0 && monster[j].getTypeMonster() < 3) m_musik.play(2, false); else m_musik.play(4, false);
 							score += 5*(monster[j].getTypeMonster()+1);
 							int typ = tis(gen);
-							if (typ<3) 
+							if (typ<7 || typ==10 || typ == 15)
 							{
 								pickup.push_back(Pickup());
 								pickup[pickup.size() - 1].spawn(monster[j].getSprite().getPosition(),typ);
@@ -462,7 +466,8 @@ void GameEngine::update(sf::Time const& deltaTime)
 				
 		
 		    // линия жизни
-		    healthBar.setSize(Vector2f(player.getHealth() * 4, 50));
+			float koff = player.getMaxHealth() / 200;
+		    healthBar.setSize(Vector2f((player.getHealth() * 4)/koff, 50));
 		
 			// текст обновления патронов
 			ammoText.setString(std::to_string(bulletsInClip)+"/"+ std::to_string(bulletsSpare));
@@ -524,7 +529,7 @@ void GameEngine::draw()
 
 
 		// пули
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < bullets.size(); i++)
 		{
 			if (bullets[i].isInFlight())
 			{
@@ -610,54 +615,30 @@ void GameEngine::restart()
 	score = 0;
 	level = 0;
 	mainView.setSize(m_resolution.x, m_resolution.y);
-	bulletsSpare = 200;
+	bulletsSpare = 300;
 	bulletsInClip = 50;
-	planet.width = 10000;
-	planet.height = 10000;
+	clipSize = 50;
 	planet.left = 0;
 	planet.top = 0;	
+
 }
 
 void GameEngine::newLevel()
 {   
+	planet.width = 10000*level;
+	planet.height = 10000*level;
+
+	for (int i = 0; i < bullets.size(); i++) {
+		if (bullets[i].isInFlight() == true) bullets[i].stop();
+	}
+
 	background.clear();
 	monster.clear();
 	pickup.clear();
 	int tileSize = createBackground(background, planet,level);
 	player.spawn(planet, m_resolution, tileSize);
 	
-	switch (level)
-	{
-	case 1: 
-	{   // Количество монстров
-		numMonsterAlive=createHorde(10,monster, sf::Vector2i(0, 1), planet);
-		break; 
-	}
-	case 2:
-	{   // Количество монстров
-		numMonsterAlive = createHorde(15, monster,sf::Vector2i(0, 2), planet);
-		break;
-	}
-	case 3:
-	{   // Количество монстров
-		numMonsterAlive = createHorde(20,monster, sf::Vector2i(1, 3), planet);
-		
-		break;
-	}
-	case 4:
-	{   // Количество монстров
-		numMonsterAlive =createHorde(25, monster, sf::Vector2i(2, 4), planet);
-		break;
-	}
-	case 5:
-	{   // Количество монстров
-		numMonsterAlive = createHorde(30, monster, sf::Vector2i(3, 4), planet);
-		break;
-	}
-	default:
-		break;
-	}
-
+	numMonsterAlive = createHorde(50*level, monster, sf::Vector2i(0, level-1), planet);
 }
 
 void GameEngine::recharge()

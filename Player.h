@@ -39,6 +39,7 @@ public:
 	void increaseHealthLevel(float amount);
 	// Сколько здоровья у игрока на данный момент?
 	float getHealth() const;
+	float getMaxHealth() const;
 
 private:
 	// Стартовая жизнь игрока
