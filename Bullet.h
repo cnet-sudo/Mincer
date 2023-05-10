@@ -4,36 +4,34 @@ using namespace sf;
 class Bullet
 {
 private:
-	// Where is the bullet?
+	// Координаты пули
 	Vector2f m_Position;
-	// What each bullet looks like
+	// Форма пули
 	CircleShape m_BulletShape;
-	// Is this bullet currently whizzing through the air
+	// Пуля в полёте
 	bool m_InFlight = false;
-	// How fast does a bullet travel?
+	// Скорость пули
 	float m_BulletSpeed = 1000;
-	// What fraction of 1 pixel does the bullet travel,
-	// Horizontally and vertically each frame?
-	// These values will be derived from m_BulletSpeed
+	// растояние полёта
 	sf::Vector2f m_BulletDistance;
-	// Some boundaries so the bullet doesn't fly forever
+	// Границы полёта пули
 	sf::Vector2f m_Max;
 	sf::Vector2f m_Min;
-	// Public function prototypes go here
+	
 public:
-	// The constructor
+	
 	Bullet();
-	// Stop the bullet
+	// Остановить полёт пули
 	void stop();
-	// Returns the value of m_InFlight
+	// Вернуть состояние пули
 	bool isInFlight();
-	// Launch a new bullet
+	// Запустить пулю
 	void shoot(float startX, float startY,
 		float xTarget, float yTarget);
-	// Tell the calling code where the bullet is in the world
+	// Вернуть координаты в плоскости пули
 	FloatRect getPosition();
-	// Return the actual shape (for drawing)
+	// Вернуть фигуру пули
 	CircleShape getShape();
-	// Update the bullet each frame
+	// Обновление игровой логики
 	void update(float elapsedTime);
 };

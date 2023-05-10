@@ -8,18 +8,7 @@
 class Monster
 {
 private:
-	// Скорость монстров
-	const float mon1_speed = 1.0f;
-	const float mon2_speed = 0.9f;
-	const float mon3_speed = 0.8f;
-	const float mon4_speed = 0.7f;
-	const float mon5_speed = 0.6f;
-	// Количество жизей у монстров
-	const float mon1_HEALTH = 1;
-	const float mon2_HEALTH = 2;
-	const float mon3_HEALTH = 3;
-	const float mon4_HEALTH = 4;
-	const float mon5_HEALTH = 5;
+	
 	// Координаты монстров
 	sf::Vector2f m_Position;
 	// Спрайт для монстра
@@ -34,7 +23,7 @@ private:
 	bool m_Alive = true;
 	// Видно на карте труп или нет
 	bool m_novisible = false;
-	// Тип моснтра
+	// Тип монстра
 	int m_Type;
 	sf::Time m_moveTime;
 	public:

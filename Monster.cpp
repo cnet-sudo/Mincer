@@ -23,9 +23,12 @@ void Monster::spawn(float startX, float startY, int type)
 {
 	std::array<std::string, 5> name_monster{ "mon1","mon2","mon3","mon4","mon5" };
 	m_Type = type;
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> speed_plus(0,9);
 	
 	m_AnimPlayer.SwitchAnimation(name_monster[type]);
-	m_Speed = 1-(type*0.1f);
+	m_Speed = 1-(type*0.1f)+(speed_plus(gen)*0.01f);
 	m_Health = type+1;
 		
 	//Инициализировать его местоположение

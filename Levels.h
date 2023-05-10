@@ -5,7 +5,7 @@
 class Levels
 {
 
-	std::array<sf::Sprite, 5> background;
+	std::array<sf::Sprite, 8> background;
 
 	sf::Sprite* bkgr=nullptr;
 

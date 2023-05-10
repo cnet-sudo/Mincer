@@ -44,7 +44,6 @@ public:
 		}
 	};
 
-public:
 	explicit Animator(sf::Sprite & sprite);
 
 	Animator::Animation& CreateAnimation(std::string const& name,

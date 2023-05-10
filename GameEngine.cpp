@@ -4,15 +4,13 @@ GameEngine::GameEngine()
 {   
 	// Загрузка
 	state = State::game_load;
-	spriteGameBegin.setTexture(AssetManager::GetTexture("graphics/back2.jpg"));
-	spriteGameBegin.setPosition(0, 0);
 	
 	levelText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
 	levelText.setCharacterSize(40);
 	levelText.setFillColor(sf::Color::White);
 	levelText.setString(L"Загрузка ...");
 	levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height-50);
-	window->draw(spriteGameBegin);
+	window->draw(*levels.getSprite(5));
 	window->draw(levelText);
 	window->display();
 	//-------------------------------------------
@@ -28,10 +26,6 @@ GameEngine::GameEngine()
 	spriteCrosshair.setOrigin(25, 25);
 	spriteCrosshair1.setTexture(AssetManager::GetTexture("graphics/crosshair1.png"));
 	spriteCrosshair1.setOrigin(25, 25);
-	
-	// заставка конец игры
-	spriteGameOver.setTexture(AssetManager::GetTexture("graphics/game_over.jpg"));
-	spriteGameOver.setPosition(0, 0);
 	
 	// иконка патроны
 	spriteAmmoIcon.setTexture(AssetManager::GetTexture("graphics/ammo.png"));
@@ -114,6 +108,14 @@ void GameEngine::input()
 			{
 				if ((event.key.code == sf::Keyboard::Space))
 				{
+					state = State::level_up;
+				}
+			}
+
+			if (state == State::level)
+			{
+				if ((event.key.code == sf::Keyboard::Space))
+				{
 					state = State::playing;
 				}
 			}
@@ -126,10 +128,19 @@ void GameEngine::input()
 				if ((event.key.code == sf::Keyboard::Space) )
 				{
 					restart();
-					state = State::playing;
+					state = State::level_up;
 				}
 			}
 			
+			if (state == State::game_victory)
+			{
+				if ((event.key.code == sf::Keyboard::Space))
+				{
+					restart();
+					state = State::level_up;
+				}
+			}
+
 			if (state == State::paused)
 			{
 				if ((event.key.code == sf::Keyboard::Space))
@@ -231,7 +242,7 @@ void GameEngine::input()
 					player.move(Player::playermove::Stop);
 				}
 
-			} // End Handle WASD while playing
+			} // Конец игры
 
 			
 		}
@@ -413,7 +424,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 						if (monster[j].hit())
 						{ // Монстр умирает
 							if (monster[j].getTypeMonster() > 0 && monster[j].getTypeMonster() < 3) m_musik.play(2, false); else m_musik.play(4, false);
-							score += 5*monster[j].getTypeMonster();
+							score += 5*(monster[j].getTypeMonster()+1);
 							int typ = tis(gen);
 							if (typ<3) 
 							{
@@ -471,8 +482,13 @@ void GameEngine::update(sf::Time const& deltaTime)
 	if (state == State::level_up)
 	{
 		level++;
+		if (level == 6) {
+			state = State::game_victory;
+		}
+		else {
 		newLevel();
-	    state = State::playing;	
+	    state = State::level;
+		}	
 	}
 }
 
@@ -516,7 +532,6 @@ void GameEngine::draw()
 			}
 		}
 		// игрок
-		//window->draw(player.getSprite());
 		player.draw(*window);
 		// курсор
 		for (int j = 0; j < monster.size(); j++)
@@ -549,9 +564,19 @@ void GameEngine::draw()
 		window->clear();
 		levelText.setString(L"для продолжения нажмите пробел ");
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
-		window->draw(spriteGameBegin);
+		window->draw(*levels.getSprite(5));
 		window->draw(levelText);		
 	}
+	if (state == State::level)
+	{
+		window->clear();
+		levelText.setString(L"для продолжения нажмите пробел ");
+		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
+		
+		window->draw(*levels.getSprite(level-1));
+		window->draw(levelText);
+	}
+
 	if (state == State::paused)
 	{
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y/2 - levelText.getGlobalBounds().height/2);
@@ -560,7 +585,16 @@ void GameEngine::draw()
 	
 	if (state == State::game_over)
 	{
-		window->draw(spriteGameOver);
+		window->draw(*levels.getSprite(6));
+		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
+		window->draw(levelText);
+		window->draw(scoreText);
+		window->draw(hiScoreText);
+	}
+
+	if (state == State::game_victory)
+	{
+		window->draw(*levels.getSprite(7));
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
 		window->draw(levelText);
 		window->draw(scoreText);
@@ -574,52 +608,50 @@ void GameEngine::restart()
 {
 	player.resetPlayerStats();
 	score = 0;
-	level = 1;
+	level = 0;
 	mainView.setSize(m_resolution.x, m_resolution.y);
 	bulletsSpare = 200;
 	bulletsInClip = 50;
-	planet.width = 30000;
-	planet.height = 30000;
+	planet.width = 10000;
+	planet.height = 10000;
 	planet.left = 0;
-	planet.top = 0;
-	background.clear();
-	int tileSize = createBackground(background, planet,level);
-	player.spawn(planet, m_resolution, tileSize);
-	newLevel();
+	planet.top = 0;	
 }
 
 void GameEngine::newLevel()
 {   
+	background.clear();
 	monster.clear();
 	pickup.clear();
+	int tileSize = createBackground(background, planet,level);
+	player.spawn(planet, m_resolution, tileSize);
 	
-
 	switch (level)
 	{
 	case 1: 
 	{   // Количество монстров
-		numMonsterAlive=createHorde(100,monster, sf::Vector2i(0, 1), planet);
+		numMonsterAlive=createHorde(10,monster, sf::Vector2i(0, 1), planet);
 		break; 
 	}
 	case 2:
 	{   // Количество монстров
-		numMonsterAlive = createHorde(150, monster,sf::Vector2i(0, 2), planet);
+		numMonsterAlive = createHorde(15, monster,sf::Vector2i(0, 2), planet);
 		break;
 	}
 	case 3:
 	{   // Количество монстров
-		numMonsterAlive = createHorde(200,monster, sf::Vector2i(1, 3), planet);
+		numMonsterAlive = createHorde(20,monster, sf::Vector2i(1, 3), planet);
 		
 		break;
 	}
 	case 4:
 	{   // Количество монстров
-		numMonsterAlive =createHorde(250, monster, sf::Vector2i(2, 4), planet);
+		numMonsterAlive =createHorde(25, monster, sf::Vector2i(2, 4), planet);
 		break;
 	}
 	case 5:
 	{   // Количество монстров
-		numMonsterAlive = createHorde(300, monster, sf::Vector2i(3, 4), planet);
+		numMonsterAlive = createHorde(30, monster, sf::Vector2i(3, 4), planet);
 		break;
 	}
 	default:

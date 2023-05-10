@@ -13,6 +13,7 @@
 #include "GameSound.h"
 #include <algorithm>
 #include <iterator>
+#include "Levels.h"
 
 class GameEngine
 {
@@ -40,11 +41,11 @@ private:
 	void draw();
 	
 	// Игра всегда будет в одном из четырех состояний
-	enum class State {paused, level_up,game_over, playing, game_victory,game_load};
+	enum class State {paused, level, level_up,game_over, playing, game_victory,game_load};
 	
 	// Состояние игры
 	State state;
-	
+	Levels levels;
 	// разрешение экрана
 	sf::Vector2f m_resolution = sf::Vector2f(static_cast<float>(sf::VideoMode::getDesktopMode().width),
 		static_cast<float>(sf::VideoMode::getDesktopMode().height));
@@ -56,6 +57,7 @@ private:
 	sf::Vector2f mouseWorldPosition;
 	// координаты мышки в окне
 	sf::Vector2i mouseScreenPosition;
+
 	// игрок
 	Player player;
 
@@ -100,10 +102,6 @@ private:
 	void recharge();
 	// окно HUD
 	View hudView=sf::View(sf::FloatRect(0, 0, m_resolution.x, m_resolution.y));
-	// фон конца игры
-	Sprite spriteGameOver;
-	// фон начала игры
-	Sprite spriteGameBegin;
 	// патроны в интерфейсе
 	Sprite spriteAmmoIcon;
 	// текст
