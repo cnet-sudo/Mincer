@@ -4,11 +4,8 @@
 void Pickup::spawn(sf::Vector2f pos, int type){
 	
 	std::random_device rd;
-
 	std::mt19937 gen(rd());
-	// тип предмета
-	
-	std::uniform_int_distribution<> health_ammo(25, 250);
+	std::uniform_int_distribution<> health_ammo(15, 150);
 	std::uniform_int_distribution<> extension(5, 25);
 
 	if (type >0 && type < 4) {
@@ -79,10 +76,9 @@ void Pickup::update(float elapsedTime)
 	{
 		m_SecondsSinceDeSpawn += elapsedTime;
 	}
-	// Do we need to hide a pickup?
+	
 	if (m_SecondsSinceSpawn > m_SecondsToLive && m_Spawned)
 	{
-		// Remove the pickup and put it somewhere else
 		m_Spawned = false;
 		m_SecondsSinceDeSpawn = 0;
 	}

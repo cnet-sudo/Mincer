@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <iterator>
 #include "Levels.h"
+#include "GameText.h"
 
 class GameEngine
 {
@@ -41,7 +42,8 @@ private:
 	void draw();
 	
 	// Игра всегда будет в одном из четырех состояний
-	enum class State {paused, level, level_up,game_over, playing, game_victory,game_load};
+	enum class State {paused, level, level_up,game_over, playing, game_victory,game_load, splash_screen, transition
+	};
 	
 	// Состояние игры
 	State state;
@@ -86,6 +88,8 @@ private:
 	// Прицел
 	Sprite spriteCrosshair;
 	Sprite spriteCrosshair1;
+	// Заставка
+	Sprite m_start;
 	// Придметы для подъёма
     std::vector<Pickup>  pickup;
 	// очки
@@ -111,9 +115,10 @@ private:
 	Text hiScoreText;
 	Text monsterRemainingText;
 	Text levelNumberText;
+	Text HelpText;
 	// линия жизни
 	RectangleShape healthBar;
 	RectangleShape healthBar1;
-	
+	GameText gtext;
 };
 

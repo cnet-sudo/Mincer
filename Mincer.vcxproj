@@ -142,6 +142,7 @@
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="GameSound.cpp" />
+    <ClCompile Include="GameText.cpp" />
     <ClCompile Include="Levels.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Monster.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="GameSound.h" />
+    <ClInclude Include="GameText.h" />
     <ClInclude Include="Levels.h" />
     <ClInclude Include="Monster.h" />
     <ClInclude Include="MonsterPlanet.h" />

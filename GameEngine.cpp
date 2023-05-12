@@ -7,13 +7,15 @@ GameEngine::GameEngine()
 	
 	levelText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
 	levelText.setCharacterSize(40);
-	levelText.setFillColor(sf::Color::White);
+	levelText.setFillColor(sf::Color::Yellow);
 	levelText.setString(L"Загрузка ...");
 	levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height-50);
-	window->draw(*levels.getSprite(5));
+	m_start.setTexture(AssetManager::GetTexture("graphics/back2.jpg"));
+	window->draw(m_start);
 	window->draw(levelText);
 	window->display();
 	//-------------------------------------------
+	levels.createLevels();
 	std::vector<std::string> str{ "sound/level1.wav","sound/plasma.wav","sound/mobv.wav","sound/per.wav",
 	"sound/mobb.wav","sound/hit1.wav","sound/bonus1.wav"};
 	m_musik.create_sound(str);
@@ -29,7 +31,7 @@ GameEngine::GameEngine()
 	
 	// иконка патроны
 	spriteAmmoIcon.setTexture(AssetManager::GetTexture("graphics/ammo.png"));
-	spriteAmmoIcon.setPosition(100, 970);
+	spriteAmmoIcon.setPosition(50, 970);
 	
 	// Патроны
 	ammoText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
@@ -37,7 +39,7 @@ GameEngine::GameEngine()
 	ammoText.setFillColor(sf::Color(99,124,0));
 	ammoText.setOutlineColor(Color::Yellow);
 	ammoText.setOutlineThickness(1);
-	ammoText.setPosition(200, 980);
+	ammoText.setPosition(150, 980);
 	
 	// Очки
 	scoreText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
@@ -79,6 +81,15 @@ GameEngine::GameEngine()
 	levelNumberText.setOutlineThickness(1);
 	levelNumberText.setPosition(800, 20);
 	
+	// Помощь
+	HelpText.setFont(AssetManager::GetFont("fonts/Helvetica.otf"));
+	HelpText.setCharacterSize(20);
+	HelpText.setFillColor(sf::Color(99, 124, 0));
+	HelpText.setOutlineColor(Color::Yellow);
+	HelpText.setOutlineThickness(1);
+	HelpText.setPosition(850, 1040);
+	HelpText.setString(L"Помощь - < TAB >");
+	
 	// Линия жизни
 	healthBar.setOutlineColor(Color::Yellow);
 	healthBar.setOutlineThickness(2);
@@ -108,9 +119,20 @@ void GameEngine::input()
 			{
 				if ((event.key.code == sf::Keyboard::Space))
 				{
+					state = State::splash_screen;
+				}
+			}
+
+			if (state == State::splash_screen)
+			{
+				if ((event.key.code == sf::Keyboard::Enter))
+				{
+					levels.stop_sound();
 					state = State::level_up;
 				}
 			}
+
+
 
 			if (state == State::level)
 			{
@@ -170,10 +192,16 @@ void GameEngine::input()
 				
 				window->close();
 			}
-						
+			if (state == State::transition)
+			{
+				if ((event.key.code == sf::Keyboard::Enter))
+				{
+					state = State::level_up;
+				}
+			}
 
 			// Игра
-			if (state == State::playing)
+			if (state == State::playing || state == State::transition)
 			{
 				
 			// Игровая пауза
@@ -248,7 +276,7 @@ void GameEngine::input()
 		}
 
 		// Масштаб
-		if (state == State::playing)
+		if (state == State::playing || state == State::transition)
 		{
 			if (event.type == sf::Event::MouseWheelScrolled)
 			{
@@ -267,7 +295,7 @@ void GameEngine::input()
 
 		
 		
-		if (state == State::playing)
+		if (state == State::playing || state == State::transition)
 		{
 				// стрельба
 				if (Mouse::isButtonPressed(sf::Mouse::Left))
@@ -306,9 +334,12 @@ void GameEngine::update(sf::Time const& deltaTime)
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_int_distribution<> tis(1, 20);
-
+	if (state == State::splash_screen)
+	{
+		levels.splash_SCR_update(deltaTime);
+	}
 	// Игровая сцена
-	if (state == State::playing)
+	if (state == State::playing || state == State::transition)
 	{
 		// Обновление общего игрового времени
 		gameTimeTotal += deltaTime;
@@ -322,8 +353,8 @@ void GameEngine::update(sf::Time const& deltaTime)
 
 		if (!player.getLive()) {
 			state = State::game_over;
+			gtext.genTextDead();
 			std::ofstream outputFile("gamedata/scores.txt");
-			// << writes the data
 			outputFile << hiScore;
 			outputFile.close();
 		}
@@ -442,7 +473,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 							numMonsterAlive--;
 							// When all the zombies are dead (again)
 							if (numMonsterAlive == 0) {
-								state = State::level_up;
+								state = State::transition;
 							}
 						}
 					}
@@ -499,7 +530,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 
 void GameEngine::draw()
 {
-	if (state == State::playing)
+	if (state == State::playing || state == State::transition)
 	{
 		window->clear();
 		// Игровое окно
@@ -562,16 +593,21 @@ void GameEngine::draw()
 		window->draw(healthBar1);
 		window->draw(levelNumberText);
 		window->draw(monsterRemainingText);
+		window->draw(HelpText);
 		
 	}
 	if (state == State::game_load)
 	{
-		window->clear();
 		levelText.setString(L"для продолжения нажмите пробел ");
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
-		window->draw(*levels.getSprite(5));
+		window->draw(m_start);
 		window->draw(levelText);		
 	}
+	if (state == State::splash_screen)
+	{
+		levels.splash_SCR_draw(*window);
+	}
+	
 	if (state == State::level)
 	{
 		window->clear();
@@ -587,19 +623,25 @@ void GameEngine::draw()
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y/2 - levelText.getGlobalBounds().height/2);
 		window->draw(levelText);	
 	}
-	
+	if (state == State::transition)
+	{
+		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y / 2 - levelText.getGlobalBounds().height / 2);
+		levelText.setString(L"для продолжения нажмите enter ");
+		window->draw(levelText);
+	}
 	if (state == State::game_over)
 	{
-		window->draw(*levels.getSprite(6));
+		window->draw(*levels.getSprite(5));
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
 		window->draw(levelText);
+		gtext.DrawTextDead(*window, m_resolution.x, m_resolution.y);
 		window->draw(scoreText);
 		window->draw(hiScoreText);
 	}
 
 	if (state == State::game_victory)
 	{
-		window->draw(*levels.getSprite(7));
+		window->draw(*levels.getSprite(6));
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
 		window->draw(levelText);
 		window->draw(scoreText);
