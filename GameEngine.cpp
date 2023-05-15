@@ -10,8 +10,7 @@ GameEngine::GameEngine()
 	levelText.setFillColor(sf::Color::Yellow);
 	levelText.setString(L"Загрузка ...");
 	levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height-50);
-	m_start.setTexture(AssetManager::GetTexture("graphics/back2.jpg"));
-	window->draw(m_start);
+	levels.start();
 	window->draw(levelText);
 	window->display();
 	//-------------------------------------------
@@ -50,13 +49,15 @@ GameEngine::GameEngine()
 	scoreText.setPosition(100, 20);
 
 	// Загрузка рекорда
-	std::ifstream inputFile("gamedata/scores.txt");
+	std::ifstream inputFile("gamedata/scores.txt", std::ios::binary | std::ios::in);
 	if (inputFile.is_open())
 	{
 		//Обновление переменной
-		inputFile >> hiScore;
+		inputFile.read((char*)& hiScore, sizeof hiScore);
 		inputFile.close();
 	}
+
+
 	// Рекорд
 	hiScoreText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
 	hiScoreText.setCharacterSize(55);
@@ -120,15 +121,18 @@ void GameEngine::input()
 				if ((event.key.code == sf::Keyboard::Space))
 				{
 					state = State::splash_screen;
+					return;
 				}
+
 			}
 
 			if (state == State::splash_screen)
 			{
-				if ((event.key.code == sf::Keyboard::Enter))
+				if ((event.key.code == sf::Keyboard::Space))
 				{
 					levels.stop_sound();
 					state = State::level_up;
+					return;
 				}
 			}
 
@@ -165,11 +169,23 @@ void GameEngine::input()
 
 			if (state == State::paused)
 			{
-				if ((event.key.code == sf::Keyboard::Space))
+				if (event.key.code == sf::Keyboard::Space)
 				{
 					state = State::playing;
 				}
+				
 			}
+			if (state == State::help)
+			{
+				if (event.key.code == sf::Keyboard::Tab)
+				{
+					state = State::playing;
+					return;
+				}
+				
+			}
+			
+
 
 			if ((event.key.code == sf::Keyboard::M)) {
 
@@ -182,21 +198,16 @@ void GameEngine::input()
 			// Выход из игры
 			if ((event.key.code == sf::Keyboard::Escape) || (event.type == sf::Event::Closed)) 
 			{
-				std::ofstream outFile("gamedata/scores.txt");
-				if (outFile.is_open())
-				{
-					//Обновление переменной
-					outFile << hiScore;
-					outFile.close();
-				}
+				saveHiScore();
 				
 				window->close();
 			}
 			if (state == State::transition)
 			{
-				if ((event.key.code == sf::Keyboard::Enter))
+				if ((event.key.code == sf::Keyboard::Space))
 				{
 					state = State::level_up;
+					return;
 				}
 			}
 
@@ -209,10 +220,18 @@ void GameEngine::input()
 			{
 				state = State::paused;
 			}
-			 
+			
+			// Игровая пауза
+			if (event.key.code == sf::Keyboard::Tab)
+			{
+				state = State::help;
+				return;
+			}
+
 			if (event.key.code == sf::Keyboard::Space)
 			{
 				mainView.setSize(m_resolution.x,m_resolution.y);
+				return;
 			}
 			
 				// Перезарядка
@@ -353,10 +372,11 @@ void GameEngine::update(sf::Time const& deltaTime)
 
 		if (!player.getLive()) {
 			state = State::game_over;
+
 			gtext.genTextDead();
-			std::ofstream outputFile("gamedata/scores.txt");
-			outputFile << hiScore;
-			outputFile.close();
+			
+			saveHiScore();
+
 		}
 
 		// Обновление логики игрока
@@ -518,8 +538,10 @@ void GameEngine::update(sf::Time const& deltaTime)
 	if (state == State::level_up)
 	{
 		level++;
-		if (level == 6) {
+		if (level > 5) {
 			state = State::game_victory;
+			gtext.genTextVic();
+			saveHiScore();
 		}
 		else {
 		newLevel();
@@ -600,12 +622,12 @@ void GameEngine::draw()
 	{
 		levelText.setString(L"для продолжения нажмите пробел ");
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
-		window->draw(m_start);
+		levels.start();
 		window->draw(levelText);		
 	}
 	if (state == State::splash_screen)
 	{
-		levels.splash_SCR_draw(*window);
+		levels.splash_SCR_draw();
 	}
 	
 	if (state == State::level)
@@ -620,13 +642,19 @@ void GameEngine::draw()
 
 	if (state == State::paused)
 	{
+		levelText.setString(L"\t\t\t\t\t\t  ПАУЗА\nдля продолжения нажмите пробел ");
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y/2 - levelText.getGlobalBounds().height/2);
 		window->draw(levelText);	
 	}
+
+	if (state == State::help)
+	{
+		levels.help();
+	}
+
 	if (state == State::transition)
 	{
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y / 2 - levelText.getGlobalBounds().height / 2);
-		levelText.setString(L"для продолжения нажмите enter ");
 		window->draw(levelText);
 	}
 	if (state == State::game_over)
@@ -634,7 +662,7 @@ void GameEngine::draw()
 		window->draw(*levels.getSprite(5));
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
 		window->draw(levelText);
-		gtext.DrawTextDead(*window, m_resolution.x, m_resolution.y);
+		gtext.DrawText(*window, m_resolution.x, m_resolution.y);
 		window->draw(scoreText);
 		window->draw(hiScoreText);
 	}
@@ -644,6 +672,7 @@ void GameEngine::draw()
 		window->draw(*levels.getSprite(6));
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
 		window->draw(levelText);
+		gtext.DrawText(*window, m_resolution.x, m_resolution.y);
 		window->draw(scoreText);
 		window->draw(hiScoreText);
 	}
@@ -663,6 +692,13 @@ void GameEngine::restart()
 	planet.left = 0;
 	planet.top = 0;	
 
+}
+
+void GameEngine::saveHiScore()
+{
+	std::ofstream outputFile("gamedata/scores.txt", std::ios::binary | std::ios::out);
+	outputFile.write((char*)&hiScore, sizeof hiScore);
+	outputFile.close();
 }
 
 void GameEngine::newLevel()

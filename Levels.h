@@ -4,7 +4,7 @@
 
 class Levels
 {
-
+	sf::RenderWindow& window;
 
 	std::array<sf::Sprite, 7> m_background;
 
@@ -14,8 +14,9 @@ class Levels
 	std::array<int, 7> m_time{11,8,5,9,5,12,12};
 
 	sf::Sprite* m_bkgr=nullptr;
-
+	sf::Sprite m_start;
 	sf::Sprite m_splash_screen;
+	sf::Sprite m_help;
 	// номер кадра
 	int m_frame = 0;
 	// время смены кадра
@@ -24,16 +25,20 @@ class Levels
 
 public:
 
-	Levels();
+	Levels(sf::RenderWindow& window);
 
 	sf::Sprite * getSprite(int index);
 
 	void splash_SCR_update(sf::Time deltaTime);
 
-	void splash_SCR_draw(sf::RenderWindow & window);
+	void splash_SCR_draw();
 
 	void createLevels();
 
 	void stop_sound();
+
+	void start();
+
+	void help();
 };
 

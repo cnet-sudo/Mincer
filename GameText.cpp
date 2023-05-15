@@ -9,7 +9,7 @@ GameText::GameText()
 	m_text.setOutlineThickness(1);
 }
 
-void GameText::DrawTextDead(sf::RenderWindow & window, float resx, float resy) {
+void GameText::DrawText(sf::RenderWindow & window, float resx, float resy) {
 	
 	m_text.setPosition(resx / 2 - m_text.getGlobalBounds().width / 2, resy / 2 - m_text.getGlobalBounds().height / 2);
 	window.draw(m_text);
@@ -21,4 +21,12 @@ void GameText::genTextDead()
 	std::mt19937 gen(rd());
 	std::uniform_int_distribution<> speed_plus(0, 5);
 	m_text.setString(m_deadText[speed_plus(gen)]);
+}
+
+void GameText::genTextVic()
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> speed_plus(0, 5);
+	m_text.setString(m_victoriqText[speed_plus(gen)]);
 }

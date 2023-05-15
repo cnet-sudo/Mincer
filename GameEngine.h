@@ -1,5 +1,6 @@
 #pragma once
 #include<iostream>
+#include <fstream>
 #include"AssetManager.h"
 #include"Player.h"
 #include"Monster.h"
@@ -7,7 +8,6 @@
 #include "Bullet.h"
 #include "Pickup.h"
 #include "array"
-#include <fstream>
 #include <vector>
 #include <deque>
 #include "GameSound.h"
@@ -42,12 +42,11 @@ private:
 	void draw();
 	
 	// Игра всегда будет в одном из четырех состояний
-	enum class State {paused, level, level_up,game_over, playing, game_victory,game_load, splash_screen, transition
-	};
+	enum class State {paused, level, level_up,game_over, playing, game_victory,game_load, splash_screen, transition,help };
 	
 	// Состояние игры
 	State state;
-	Levels levels;
+	Levels levels=Levels(*window);
 	// разрешение экрана
 	sf::Vector2f m_resolution = sf::Vector2f(static_cast<float>(sf::VideoMode::getDesktopMode().width),
 		static_cast<float>(sf::VideoMode::getDesktopMode().height));
@@ -88,14 +87,13 @@ private:
 	// Прицел
 	Sprite spriteCrosshair;
 	Sprite spriteCrosshair1;
-	// Заставка
-	Sprite m_start;
 	// Придметы для подъёма
     std::vector<Pickup>  pickup;
 	// очки
 	int score;
 	// рекорд
 	int hiScore = 0;
+	void saveHiScore();
 	// рестарт
 	void restart();
 	// новый уровень

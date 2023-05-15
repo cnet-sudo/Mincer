@@ -57,10 +57,11 @@ sf::Time Player::getLastHitTime() const {
 
 bool Player::hit(sf::Time timeHit) {
 
-	if (timeHit.asMilliseconds()- m_LastHit.asMilliseconds() > 200)	{
+	if (timeHit.asMilliseconds()- m_LastHit.asMilliseconds() > 200 && m_Health>0) {
 		
 		m_LastHit = timeHit;
-		m_Health -= 10;
+		if (m_Health>100) m_Health -= 10; else m_Health -= 5;
+		if (m_Health < 0) m_Health = 0;
 		return true;
 	}
 	else {
@@ -139,7 +140,7 @@ void Player::update(sf::Time deltaTime, sf::Vector2i mousePosition)
 	// анимация перемещения игрока
 	if (m_animMove && m_Health>0) m_AnimPlayer.Update(deltaTime);
 	// если игрок потерял здоровье
-	if (m_Health < 0) 
+	if (m_Health <= 0) 
 	{
 		if (m_AnimPlayer.GetCurrentAnimationName() != "dead") m_AnimPlayer.SwitchAnimation("dead");
 		

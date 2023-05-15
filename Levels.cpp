@@ -1,8 +1,8 @@
 #include "Levels.h"
 
-Levels::Levels()
+Levels::Levels(sf::RenderWindow& win):window(win)
 {
-	
+	m_start.setTexture(AssetManager::GetTexture("graphics/back2.jpg"));
 
 }
 
@@ -32,9 +32,19 @@ void Levels::splash_SCR_update(sf::Time deltaTime)
 	}
 }
 
-void Levels::splash_SCR_draw(sf::RenderWindow& window)
+void Levels::splash_SCR_draw()
 {
 	window.draw(m_splash_screen);
+}
+
+void Levels::start()
+{
+	window.draw(m_start);
+}
+
+void Levels::help()
+{
+	window.draw(m_help);
 }
 
 void Levels::createLevels()
@@ -59,6 +69,9 @@ void Levels::createLevels()
 		m_sound[i].setBuffer(AssetManager::GetSoundBuffer(str1[i]));
 		m_sound[i].setLoop(false);
 	}
+
+	m_help.setTexture(AssetManager::GetTexture("graphics/help.png"));
+
 }
 
 void Levels::stop_sound() {
