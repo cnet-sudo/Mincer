@@ -6,7 +6,7 @@ Player::Player()
 		m_Health = START_HEALTH;
 		m_MaxHealth = START_HEALTH;
 		m_move = playermove::Stop;
-
+		m_TileSize = 0;
 		auto& idleForward = m_AnimPlayer.CreateAnimation("idleForward", "graphics/player.png", sf::seconds(0.5), true);
 		idleForward.AddFrames(sf::Vector2i(0, 0), sf::Vector2i(135, 105), 4, 1);
 		auto& dead = m_AnimPlayer.CreateAnimation("dead", "graphics/player.png", sf::seconds(0.5), false);
@@ -18,6 +18,7 @@ Player::Player()
 		
 }
 
+// появление игрока в мире
 void Player::spawn(sf::IntRect planet, sf::Vector2f resolution, int tileSize)
 {
 	// Поместите игрока в центр арены
@@ -30,26 +31,27 @@ void Player::spawn(sf::IntRect planet, sf::Vector2f resolution, int tileSize)
 	m_planet.height = planet.height;
 	// Сохраняем размер плиток
 	m_TileSize = tileSize;
-	// Сохраняем разрешение єкрана
+	// Сохраняем разрешение экрана
 	m_Resolution.x = resolution.x;
 	m_Resolution.y = resolution.y;
 }
-
+// сброс свойств игрока
 void Player::resetPlayerStats()
 {
 	m_Health = START_HEALTH;
 	m_MaxHealth = START_HEALTH;
 	m_live = true;
-
 	m_AnimPlayer.SwitchAnimation("idleForward");
 	m_AnimPlayer.Update(sf::seconds(0));
 }
 
+// состояние игрока жив мёртв
 bool Player::getLive() const {
 
 	return m_live;
 }
 
+// время получения урона
 sf::Time Player::getLastHitTime() const {
 
 	return m_LastHit;
@@ -69,7 +71,7 @@ bool Player::hit(sf::Time timeHit) {
 		return false;
 	}
 }
-
+// область нахождения игрока
 sf::FloatRect Player::getPosition() const {
 
 	auto myGlobalBounds = sf::FloatRect(m_Sprite.getGlobalBounds().left+20,
@@ -78,47 +80,55 @@ sf::FloatRect Player::getPosition() const {
 	return myGlobalBounds;
 }
 
+// координаты расположения игрока
 sf::Vector2f Player::getCenter() const {
 
 	return m_Position;
 }
 
+// угол поворота игрока
 float Player::getRotation() const {
 
 	return m_Sprite.getRotation();
 }
-
+// спрайт игрока
 sf::Sprite Player::getSprite() const {
 
 	return m_Sprite;
 }
 
+// количество жизни игрока
 float Player::getHealth() const {
 
 	return m_Health;
 }
 
+// максимальное количество жизни
 float Player::getMaxHealth() const
 {
 	return m_MaxHealth;
 }
 
+// рисуем игрока
 void Player::draw(sf::RenderWindow& win) const {
 
 	win.draw(m_Sprite);
 }
 
+// перемещение игрока
 void Player::move(playermove mov) {
 
 	m_move = mov;
 }
 
+// увеличение максимального количества жизни
 void Player::upgradeHealth(float heal) {
 
-	// увеличиваем макимальное количество жизни игрока
 	if (m_Health!=0) m_MaxHealth += heal;
 }
 
+
+// востановление жизни игрока
 void Player::increaseHealthLevel(float amount) {
 
 	if (m_Health != 0) {
@@ -131,9 +141,7 @@ void Player::increaseHealthLevel(float amount) {
 	}
 }
 
-
-
-
+// обновление свойств игрока
 void Player::update(sf::Time deltaTime, sf::Vector2i mousePosition)
 {
 	m_time_moving += deltaTime;
