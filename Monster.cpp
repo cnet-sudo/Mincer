@@ -1,5 +1,7 @@
 #include "Monster.h"
 
+
+
 Monster::Monster()
 {
 	auto& d2 = m_AnimPlayer.CreateAnimation("d2", "graphics/mon4.png", sf::seconds(0.5), false);
@@ -16,20 +18,23 @@ Monster::Monster()
 	mon4.AddFrames(sf::Vector2i(0, 210), sf::Vector2i(170, 160), 4, 1);
 	auto& mon5 = m_AnimPlayer.CreateAnimation("mon5", "graphics/mon4.png", sf::seconds(1), true);
 	mon5.AddFrames(sf::Vector2i(0, 0), sf::Vector2i(195, 206), 4, 1);
-	m_Sprite.setOrigin(m_Sprite.getGlobalBounds().width/2, m_Sprite.getGlobalBounds().height/2);	
+	m_Sprite.setOrigin(m_Sprite.getGlobalBounds().width/2, m_Sprite.getGlobalBounds().height/2);
+	m_Type = 0;
+	m_Speed = 0;
+	m_Health = 0;
 }
 
-void Monster::spawn(float startX, float startY, int type)
+void Monster::spawn(float startX, float startY, int type, int complexity)
 {
 	std::array<std::string, 5> name_monster{ "mon1","mon2","mon3","mon4","mon5" };
 	m_Type = type;
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_int_distribution<> speed_plus(0,9);
-	
+	m_complexity = complexity;
 	m_AnimPlayer.SwitchAnimation(name_monster[type]);
 	m_Speed = 1-(type*0.1f)+(speed_plus(gen)*0.01f);
-	m_Health = type+1;
+	m_Health = type+m_complexity;
 		
 	//Инициализировать его местоположение
 	m_Position.x = startX;
@@ -132,4 +137,6 @@ int Monster::getTypeMonster() const
 {
 	return m_Type;
 }
+
+
 

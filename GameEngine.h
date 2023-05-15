@@ -80,7 +80,8 @@ private:
 	int bulletsInClip;
 	// Максимальный размер обоймы
 	int clipSize;
-
+	// сложность
+	int m_complexity = 1;
 	// интервал стрельбы
 	Time lastPressed;
     
@@ -96,6 +97,7 @@ private:
 	void saveHiScore();
 	// рестарт
 	void restart();
+	void start_complexity();
 	// новый уровень
 	void newLevel();
 	int level=1;

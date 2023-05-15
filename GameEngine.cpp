@@ -23,6 +23,7 @@ GameEngine::GameEngine()
 	window->setIcon(128, 128, icon.getPixelsPtr());
 	// прячем курсор
 	window->setMouseCursorVisible(false);
+	
 	spriteCrosshair.setTexture(AssetManager::GetTexture("graphics/crosshair.png"));
 	spriteCrosshair.setOrigin(25, 25);
 	spriteCrosshair1.setTexture(AssetManager::GetTexture("graphics/crosshair1.png"));
@@ -88,9 +89,8 @@ GameEngine::GameEngine()
 	HelpText.setFillColor(sf::Color(99, 124, 0));
 	HelpText.setOutlineColor(Color::Yellow);
 	HelpText.setOutlineThickness(1);
-	HelpText.setPosition(850, 1040);
-	HelpText.setString(L"Помощь - < TAB >");
-	
+	HelpText.setPosition(700, 1040);
+		
 	// Линия жизни
 	healthBar.setOutlineColor(Color::Yellow);
 	healthBar.setOutlineThickness(2);
@@ -162,7 +162,8 @@ void GameEngine::input()
 			{
 				if ((event.key.code == sf::Keyboard::Space))
 				{
-					restart();
+					start_complexity();
+					m_complexity++;
 					state = State::level_up;
 				}
 			}
@@ -373,7 +374,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 		if (!player.getLive()) {
 			state = State::game_over;
 
-			gtext.genTextDead();
+			gtext.genText("dead");
 			
 			saveHiScore();
 
@@ -530,8 +531,8 @@ void GameEngine::update(sf::Time const& deltaTime)
 			levelNumberText.setString(L"Уровень: "+ std::to_string(level));
 			// текст обновления текущего количества монстров
 			monsterRemainingText.setString(L"Монстры: "+ std::to_string(numMonsterAlive));
-			
-
+			// сложность игры
+			HelpText.setString(L"Помощь - < TAB >              Сложность: "+ std::to_string(m_complexity));
 
 	}// Конец игровой сцены
 	
@@ -540,7 +541,7 @@ void GameEngine::update(sf::Time const& deltaTime)
 		level++;
 		if (level > 5) {
 			state = State::game_victory;
-			gtext.genTextVic();
+			gtext.genText("vic");
 			saveHiScore();
 		}
 		else {
@@ -694,6 +695,14 @@ void GameEngine::restart()
 
 }
 
+void GameEngine::start_complexity()
+{
+	level = 0;
+	mainView.setSize(m_resolution.x, m_resolution.y);
+	planet.left = 0;
+	planet.top = 0;
+}
+
 void GameEngine::saveHiScore()
 {
 	std::ofstream outputFile("gamedata/scores.txt", std::ios::binary | std::ios::out);
@@ -715,8 +724,7 @@ void GameEngine::newLevel()
 	pickup.clear();
 	int tileSize = createBackground(background, planet,level);
 	player.spawn(planet, m_resolution, tileSize);
-	
-	numMonsterAlive = createHorde(50*level, monster, sf::Vector2i(0, level-1), planet);
+	numMonsterAlive = createHorde(50*level, monster, sf::Vector2i(0, level-1), planet,m_complexity);
 }
 
 void GameEngine::recharge()

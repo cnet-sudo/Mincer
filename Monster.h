@@ -8,7 +8,8 @@
 class Monster
 {
 private:
-	
+	// сложность
+	int m_complexity = 0;
 	// Координаты монстров
 	sf::Vector2f m_Position;
 	// Спрайт для монстра
@@ -36,7 +37,7 @@ private:
 	bool getnovisible();
 	void novisible();
 	// Создаем нового монстра
-	void spawn(float startX, float startY, int type);
+	void spawn(float startX, float startY, int type, int complexity);
 	// Возвращаем прямоугольник, который является позицией в мире
 	sf::FloatRect getPosition();
 	// Получаем копию спрайта для рисования

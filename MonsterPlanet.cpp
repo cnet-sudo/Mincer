@@ -1,7 +1,7 @@
 #include "MonsterPlanet.h"
 #include "Monster.h"
 
-int createHorde(int numMonster, std::deque<Monster>& monster, sf::Vector2i type, sf::IntRect planet)
+int createHorde(int numMonster, std::deque<Monster>& monster, sf::Vector2i type, sf::IntRect planet, int complexity)
 {   
     auto min= sf::Vector2i(planet.left + 300, planet.top + 300);
 	auto max= sf::Vector2i(planet.width - 300, planet.height - 300);
@@ -20,7 +20,7 @@ int createHorde(int numMonster, std::deque<Monster>& monster, sf::Vector2i type,
 		    pos.x = static_cast<float>(rx(gen));
 			pos.y = static_cast<float>(ry(gen));
             monster.emplace_back();
-            monster[i].spawn(pos.x, pos.y, mtype);
+            monster[i].spawn(pos.x, pos.y, mtype, complexity);
             num++;
 	}
 	

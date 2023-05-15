@@ -15,18 +15,15 @@ void GameText::DrawText(sf::RenderWindow & window, float resx, float resy) {
 	window.draw(m_text);
 }
 
-void GameText::genTextDead()
+void GameText::genText(std::string str )
 {
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_int_distribution<> speed_plus(0, 5);
-	m_text.setString(m_deadText[speed_plus(gen)]);
+
+	if (str=="vic") m_text.setString(m_victoriqText[speed_plus(gen)]);
+
+	if (str == "dead") m_text.setString(m_deadText[speed_plus(gen)]);
 }
 
-void GameText::genTextVic()
-{
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_int_distribution<> speed_plus(0, 5);
-	m_text.setString(m_victoriqText[speed_plus(gen)]);
-}
+

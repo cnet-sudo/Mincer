@@ -21,7 +21,7 @@ public:
 	GameText();
 void DrawText(sf::RenderWindow& window, float resx, float resy);
 
-void genTextDead();
-void genTextVic();
+void genText(std::string str);
+
 };
 
