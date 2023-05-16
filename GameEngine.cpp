@@ -683,7 +683,7 @@ void GameEngine::draw()
 	if (state == State::transition)
 	{
 		levelText.setString(L"для продолжения нажмите пробел ");
-		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 30 * m_scale_y);
+		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y / 2 - levelText.getGlobalBounds().height / 2);
 		window->draw(levelText);
 	}
 	if (state == State::game_over)
