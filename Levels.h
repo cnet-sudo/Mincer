@@ -4,7 +4,7 @@
 
 class Levels
 {
-	sf::RenderWindow& window;
+	sf::RenderWindow& m_window;
 
 	std::array<sf::Sprite, 7> m_background;
 
@@ -22,10 +22,11 @@ class Levels
 	// время смены кадра
 	sf::Time m_time_frame;
 	bool m_play = true;
-
+	float m_scale_x;
+	float m_scale_y;
 public:
 
-	Levels(sf::RenderWindow& window);
+	Levels(sf::RenderWindow& window, float scale_x, float scale_y);
 
 	sf::Sprite * getSprite(int index);
 

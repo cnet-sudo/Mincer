@@ -26,4 +26,9 @@ void GameText::genText(std::string str )
 	if (str == "dead") m_text.setString(m_deadText[speed_plus(gen)]);
 }
 
+void GameText::scale(float scale_x, float scale_y)
+{
+	m_text.setScale(scale_x, scale_y);
+}
+
 

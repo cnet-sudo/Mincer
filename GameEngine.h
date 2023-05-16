@@ -24,10 +24,11 @@ public:
 	// Метод запуска игрового цикла
 	void run();
 private:
-	
+	// разрешение экрана
+	sf::Vector2f m_resolution = sf::Vector2f(static_cast<float>(sf::VideoMode::getDesktopMode().width),
+		static_cast<float>(sf::VideoMode::getDesktopMode().height));
 	// Менеджер ресурсов
 	AssetManager manager; 
-	
 	// Графическое окно
 	std::unique_ptr<sf::RenderWindow> window = std::make_unique<sf::RenderWindow>(sf::VideoMode(m_resolution.x, m_resolution.y),L"Мясорубка", sf::Style::Fullscreen);
 	sf::Image icon;
@@ -46,24 +47,25 @@ private:
 	
 	// Состояние игры
 	State state;
-	Levels levels=Levels(*window);
-	// разрешение экрана
-	sf::Vector2f m_resolution = sf::Vector2f(static_cast<float>(sf::VideoMode::getDesktopMode().width),
-		static_cast<float>(sf::VideoMode::getDesktopMode().height));
+	Levels levels=Levels(*window, m_resolution.x, m_resolution.y);
+	
 	// Окно mainView
-	sf::View mainView=sf::View(sf::FloatRect(0, 0,m_resolution.x, m_resolution.y));
+	sf::View mainView=sf::View(sf::FloatRect(0, 0, 1920, 1080));
 	// Общее игровое время
 	sf::Time gameTimeTotal;
 	// мировые координаты мышки
 	sf::Vector2f mouseWorldPosition;
 	// координаты мышки в окне
 	sf::Vector2i mouseScreenPosition;
-
+	//масштаб
+	float m_scale_x;
+	float m_scale_y;
 	// игрок
 	Player player;
 
 	// фон уровня
 	sf::VertexArray background;
+	sf::Transform transform;
 	// Размер уровня
 	sf::IntRect planet;
 
@@ -72,7 +74,7 @@ private:
 	// массив монстров
 	std::deque<Monster> monster;
 	// 100 патронов
-	std::array<Bullet,200> bullets;
+	std::array<Bullet,100> bullets;
 	int currentBullet = 0;
 	// Ящик с патронами
 	int bulletsSpare;

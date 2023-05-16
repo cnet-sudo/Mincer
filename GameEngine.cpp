@@ -2,14 +2,26 @@
 
 GameEngine::GameEngine()
 {   
+	// масштабирование
+	if (m_resolution.x > 1920) m_scale_x = 1 * (m_resolution.x / 1920);
+	else
+		if (m_resolution.x < 1920) m_scale_x = 1 / (1920 / m_resolution.x);
+		else m_scale_x = 1;
+
+	if (m_resolution.y > 1080) m_scale_y = 1 * (m_resolution.y / 1080);
+	else
+		if (m_resolution.y < 1080) m_scale_y = 1 / (1080 / m_resolution.y);
+		else m_scale_y = 1;
+	
 	// Загрузка
 	state = State::game_load;
-	
+	gtext.scale(m_scale_x,m_scale_y);
 	levelText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
 	levelText.setCharacterSize(40);
 	levelText.setFillColor(sf::Color::Yellow);
 	levelText.setString(L"Загрузка ...");
-	levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height-50);
+	levelText.setScale(m_scale_x, m_scale_y);
+	levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height-30*m_scale_y);
 	levels.start();
 	window->draw(levelText);
 	window->display();
@@ -26,12 +38,14 @@ GameEngine::GameEngine()
 	
 	spriteCrosshair.setTexture(AssetManager::GetTexture("graphics/crosshair.png"));
 	spriteCrosshair.setOrigin(25, 25);
+	spriteCrosshair.setScale(m_scale_x, m_scale_y);
 	spriteCrosshair1.setTexture(AssetManager::GetTexture("graphics/crosshair1.png"));
 	spriteCrosshair1.setOrigin(25, 25);
-	
+	spriteCrosshair1.setScale(m_scale_x, m_scale_y);
 	// иконка патроны
 	spriteAmmoIcon.setTexture(AssetManager::GetTexture("graphics/ammo.png"));
-	spriteAmmoIcon.setPosition(50, 970);
+	spriteAmmoIcon.setScale(m_scale_x, m_scale_y);
+	
 	
 	// Патроны
 	ammoText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
@@ -39,7 +53,8 @@ GameEngine::GameEngine()
 	ammoText.setFillColor(sf::Color(99,124,0));
 	ammoText.setOutlineColor(Color::Yellow);
 	ammoText.setOutlineThickness(1);
-	ammoText.setPosition(150, 980);
+	ammoText.setScale(m_scale_x, m_scale_y);
+	
 	
 	// Очки
 	scoreText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
@@ -47,7 +62,8 @@ GameEngine::GameEngine()
 	scoreText.setFillColor(sf::Color(99, 124, 0));
 	scoreText.setOutlineColor(Color::Yellow);
 	scoreText.setOutlineThickness(1);
-	scoreText.setPosition(100, 20);
+	scoreText.setScale(m_scale_x, m_scale_y);
+	
 
 	// Загрузка рекорда
 	std::ifstream inputFile("gamedata/scores.txt", std::ios::binary | std::ios::in);
@@ -65,7 +81,8 @@ GameEngine::GameEngine()
 	hiScoreText.setFillColor(sf::Color(99, 124, 0));
 	hiScoreText.setOutlineColor(Color::Yellow);
 	hiScoreText.setOutlineThickness(1);
-	hiScoreText.setPosition(1400, 20);
+	hiScoreText.setScale(m_scale_x, m_scale_y);
+	
 	
 	// Монстры
 	monsterRemainingText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
@@ -73,15 +90,15 @@ GameEngine::GameEngine()
 	monsterRemainingText.setFillColor(sf::Color(99, 124, 0));
 	monsterRemainingText.setOutlineColor(Color::Yellow);
 	monsterRemainingText.setOutlineThickness(1);
-	monsterRemainingText.setPosition(1400, 980);
-	
+	monsterRemainingText.setScale(m_scale_x, m_scale_y);
+		
 	// Номер волны
 	levelNumberText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
 	levelNumberText.setCharacterSize(55);
 	levelNumberText.setFillColor(sf::Color(99, 124, 0));
 	levelNumberText.setOutlineColor(Color::Yellow);
 	levelNumberText.setOutlineThickness(1);
-	levelNumberText.setPosition(800, 20);
+	levelNumberText.setScale(m_scale_x, m_scale_y);
 	
 	// Помощь
 	HelpText.setFont(AssetManager::GetFont("fonts/Helvetica.otf"));
@@ -89,21 +106,21 @@ GameEngine::GameEngine()
 	HelpText.setFillColor(sf::Color(99, 124, 0));
 	HelpText.setOutlineColor(Color::Yellow);
 	HelpText.setOutlineThickness(1);
-	HelpText.setPosition(700, 1040);
-		
+	HelpText.setScale(m_scale_x, m_scale_y);
+			
 	// Линия жизни
 	healthBar.setOutlineColor(Color::Yellow);
 	healthBar.setOutlineThickness(2);
 	healthBar.setFillColor(Color::Red);
-	healthBar.setPosition(550, 980);
+	healthBar.setScale(m_scale_x, m_scale_y);
+	
 	// Сосуд жизни 
 	healthBar1.setOutlineColor(Color::Yellow);
 	healthBar1.setOutlineThickness(5);
 	healthBar1.setFillColor(sf::Color(0,0,0,0));
-	healthBar1.setPosition(550, 980);
 	healthBar1.setSize(Vector2f(800, 50));
+	healthBar1.setScale(m_scale_x, m_scale_y);	
 	restart();
-	
 }
 
 void GameEngine::input()
@@ -170,9 +187,10 @@ void GameEngine::input()
 
 			if (state == State::paused)
 			{
-				if (event.key.code == sf::Keyboard::Space)
+				if (event.key.code == sf::Keyboard::Pause)
 				{
 					state = State::playing;
+					return;
 				}
 				
 			}
@@ -217,13 +235,14 @@ void GameEngine::input()
 			{
 				
 			// Игровая пауза
-			if (event.key.code == sf::Keyboard::Pause)
+			if (event.key.code == sf::Keyboard::Pause && state != State::transition)
 			{
 				state = State::paused;
+				return;
 			}
 			
 			// Игровая пауза
-			if (event.key.code == sf::Keyboard::Tab)
+			if (event.key.code == sf::Keyboard::Tab && state != State::transition)
 			{
 				state = State::help;
 				return;
@@ -231,7 +250,7 @@ void GameEngine::input()
 
 			if (event.key.code == sf::Keyboard::Space)
 			{
-				mainView.setSize(m_resolution.x,m_resolution.y);
+				mainView.setSize(1920,1080);
 				return;
 			}
 			
@@ -326,7 +345,7 @@ void GameEngine::input()
 						// Стрельба в прицел
 						bullets[currentBullet].shoot(player.getCenter().x, player.getCenter().y, mouseWorldPosition.x, mouseWorldPosition.y);
 						currentBullet++;
-						if (currentBullet > 199)
+						if (currentBullet > bullets.size()-1)
 						{
 							currentBullet = 0;
 						}
@@ -608,21 +627,30 @@ void GameEngine::draw()
 		// Интерфейс
 		window->setView(hudView);
 		// Элементы интерфейса
+		spriteAmmoIcon.setPosition(20 * m_scale_x, m_resolution.y - spriteAmmoIcon.getGlobalBounds().height - 40 * m_scale_y);
 		window->draw(spriteAmmoIcon);
+		ammoText.setPosition(30 * m_scale_x + spriteAmmoIcon.getGlobalBounds().width, m_resolution.y - ammoText.getGlobalBounds().height - 40 * m_scale_y);
 		window->draw(ammoText);
+		scoreText.setPosition(100 * m_scale_x, 20 * m_scale_y);
 		window->draw(scoreText);
+		hiScoreText.setPosition(m_resolution.x - 520 * m_scale_x, 20 * m_scale_y);
 		window->draw(hiScoreText);
+		healthBar.setPosition(m_resolution.x / 2 - healthBar1.getGlobalBounds().width / 2, m_resolution.y - 100 * m_scale_y);
 		window->draw(healthBar);
+		healthBar1.setPosition(m_resolution.x / 2 - healthBar1.getGlobalBounds().width / 2, m_resolution.y - 100 * m_scale_y);
 		window->draw(healthBar1);
+		levelNumberText.setPosition(m_resolution.x / 2 - levelNumberText.getGlobalBounds().width/2, 20 * m_scale_y);
 		window->draw(levelNumberText);
+		monsterRemainingText.setPosition(m_resolution.x - 520 * m_scale_x, m_resolution.y - monsterRemainingText.getGlobalBounds().height - 40* m_scale_y);
 		window->draw(monsterRemainingText);
+		HelpText.setPosition(m_resolution.x / 2 - HelpText.getGlobalBounds().width /2, m_resolution.y - 40 * m_scale_y);
 		window->draw(HelpText);
 		
 	}
 	if (state == State::game_load)
 	{
 		levelText.setString(L"для продолжения нажмите пробел ");
-		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
+		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 30 * m_scale_y);
 		levels.start();
 		window->draw(levelText);		
 	}
@@ -635,15 +663,14 @@ void GameEngine::draw()
 	{
 		window->clear();
 		levelText.setString(L"для продолжения нажмите пробел ");
-		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
-		
+		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 30 * m_scale_y);
 		window->draw(*levels.getSprite(level-1));
 		window->draw(levelText);
 	}
 
 	if (state == State::paused)
 	{
-		levelText.setString(L"\t\t\t\t\t\t  ПАУЗА\nдля продолжения нажмите пробел ");
+		levelText.setString(L"ПАУЗА");
 		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y/2 - levelText.getGlobalBounds().height/2);
 		window->draw(levelText);	
 	}
@@ -655,13 +682,15 @@ void GameEngine::draw()
 
 	if (state == State::transition)
 	{
-		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y / 2 - levelText.getGlobalBounds().height / 2);
+		levelText.setString(L"для продолжения нажмите пробел ");
+		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 30 * m_scale_y);
 		window->draw(levelText);
 	}
 	if (state == State::game_over)
 	{
 		window->draw(*levels.getSprite(5));
-		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
+		levelText.setString(L"для продолжения нажмите пробел ");
+		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 30 * m_scale_y);
 		window->draw(levelText);
 		gtext.DrawText(*window, m_resolution.x, m_resolution.y);
 		window->draw(scoreText);
@@ -671,7 +700,8 @@ void GameEngine::draw()
 	if (state == State::game_victory)
 	{
 		window->draw(*levels.getSprite(6));
-		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 50);
+		levelText.setString(L"для продолжения нажмите пробел ");
+		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 30 * m_scale_y);
 		window->draw(levelText);
 		gtext.DrawText(*window, m_resolution.x, m_resolution.y);
 		window->draw(scoreText);

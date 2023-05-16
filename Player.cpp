@@ -13,7 +13,6 @@ Player::Player()
 		dead.AddFrames(sf::Vector2i(405, 0), sf::Vector2i(135, 105), 4, 1);
 		m_AnimPlayer.SwitchAnimation("idleForward");
 		m_AnimPlayer.Update(sf::seconds(0));
-		
 		m_Sprite.setOrigin(m_Sprite.getGlobalBounds().width / 2, m_Sprite.getGlobalBounds().height / 2);
 		
 }

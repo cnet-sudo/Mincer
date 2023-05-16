@@ -70,5 +70,6 @@ private:
 	sf::Time m_time_moving;
 	// Скорость в пикселях в секунду
 	float m_Speed;
+	
 };
 

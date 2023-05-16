@@ -23,5 +23,6 @@ void DrawText(sf::RenderWindow& window, float resx, float resy);
 
 void genText(std::string str);
 
+void scale(float scale_x,float scale_y);
 };
 
