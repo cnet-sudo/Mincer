@@ -205,7 +205,6 @@ void GameEngine::input()
 			}
 			
 
-
 			if ((event.key.code == sf::Keyboard::M)) {
 
 				if (m_musik.play(0, true)) {
@@ -733,12 +732,7 @@ void GameEngine::start_complexity()
 	planet.top = 0;
 }
 
-void GameEngine::saveHiScore()
-{
-	std::ofstream outputFile("gamedata/scores.txt", std::ios::binary | std::ios::out);
-	outputFile.write((char*)&hiScore, sizeof hiScore);
-	outputFile.close();
-}
+
 
 void GameEngine::newLevel()
 {   
@@ -779,7 +773,12 @@ void GameEngine::recharge()
 	}
 }
 
-
+void GameEngine::saveHiScore()
+{
+	std::ofstream outputFile("gamedata/scores.txt", std::ios::binary | std::ios::out);
+	outputFile.write((char*)&hiScore, sizeof hiScore);
+	outputFile.close();
+}
 
 void GameEngine::run()
 {

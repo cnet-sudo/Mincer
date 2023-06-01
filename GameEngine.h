@@ -57,17 +57,19 @@ private:
 	sf::Vector2f mouseWorldPosition;
 	// координаты мышки в окне
 	sf::Vector2i mouseScreenPosition;
+	// игрок
+	Player player;
+	// Размер уровня
+	sf::IntRect planet;
+
 	//масштаб
 	float m_scale_x;
 	float m_scale_y;
-	// игрок
-	Player player;
-
+	
 	// фон уровня
 	sf::VertexArray background;
 	sf::Transform transform;
-	// Размер уровня
-	sf::IntRect planet;
+	
 
 	// Количество монстров
 	int numMonsterAlive;
