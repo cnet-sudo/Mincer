@@ -137,8 +137,5 @@
     <Image Include="game.ico">
       <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="game.png">
-      <Filter>Файлы ресурсов</Filter>
-    </Image>
   </ItemGroup>
 </Project>

@@ -31,7 +31,7 @@ GameEngine::GameEngine()
 	"sound/mobb.wav","sound/hit1.wav","sound/bonus1.wav"};
 	m_musik.create_sound(str);
 	// загрузка иконки приложения
-	if (!icon.loadFromFile("game.png")) window->close(); 
+	if (!icon.loadFromFile("graphics/game.png")) window->close(); 
 	window->setIcon(128, 128, icon.getPixelsPtr());
 	// прячем курсор
 	window->setMouseCursorVisible(false);
