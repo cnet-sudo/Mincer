@@ -44,7 +44,7 @@ add_custom_command(
 
 target_link_libraries(Mincer PRIVATE sfml-graphics sfml-system sfml-window sfml-audio )
 
-target_compile_features(Mincer PRIVATE cxx_std_14)
+target_compile_features(Mincer PRIVATE cxx_std_20)
 
 if (WIN32 AND BUILD_SHARED_LIBS)
     add_custom_command(TARGET Mincer POST_BUILD

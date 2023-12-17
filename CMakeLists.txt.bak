@@ -21,16 +21,21 @@ add_custom_command(TARGET Mincer POST_BUILD
 add_custom_command(TARGET Mincer POST_BUILD                
                    COMMAND ${CMAKE_COMMAND}
                    ARGS -E copy_directory
-                        ${PROJECT_SOURCE_DIR}/font
-                        $<TARGET_FILE_DIR:Mincer>/font
+                        ${PROJECT_SOURCE_DIR}/fonts
+                        $<TARGET_FILE_DIR:Mincer>/fonts
                    VERBATIM)
 add_custom_command(TARGET Mincer POST_BUILD                
                    COMMAND ${CMAKE_COMMAND}
                    ARGS -E copy_directory
-                        ${PROJECT_SOURCE_DIR}/image
-                        $<TARGET_FILE_DIR:Mincer>/image
+                        ${PROJECT_SOURCE_DIR}/graphics
+                        $<TARGET_FILE_DIR:Mincer>/graphics
                    VERBATIM)
-				   
+add_custom_command(TARGET Mincer POST_BUILD                
+                   COMMAND ${CMAKE_COMMAND}
+                   ARGS -E copy_directory
+                        ${PROJECT_SOURCE_DIR}/gamedata
+                        $<TARGET_FILE_DIR:Mincer>/gamedata
+                   VERBATIM)				   
 add_custom_command(
   TARGET Mincer POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy 
