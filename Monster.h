@@ -1,5 +1,4 @@
 #pragma once
-#include <SFML/Graphics.hpp>
 #include"Animator.h"
 #include <random>
 #include <deque>
@@ -8,42 +7,47 @@
 class Monster
 {
 private:
-	// сложность
+	// сложность игры
 	int m_complexity = 0;
-	//  оординаты монстров
+	// координаты монстров
 	sf::Vector2f m_Position;
-	// —прайт дл€ монстра
+	// спрайт дл€ монстра
 	sf::Sprite m_Sprite;
-	// јнимаци€ монтстра
+	// анимаци€ монтстра
 	Animator m_AnimPlayer = Animator(m_Sprite);
-	// —корость монстра
+	// скорость монстра
 	float m_Speed;
-	// ∆изнь монстра
+	// жизнь монстра
 	float m_Health;
-	// —осто€ние жив - мЄртв
+	// состо€ние жив - мЄртв
 	bool m_Alive = true;
-	// ¬идно на карте труп или нет
+	// видно на карте труп или нет
 	bool m_novisible = false;
-	// “ип монстра
+	// тип монстра
 	int m_Type;
+	// интервал перемещени€ моба
 	sf::Time m_moveTime;
+
 	public:
 
 	Monster();
-	// ќбработка попадани€ пули в монстра
+	// обработка попадани€ пули в моба
 	bool hit();
-	// ”знаем, жив ли монстр
+	// узнаем, жив ли монстр
 	bool isAlive();
+	// виден монстр или нет
 	bool getnovisible();
+	// изменение видимости монстра
 	void novisible();
-	// —оздаем нового монстра
+	// создаем нового монстра
 	void spawn(float startX, float startY, int type, int complexity);
-	// ¬озвращаем пр€моугольник, который €вл€етс€ позицией в мире
+	// возвращаем пр€моугольник, который €вл€етс€ позицией в мире
 	sf::FloatRect getPosition();
-	// ѕолучаем копию спрайта дл€ рисовани€
+	// получаем копию спрайта дл€ рисовани€
 	sf::Sprite getSprite() const;
-	// ќбновл€ем монстров каждый кадр
+	// обновл€ем монстров каждый кадр
 	void update(sf::Time deltaTime, sf::Vector2f playerLocation, sf::Vector2f resolution);
+	// возвращает тип монстра
 	int getTypeMonster() const;
 	
 	};

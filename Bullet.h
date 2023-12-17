@@ -35,3 +35,7 @@ public:
 	// Обновление игровой логики
 	void update(float elapsedTime);
 };
+
+
+
+	

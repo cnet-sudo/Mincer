@@ -1,12 +1,10 @@
 #include "Animator.h"
 
-Animator::Animator(sf::Sprite& sprite): m_CurrentAnimation(nullptr), m_Sprite(sprite)
-{
+Animator::Animator(sf::Sprite& sprite): m_CurrentAnimation(nullptr), m_Sprite(sprite)	{
 
 }
 
-Animator::Animation& Animator::CreateAnimation(std::string const& name, std::string const& textureName, sf::Time const& duration, bool loop)
-{
+Animator::Animation& Animator::CreateAnimation(std::string const& name, std::string const& textureName, sf::Time const& duration, bool loop) {
 	
 	m_Animations.emplace_back(name,textureName,duration,loop);
 
@@ -15,8 +13,9 @@ Animator::Animation& Animator::CreateAnimation(std::string const& name, std::str
 
 	return m_Animations.back();
 }
-void Animator::SwitchAnimation(Animator::Animation* animation)
-{
+
+void Animator::SwitchAnimation(Animator::Animation* animation) {
+
 	//»змен€ем текстуру спрайта
 	if (animation != nullptr)
 	{		
@@ -26,8 +25,9 @@ void Animator::SwitchAnimation(Animator::Animation* animation)
 	m_CurrentAnimation = animation;
 	m_CurrentTime = sf::Time::Zero; // —бросит врем€
 }
-void Animator::Update(sf::Time const& dt)
-{
+
+void Animator::Update(sf::Time const& dt) {
+
 	if (m_CurrentAnimation==nullptr) return;
 	
 	m_CurrentTime += dt;
@@ -38,14 +38,14 @@ void Animator::Update(sf::Time const& dt)
 
 	if (m_CurrentAnimation->m_Looping) currentFrame %= numFrames;
 	else
-		if (currentFrame >= numFrames) { currentFrame = numFrames - 1; endAnim = true; }
+		if (currentFrame >= numFrames) { currentFrame = numFrames - 1; m_endAnim = true; }
 
 	m_Sprite.setTextureRect(m_CurrentAnimation->m_Frames[currentFrame]);
 
 }
 
-bool Animator::SwitchAnimation(std::string const& name)
-{
+bool Animator::SwitchAnimation(std::string const& name) {
+
 	auto animation = FindAnimation(name);
 	if (animation!=nullptr) 
 	{
@@ -55,22 +55,22 @@ bool Animator::SwitchAnimation(std::string const& name)
 	return false;
 }
 
-std::string Animator::GetCurrentAnimationName() const
-{
+std::string Animator::GetCurrentAnimationName() const {
+
 	if (m_CurrentAnimation != nullptr) return m_CurrentAnimation->m_Name;
 	// если анимаци€ не воспроизводитс€, вернуть пустую строку
 	return "";
 }
 
-void Animator::restart()
-{
+void Animator::restart() {
+
 	m_CurrentTime = sf::Time::Zero; // —бросит врем€
-	endAnim = false;
+	m_endAnim = false;
 }
 
-Animator::Animation* Animator::FindAnimation(std::string const & name)
-{
-	for (auto it=m_Animations.begin();it!=m_Animations.end();++it) 
+Animator::Animation* Animator::FindAnimation(std::string const & name) {
+
+	for (auto it=m_Animations.begin(); it!=m_Animations.end(); ++it) 
 	{
 		if (it->m_Name == name) return &*it;
 	}

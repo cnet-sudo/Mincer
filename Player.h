@@ -6,7 +6,8 @@ class Player
 public:
 	Player();
 	// направления движения игрока
-	enum class playermove { UpPressed, UpRg, UpLf, DownPressed, DownRg, DownLf, LeftPressed, RightPressed, Stop };
+	enum class playermove { UpPressed, UpRg, UpLf, DownPressed, 
+		DownRg, DownLf, LeftPressed, RightPressed, Stop };
 	// метод появление игрока на игровом поле
 	void spawn(sf::IntRect planet, sf::Vector2f resolution, int tileSize);
 	// метод рестарт параметров игрока
@@ -23,7 +24,7 @@ public:
 	sf::Vector2f getCenter() const;
 	// возвращает угол поворота игрока
 	float getRotation() const;
-	// возврщает копию спрайта игрока
+	// возвращает копию спрайта игрока
 	sf::Sprite getSprite() const;
 	// рисуем игрока
 	void draw(sf::RenderWindow& win) const;

@@ -11,7 +11,7 @@ class Levels
 	// массив звуковых эффектов
 	std::array<sf::Sound,7> m_sound;
 
-	std::array<int, 7> m_time{11,8,5,9,5,12,12};
+	std::array<int, 7> m_time{11,8,5,9,5,12,7};
 
 	sf::Sprite* m_bkgr=nullptr;
 	sf::Sprite m_start;
@@ -24,11 +24,14 @@ class Levels
 	bool m_play = true;
 	float m_scale_x;
 	float m_scale_y;
+	bool vstup = false;  
 public:
 
 	Levels(sf::RenderWindow& window, float scale_x, float scale_y);
 
 	sf::Sprite * getSprite(int index);
+
+	bool getVstup();    
 
 	void splash_SCR_update(sf::Time deltaTime);
 

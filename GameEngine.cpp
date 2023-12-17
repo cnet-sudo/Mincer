@@ -1,797 +1,687 @@
 #include "GameEngine.h"
 
-GameEngine::GameEngine()
-{   
-	// масштабирование
-	if (m_resolution.x > 1920) m_scale_x = 1 * (m_resolution.x / 1920);
-	else
-		if (m_resolution.x < 1920) m_scale_x = 1 / (1920 / m_resolution.x);
-		else m_scale_x = 1;
-
-	if (m_resolution.y > 1080) m_scale_y = 1 * (m_resolution.y / 1080);
-	else
-		if (m_resolution.y < 1080) m_scale_y = 1 / (1080 / m_resolution.y);
-		else m_scale_y = 1;
-	
-	// Загрузка
-	state = State::game_load;
-	gtext.scale(m_scale_x,m_scale_y);
-	levelText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
-	levelText.setCharacterSize(40);
-	levelText.setFillColor(sf::Color::Yellow);
-	levelText.setString(L"Загрузка ...");
-	levelText.setScale(m_scale_x, m_scale_y);
-	levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height-30*m_scale_y);
-	levels.start();
-	window->draw(levelText);
-	window->display();
-	//-------------------------------------------
-	levels.createLevels();
-	std::vector<std::string> str{ "sound/level1.wav","sound/plasma.wav","sound/mobv.wav","sound/per.wav",
-	"sound/mobb.wav","sound/hit1.wav","sound/bonus1.wav"};
-	m_musik.create_sound(str);
-	// загрузка иконки приложения
-	if (!icon.loadFromFile("graphics/game.png")) window->close(); 
-	window->setIcon(128, 128, icon.getPixelsPtr());
+GameEngine::GameEngine() {
+	// параметры игрового окна
+	m_window.create(sf::VideoMode(m_resolution.x, m_resolution.y), L"Проект Кощей", sf::Style::Fullscreen);
+	// этап загрузки игры
+	m_state = State::game_load;
+	//<<<<<<<<<<<<<Begin<<<<<<<<<<<<<<<<
+	m_levels.start();
+	m_gametext.drawAssistant(m_window,0);
+	m_window.display();
+	m_levels.createLevels();
+	// <<<<<<<<<<<<<<<<<<<<<<<End<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	// размер вида
+	m_mainView.setSize(m_resolution.x, m_resolution.y);
+	// начальные координаты игрового поля
+	m_planet.left = 0;
+	m_planet.top = 0;
+	// иконка игрового окна
+	if (!m_icon.loadFromFile("game.png")) exit(3); 
+	m_window.setIcon(194, 256, m_icon.getPixelsPtr());
 	// прячем курсор
-	window->setMouseCursorVisible(false);
+	m_window.setMouseCursorVisible(false); //<<<<<<<<<<<<<<<<<<<<<<<<
+    //загрузка массива музыки 
+	std::vector<std::string> str{ "sound/level1.wav","sound/plasma.wav","sound/mobv.wav","sound/per.wav",
+	"sound/mobb.wav","sound/hit1.wav","sound/bonus1.wav" };
+	m_musik.create_sound(str);
+	// Прицел для оружия
+	m_Bullet.spriteCrosshair.setTexture(AssetManager::GetTexture("graphics/crosshair.png")); 
+	m_Bullet.spriteCrosshair.setOrigin(25, 25);
+	m_Bullet.spriteCrosshair.setScale(m_gametext.getScale().x, m_gametext.getScale().y);
+	m_Bullet.spriteCrosshair1.setTexture(AssetManager::GetTexture("graphics/crosshair1.png")); 
+	m_Bullet.spriteCrosshair1.setOrigin(25, 25);
+	m_Bullet.spriteCrosshair1.setScale(m_gametext.getScale().x, m_gametext.getScale().y);
 	
-	spriteCrosshair.setTexture(AssetManager::GetTexture("graphics/crosshair.png"));
-	spriteCrosshair.setOrigin(25, 25);
-	spriteCrosshair.setScale(m_scale_x, m_scale_y);
-	spriteCrosshair1.setTexture(AssetManager::GetTexture("graphics/crosshair1.png"));
-	spriteCrosshair1.setOrigin(25, 25);
-	spriteCrosshair1.setScale(m_scale_x, m_scale_y);
-	// иконка патроны
-	spriteAmmoIcon.setTexture(AssetManager::GetTexture("graphics/ammo.png"));
-	spriteAmmoIcon.setScale(m_scale_x, m_scale_y);
-	
-	
-	// Патроны
-	ammoText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
-	ammoText.setCharacterSize(55);
-	ammoText.setFillColor(sf::Color(99,124,0));
-	ammoText.setOutlineColor(Color::Yellow);
-	ammoText.setOutlineThickness(1);
-	ammoText.setScale(m_scale_x, m_scale_y);
-	
-	
-	// Очки
-	scoreText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
-	scoreText.setCharacterSize(55);
-	scoreText.setFillColor(sf::Color(99, 124, 0));
-	scoreText.setOutlineColor(Color::Yellow);
-	scoreText.setOutlineThickness(1);
-	scoreText.setScale(m_scale_x, m_scale_y);
-	
-
-	// Загрузка рекорда
+	//<<<<<<<<<<<<<Begin<<<<<<<<<<<<<<<<
+	// Загрузка рекорда 
 	std::ifstream inputFile("gamedata/scores.txt", std::ios::binary | std::ios::in);
 	if (inputFile.is_open())
 	{
 		//Обновление переменной
-		inputFile.read((char*)& hiScore, sizeof hiScore);
+		inputFile.read((char*)&m_HubText.hiScore, sizeof m_HubText.hiScore);
 		inputFile.close();
 	}
-
-
-	// Рекорд
-	hiScoreText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
-	hiScoreText.setCharacterSize(55);
-	hiScoreText.setFillColor(sf::Color(99, 124, 0));
-	hiScoreText.setOutlineColor(Color::Yellow);
-	hiScoreText.setOutlineThickness(1);
-	hiScoreText.setScale(m_scale_x, m_scale_y);
-	
-	
-	// Монстры
-	monsterRemainingText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
-	monsterRemainingText.setCharacterSize(55);
-	monsterRemainingText.setFillColor(sf::Color(99, 124, 0));
-	monsterRemainingText.setOutlineColor(Color::Yellow);
-	monsterRemainingText.setOutlineThickness(1);
-	monsterRemainingText.setScale(m_scale_x, m_scale_y);
-		
-	// Номер волны
-	levelNumberText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
-	levelNumberText.setCharacterSize(55);
-	levelNumberText.setFillColor(sf::Color(99, 124, 0));
-	levelNumberText.setOutlineColor(Color::Yellow);
-	levelNumberText.setOutlineThickness(1);
-	levelNumberText.setScale(m_scale_x, m_scale_y);
-	
-	// Помощь
-	HelpText.setFont(AssetManager::GetFont("fonts/Helvetica.otf"));
-	HelpText.setCharacterSize(20);
-	HelpText.setFillColor(sf::Color(99, 124, 0));
-	HelpText.setOutlineColor(Color::Yellow);
-	HelpText.setOutlineThickness(1);
-	HelpText.setScale(m_scale_x, m_scale_y);
-			
-	// Линия жизни
-	healthBar.setOutlineColor(Color::Yellow);
-	healthBar.setOutlineThickness(2);
-	healthBar.setFillColor(Color::Red);
-	healthBar.setScale(m_scale_x, m_scale_y);
-	
-	// Сосуд жизни 
-	healthBar1.setOutlineColor(Color::Yellow);
-	healthBar1.setOutlineThickness(5);
-	healthBar1.setFillColor(sf::Color(0,0,0,0));
-	healthBar1.setSize(Vector2f(800, 50));
-	healthBar1.setScale(m_scale_x, m_scale_y);	
-	restart();
+	// <<<<<<<<<<<<<<<<<<<<<<<End<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	restart();	
 }
 
-void GameEngine::input()
-{
+void GameEngine::input() {
+
 	sf::Event event;
 
-	while (window->pollEvent(event))
+	while (m_window.pollEvent(event))
 	{
-		if (event.type == sf::Event::KeyPressed)
-		{
+		if (event.type == sf::Event::KeyPressed) {
 			
 			// Загрузка
-			if (state == State::game_load)
-			{
-				if ((event.key.code == sf::Keyboard::Space))
-				{
-					state = State::splash_screen;
+			if (m_state == State::game_load) {
+
+				if ((event.key.code == sf::Keyboard::Space)) {
+
+					m_state = State::splash_screen;
 					return;
 				}
 
 			}
 
-			if (state == State::splash_screen)
-			{
-				if ((event.key.code == sf::Keyboard::Space))
-				{
-					levels.stop_sound();
-					state = State::level_up;
+			if (m_state == State::splash_screen) {
+
+				if ((event.key.code == sf::Keyboard::Space)) {
+
+					m_levels.stop_sound();//<<<<<<<<<<<<<<<<<<<<<<<
+					m_state = State::level_up;
 					return;
 				}
 			}
 
 
 
-			if (state == State::level)
-			{
-				if ((event.key.code == sf::Keyboard::Space))
-				{
-					state = State::playing;
+			if (m_state == State::level) {
+
+				if ((event.key.code == sf::Keyboard::Space)) {
+
+					m_state = State::playing;
 				}
 			}
 
 
+			// конец игры
+			if (m_state == State::game_over) {
 
-			// Конец игры
-			if (state == State::game_over)
-			{
-				if ((event.key.code == sf::Keyboard::Space) )
-				{
-					restart();
-					state = State::level_up;
+				if ((event.key.code == sf::Keyboard::Space) ) {
+
+					restart(); //<<<<<<<<<<<<<
+					m_state = State::level_up;
 				}
 			}
 			
-			if (state == State::game_victory)
-			{
-				if ((event.key.code == sf::Keyboard::Space))
-				{
-					start_complexity();
-					m_complexity++;
-					state = State::level_up;
+			if (m_state == State::game_victory) {
+
+				if ((event.key.code == sf::Keyboard::Space)) {
+
+					start_complexity();           //<<<<<<<<<<<
+					m_HubText.complexity++;       // <<<<<<<<<<<<<<<<<<<<
+					m_state = State::level_up;
 				}
 			}
 
-			if (state == State::paused)
-			{
-				if (event.key.code == sf::Keyboard::Pause)
-				{
-					state = State::playing;
+			if (m_state == State::paused) {
+
+				if (event.key.code == sf::Keyboard::Pause) {
+
+					m_state = State::playing;
 					return;
 				}
 				
 			}
-			if (state == State::help)
-			{
-				if (event.key.code == sf::Keyboard::Tab)
-				{
-					state = State::playing;
+			// помощь
+			if (m_state == State::help)  {
+
+				if (event.key.code == sf::Keyboard::Tab) {
+
+					m_state = State::playing;
 					return;
 				}
 				
 			}
 			
-
+			// включение выключение музыки    
 			if ((event.key.code == sf::Keyboard::M)) {
-
+				
 				if (m_musik.play(0, true)) {
 				
 					m_musik.stop(0);
 				};
+				
 			}
 
-			// Выход из игры
-			if ((event.key.code == sf::Keyboard::Escape) || (event.type == sf::Event::Closed)) 
-			{
-				saveHiScore();
+			// выход из игры
+			if ((event.key.code == sf::Keyboard::Escape) || (event.type == sf::Event::Closed)) {
+
+				saveHiScore(); //<<<<<<<<<<<<<<<<<<<<<<<<<<<
 				
-				window->close();
+				m_window.close();
 			}
-			if (state == State::transition)
-			{
+
+			if (m_state == State::transition) {
+
 				if ((event.key.code == sf::Keyboard::Space))
 				{
-					state = State::level_up;
+					m_state = State::level_up;
 					return;
 				}
 			}
 
 			// Игра
-			if (state == State::playing || state == State::transition)
-			{
+			if (m_state == State::playing || m_state == State::transition) {
 				
-			// Игровая пауза
-			if (event.key.code == sf::Keyboard::Pause && state != State::transition)
-			{
-				state = State::paused;
-				return;
-			}
-			
-			// Игровая пауза
-			if (event.key.code == sf::Keyboard::Tab && state != State::transition)
-			{
-				state = State::help;
-				return;
-			}
+				// Игровая пауза
+				if (event.key.code == sf::Keyboard::Pause && m_state != State::transition) {
 
-			if (event.key.code == sf::Keyboard::Space)
-			{
-				mainView.setSize(1920,1080);
-				return;
-			}
+					m_state = State::paused;
+					return;
+				}
 			
-				// Перезарядка
-				if (event.key.code == Keyboard::R)
-				{
-					m_musik.play(3, false);
-					recharge();	
+				// помощь в игре
+				if (event.key.code == sf::Keyboard::Tab && m_state != State::transition) {
+
+					m_state = State::help;
+					return;
 				}
-				// Перемещение
-				
-				if (event.key.code==sf::Keyboard::W)
-				{
-					player.move(Player::playermove::UpPressed);
+
+				// вернуть масштаб вида игры
+				if (event.key.code == sf::Keyboard::Space) {
+
+					m_mainView.setSize(1920,1080);
+					return;
+				}
+			
+				// перезарядка оружия               
+				if (event.key.code == sf::Keyboard::R) {
+						
+					m_musik.play(3, false); 
+					// перезарядка
+					recharge();		                 			
+				}
+
+				// перемещение игрока
+				if (event.key.code==sf::Keyboard::W) {
+
+					m_player.move(Player::playermove::UpPressed);
 				}
 				
-				if (event.key.code == sf::Keyboard::E)
-				{
-					player.move(Player::playermove::UpRg);
+				if (event.key.code == sf::Keyboard::E) {
+
+					m_player.move(Player::playermove::UpRg);
 				}
 				
-				if (event.key.code == sf::Keyboard::C)
-				{
-					player.move(Player::playermove::DownRg);
+				if (event.key.code == sf::Keyboard::C) {
+
+					m_player.move(Player::playermove::DownRg);
 					
 				}
 				
-				if (event.key.code == sf::Keyboard::S)
-				{
-					player.move(Player::playermove::DownPressed);					
+				if (event.key.code == sf::Keyboard::S) {
+
+					m_player.move(Player::playermove::DownPressed);					
 				}
 				
-				if (event.key.code == sf::Keyboard::Z)
-				{
-					player.move(Player::playermove::DownLf);
+				if (event.key.code == sf::Keyboard::Z) {
+
+					m_player.move(Player::playermove::DownLf);
 				}
 				
-				if (event.key.code == sf::Keyboard::Q)
-				{
-					player.move(Player::playermove::UpLf);
+				if (event.key.code == sf::Keyboard::Q) {
+
+					m_player.move(Player::playermove::UpLf);
 				}
 				
-				if (event.key.code == sf::Keyboard::A)
-				{
-					player.move(Player::playermove::LeftPressed);
+				if (event.key.code == sf::Keyboard::A) {
+
+					m_player.move(Player::playermove::LeftPressed);
 					
 				}
 				
-				if (event.key.code == sf::Keyboard::D)
-				{
-					player.move(Player::playermove::RightPressed);
+				if (event.key.code == sf::Keyboard::D) {
+
+					m_player.move(Player::playermove::RightPressed);
 				}
 				
-				if (event.key.code == sf::Keyboard::X)
-				{
-					player.move(Player::playermove::Stop);
+				if (event.key.code == sf::Keyboard::X) {
+
+					m_player.move(Player::playermove::Stop);
 				}
 
-			} // Конец игры
+			} // конец игры
 
 			
 		}
 
-		// Масштаб
-		if (state == State::playing || state == State::transition)
-		{
+		// масштаб
+		if (m_state == State::playing || m_state == State::transition) {
+
 			if (event.type == sf::Event::MouseWheelScrolled)
 			{
 				if (event.mouseWheelScroll.delta < 0) {
-					mainView.zoom(0.9f);
-					if (mainView.getSize().x < 1280) mainView.setSize(1280, 720);
+					m_mainView.zoom(0.9f);
+					if (m_mainView.getSize().x < 1280) m_mainView.setSize(1280, 720);
 				}
 
 				else if (event.mouseWheelScroll.delta > 0) {
-					mainView.zoom(1.1f);
-					if (mainView.getSize().x > 3840) mainView.setSize(3840, 2160);
+					m_mainView.zoom(1.1f);
+					if (m_mainView.getSize().x > 3840) m_mainView.setSize(3840, 2160);
 				}
-
 			}
 		}
 
 		
 		
-		if (state == State::playing || state == State::transition)
+		if (m_state == State::playing || m_state == State::transition)  // игравой процесс активный или все монстры мертвы но игра продолжается 
 		{
-				// стрельба
-				if (Mouse::isButtonPressed(sf::Mouse::Left))
-				{
-					if (gameTimeTotal.asMilliseconds() - lastPressed.asMilliseconds() > 200 && bulletsInClip > 0)
-					{
-						m_musik.play(1, false);
-						// Стрельба в прицел
-						bullets[currentBullet].shoot(player.getCenter().x, player.getCenter().y, mouseWorldPosition.x, mouseWorldPosition.y);
-						currentBullet++;
-						if (currentBullet > bullets.size()-1)
-						{
-							currentBullet = 0;
-						}
-						lastPressed = gameTimeTotal;
-						bulletsInClip--;
-					}
-				}// конец стрельбы
+			if (event.type == sf::Event::MouseButtonPressed) {  // нажатие клавиш мыши
+			
+				if (event.mouseButton.button == sf::Mouse::Left) {
+				
+					if (m_gameTimeTotal.asMilliseconds() - m_lastPressed.asMilliseconds() > 100 && m_HubText.bulletsInClip > 0) {
+					
+						m_musik.play(1, false); 
 
-				if (Mouse::isButtonPressed(sf::Mouse::Right))
-				{
-					m_musik.play(3, false);
-					recharge();
+						// Стрельба в прицел
+						m_Bullet.bullets[m_Bullet.currentBullet].shoot(m_player.getCenter().x, m_player.getCenter().y, m_mouseWorldPosition.x, m_mouseWorldPosition.y);
+						m_Bullet.currentBullet++;
+						if (m_Bullet.currentBullet > m_Bullet.bullets.size() - 1) {
+						
+							m_Bullet.currentBullet = 0;
+						}
+						m_Bullet.lastPressed = m_gameTimeTotal;
+						m_HubText.bulletsInClip--;
+					}
+				}
+				// конец стрельбы
+
+				if (event.mouseButton.button == sf::Mouse::Right) {
+					
+					m_musik.play(3, false);   
+					// перезарядка
+					recharge();                 
 				}
 
+			}
 		}
 		
 	}
 }
 
-
-
-void GameEngine::update(sf::Time const& deltaTime)
-{
-	
-	std::random_device rd;
-	std::mt19937 gen(rd());
+void GameEngine::update(sf::Time const& deltaTime) {
+	// Рандом
+	std::random_device rd; 
+	std::mt19937 gen(rd());              
 	std::uniform_int_distribution<> tis(1, 20);
-	if (state == State::splash_screen)
+	///------конец рандома -----------------------
+	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	if (m_state == State::splash_screen)
 	{
-		levels.splash_SCR_update(deltaTime);
+		m_levels.splash_SCR_update(deltaTime);
+		if (m_levels.getVstup()) m_state = State::level_up;
 	}
+	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	// Игровая сцена
-	if (state == State::playing || state == State::transition)
+	if (m_state == State::playing || m_state == State::transition)
 	{
-		// Обновление общего игрового времени
-		gameTimeTotal += deltaTime;
-		// Положение мышки
-		mouseScreenPosition = sf::Mouse::getPosition();
-		// Конвертируем положение мышки в мировые координаты окна mainView
-		mouseWorldPosition = window->mapPixelToCoords(sf::Mouse::getPosition(), mainView);
-		// Положение курсора
-		spriteCrosshair.setPosition(mouseWorldPosition);
-		spriteCrosshair1.setPosition(mouseWorldPosition);
+		// обновление общего игрового времени
+		m_gameTimeTotal += deltaTime;
+		//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		if (!m_player.getLive()) {
+			m_state = State::game_over;
 
-		if (!player.getLive()) {
-			state = State::game_over;
+			m_gametext.genText("dead");
 
-			gtext.genText("dead");
-			
 			saveHiScore();
-
 		}
+		//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		// Положение мышки                    
+		m_mouseScreenPosition = sf::Mouse::getPosition();
+		// Конвертируем положение мышки в мировые координаты окна mainView
+		m_mouseWorldPosition = m_window.mapPixelToCoords(sf::Mouse::getPosition(), m_mainView);
+		// Положение курсора
+		m_Bullet.spriteCrosshair.setPosition(m_mouseWorldPosition);
+		m_Bullet.spriteCrosshair1.setPosition(m_mouseWorldPosition);
+		///-----------конец положение мышки  ------------------------
 
 		// Обновление логики игрока
-		player.update(deltaTime, sf::Mouse::getPosition());
+		m_player.update(deltaTime, sf::Mouse::getPosition());
 		// Записываем положение игрока в переменную 
-		sf::Vector2f playerPosition(player.getCenter());
+		sf::Vector2f playerPosition(m_player.getCenter());
 		// Устанавливаем центр окна mainView, согласно положению игрока
-		mainView.setCenter(player.getCenter());
-		
+		m_mainView.setCenter(m_player.getCenter());
+
 		// Область видимости игрока
-		sf::Vector2f minview;
-		sf::Vector2f maxview;
-		minview.x = player.getSprite().getPosition().x - m_resolution.x / 2;
-		maxview.x = player.getSprite().getPosition().x + m_resolution.x / 2;
-		minview.y = player.getSprite().getPosition().y - m_resolution.y / 2;
-		maxview.y = player.getSprite().getPosition().y + m_resolution.y / 2;
+		sf::Vector2f minview{ m_player.getSprite().getPosition().x - m_resolution.x / 2, m_player.getSprite().getPosition().y - m_resolution.y / 2 };
+		sf::Vector2f maxview{ m_player.getSprite().getPosition().x + m_resolution.x / 2, m_player.getSprite().getPosition().y + m_resolution.y / 2 };
+		
 		// обновление логики монстров
-		for (int i = 0; i < monster.size(); i++)
-		{
-			if (monster[i].isAlive()){
+		for (int i = 0; i < m_monster.size(); i++)	{
+			if (m_monster[i].isAlive()) {
 
-				monster[i].update(deltaTime, playerPosition, m_resolution);
+				m_monster[i].update(deltaTime, playerPosition, m_resolution);
 			}
-			else
-			{
-				if (monster[i].getSprite().getPosition().x > maxview.x || monster[i].getSprite().getPosition().x < minview.x
-					|| monster[i].getSprite().getPosition().y > maxview.y || monster[i].getSprite().getPosition().y < minview.y)
+			else {
+				if (m_monster[i].getSprite().getPosition().x > maxview.x || m_monster[i].getSprite().getPosition().x < minview.x
+					|| m_monster[i].getSprite().getPosition().y > maxview.y || m_monster[i].getSprite().getPosition().y < minview.y)
 				{
-					monster[i].novisible();
+					m_monster[i].novisible();
 				}
+			}
+		}// конец логики монстров
+
+		// ---- обновление логики пуль 
+		for (int i = 0; i < m_Bullet.bullets.size(); i++) {
+			if (m_Bullet.bullets[i].isInFlight()) {
+				m_Bullet.bullets[i].update(deltaTime.asSeconds());
 			}
 		}
-
-
-		// обновление логики пуль
-		for (int i = 0; i < bullets.size(); i++)
-		{
-			if (bullets[i].isInFlight())
-			{
-				bullets[i].update(deltaTime.asSeconds());
-			}
-		}
-
-		// обновление логики предметов
-		if (!pickup.empty()) 
-		{
-			
-			for (int i = 0; i < pickup.size(); i++) 
-			{
-				if (pickup[i].isSpawned()) 
+		// ---- проверка столкновения пули с монстром
+		for (int i = 0; i < m_Bullet.bullets.size(); i++) {
+			for (int j = 0; j < m_monster.size(); j++) {
+				if (m_Bullet.bullets[i].isInFlight() && m_monster[j].isAlive())
 				{
-			pickup[i].update(deltaTime.asSeconds());
-			// Подбор предметов
-			if (player.getPosition().intersects(pickup[i].getPosition()))
-			{
-				m_musik.play(6, false);
-				switch (pickup[i].getType())
-				{
-				case 1: {player.increaseHealthLevel(pickup[i].gotIt()); break;}
-				case 2: {bulletsSpare += pickup[i].gotIt(); break;}
-				case 3: {player.upgradeHealth(pickup[i].gotIt()); break; }
-				case 4: {clipSize += pickup[i].gotIt(); break; }
-				default:
-					break;
-				}
-
-				}
-				}
-			}
-			
-			if (pickup.size()>20) 
-			{
-			std::vector<Pickup> tmp;
-			for (int i = 0; i < pickup.size(); i++)
-			{
-				if (pickup[i].isSpawned()) tmp.emplace_back(pickup[i]);
-			}
-			pickup.clear();
-			for (int i = 0; i < tmp.size(); i++)
-			{
-				pickup.emplace_back(tmp[i]);
-			}
-			tmp.clear();
-			}
-		}
-
-		// проверка столкновения пули с монстром
-		for (int i = 0; i < bullets.size(); i++)
-		{
-			for (int j = 0; j < monster.size(); j++)
-			{
-				if (bullets[i].isInFlight() &&	monster[j].isAlive())
-				{
-					if (bullets[i].getPosition().intersects
-					(monster[j].getPosition()))
+					if (m_Bullet.bullets[i].getPosition().intersects
+					(m_monster[j].getPosition()))
 					{
 						// остановить пулю
-						bullets[i].stop();
+						m_Bullet.bullets[i].stop();
 						// отмечаем попадание в монстра
-						if (monster[j].hit())
+						if (m_monster[j].hit())
 						{ // Монстр умирает
-							if (monster[j].getTypeMonster() > 0 && monster[j].getTypeMonster() < 3) m_musik.play(2, false); else m_musik.play(4, false);
-							score += 5*(monster[j].getTypeMonster()+1);
+							if (m_monster[j].getTypeMonster() > 0 && m_monster[j].getTypeMonster() < 3) { m_musik.stop(2); m_musik.play(2, false); }  //<<<<<<<<<<<<<<<<<<<<
+							else { m_musik.stop(4); m_musik.play(4, false); }        //<<<<<<<<<<<<<<<<<<<<
+							m_HubText.score += 5 * (m_monster[j].getTypeMonster() + 1);
+							// появления подбора 
 							int typ = tis(gen);
-							if (typ<7 || typ==10 || typ == 15)
+							if (typ < 7 || typ == 10 || typ == 15)
 							{
 								pickup.push_back(Pickup());
-								pickup[pickup.size() - 1].spawn(monster[j].getSprite().getPosition(),typ);
+								pickup[pickup.size() - 1].spawn(m_monster[j].getSprite().getPosition(), typ);
 							}
-							if (score >= hiScore){
+							//-------- конец появления подбора ----------------------
+							if (m_HubText.score >= m_HubText.hiScore) {
 
-								hiScore = score;
+								m_HubText.hiScore = m_HubText.score;
 							}
-							numMonsterAlive--;
-							// When all the zombies are dead (again)
-							if (numMonsterAlive == 0) {
-								state = State::transition;
+							m_HubText.numMonsterAlive--;
+							// Когда все зомби мертвы (снова)
+							if (m_HubText.numMonsterAlive == 0) {
+								m_state = State::transition;
 							}
 						}
 					}
 				}
 			}
-		}// конец проверки столкновения пули с монстром
+		}// ---------конец проверки столкновения пули с монстром --------
+		
+		// обновление логики предметов  
+		if (!pickup.empty())
+		{
+
+			for (int i = 0; i < pickup.size(); i++)
+			{
+				if (pickup[i].isSpawned())
+				{
+					pickup[i].update(deltaTime.asSeconds());
+					// Подбор предметов
+					if (m_player.getPosition().intersects(pickup[i].getPosition()))
+					{
+						m_musik.stop(6);
+						m_musik.play(6, false); 
+						switch (pickup[i].getType())
+						{
+						case 1: {m_player.increaseHealthLevel(pickup[i].gotIt()); break; }
+						case 2: {m_HubText.bulletsSpare += pickup[i].gotIt(); break; }
+						case 3: {m_player.upgradeHealth(pickup[i].gotIt()); break; }
+						case 4: {m_Bullet.clipSize += pickup[i].gotIt(); break; }
+						default:
+							break;
+						}
+
+					}
+				}
+			}
+
+			if (pickup.size() > 20)
+			{
+				std::vector<Pickup> tmp;
+				for (int i = 0; i < pickup.size(); i++)
+				{
+					if (pickup[i].isSpawned()) tmp.emplace_back(pickup[i]);
+				}
+				pickup.clear();
+				for (int i = 0; i < tmp.size(); i++)
+				{
+					pickup.emplace_back(tmp[i]);
+				}
+				tmp.clear();
+			}
+		}
+		//---------- конец логики предметов -------------------------------
 
 		// столкновения монстра с игроком
-		for (int i = 0; i < monster.size(); i++)
-		{
-			if (player.getPosition().intersects
-			(monster[i].getPosition()) && monster[i].isAlive())
-			{
-				if (player.hit(gameTimeTotal))
-				{
-					m_musik.play(5, false);
+		for (int i = 0; i < m_monster.size(); i++)	{
+
+			if (m_player.getPosition().intersects(m_monster[i].getPosition()) && m_monster[i].isAlive()) {
+
+				if (m_player.hit(m_gameTimeTotal))	{
+
+					m_musik.play(5, false); 
 				}
-				
+
 			}
 		}// конец столкновения монстра с игроком
-				
-		
-		    // линия жизни
-			float koff = player.getMaxHealth() / 200;
-		    healthBar.setSize(Vector2f((player.getHealth() * 4)/koff, 50));
-		
-			// текст обновления патронов
-			ammoText.setString(std::to_string(bulletsInClip)+"/"+ std::to_string(bulletsSpare));
-			// текст обновления очков
-			scoreText.setString(L"Очки: " + std::to_string(score));
-			// текст обновления рекорда
-			hiScoreText.setString(L"Рекорд: "+std::to_string(hiScore));
-			// текст обновления уровня
-			levelNumberText.setString(L"Уровень: "+ std::to_string(level));
-			// текст обновления текущего количества монстров
-			monsterRemainingText.setString(L"Монстры: "+ std::to_string(numMonsterAlive));
-			// сложность игры
-			HelpText.setString(L"Помощь - < TAB >              Сложность: "+ std::to_string(m_complexity));
 
-	}// Конец игровой сцены
-	
-	if (state == State::level_up)
+
+		// Интерфейс
+		 
+		// линия жизни
+		// вычисление пропорции размера графического отображения линии жизни к числовому значению 
+		m_HubText.bar_x= (m_player.getHealth() * 4) / (m_player.getMaxHealth() / 200); 
+		// вычисление значений игрового интерфейса
+		m_gametext.update(m_HubText);
+				 
+	} // конец игровой сцены
+
+	if (m_state == State::level_up)
 	{
-		level++;
-		if (level > 5) {
-			state = State::game_victory;
-			gtext.genText("vic");
-			saveHiScore();
+		m_HubText.level++;
+		if (m_HubText.level > 5) {
+			m_state = State::game_victory;
+			
+			m_gametext.genText("vic"); //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+			saveHiScore();			   //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		}
 		else {
-		newLevel();
-	    state = State::level;
-		}	
+			newLevel();
+			m_state = State::level;
+		}
 	}
 }
 
-void GameEngine::draw()
-{
-	if (state == State::playing || state == State::transition)
+void GameEngine::draw() {
+
+	if (m_state == State::playing || m_state == State::transition)
 	{
-		window->clear();
-		// Игровое окно
-		window->setView(mainView);
-		// Фон
-		window->draw(background, &AssetManager::GetTexture("graphics/plan.png"));
-		// тела монстров
-		for (int i = 0; i < monster.size(); i++) {
-		if ((!monster[i].isAlive()) && (!monster[i].getnovisible()))  window->draw(monster[i].getSprite());
-		}
-				
-		// Пикапы
+		m_window.clear();
+		// игровое окно
+		m_window.setView(m_mainView);
+		// фон
+		m_window.draw(m_background, &AssetManager::GetTexture("graphics/plan.png"));
+		
+		// Пикапы 
 		if (!pickup.empty())
 		{
 			for (int i = 0; i < pickup.size(); i++)
 			{
-				if (pickup[i].isSpawned())	window->draw(pickup[i].getSprite());
+				if (pickup[i].isSpawned())	m_window.draw(pickup[i].getSprite());
 
 			}
 		}
-
-		// монстры
-		for (int i = 0; i < monster.size(); i++){
-
-			if (monster[i].isAlive() ) window->draw(monster[i].getSprite());
-		}
-
-
-		// пули
-		for (int i = 0; i < bullets.size(); i++)
+				
+		// пули                       
+		for (int i = 0; i < m_Bullet.bullets.size(); i++)
 		{
-			if (bullets[i].isInFlight())
+			if (m_Bullet.bullets[i].isInFlight())
 			{
-				window->draw(bullets[i].getShape());
+				m_window.draw(m_Bullet.bullets[i].getShape());
 			}
 		}
-		// игрок
-		player.draw(*window);
+		
+		// погибшие монстры  
+		for (int i = 0; i < m_monster.size(); i++) {
+			// погибшие монстры
+			if ((!m_monster[i].isAlive()) && (!m_monster[i].getnovisible()))  m_window.draw(m_monster[i].getSprite());
+			// живые монстры
+			if (m_monster[i].isAlive()) m_window.draw(m_monster[i].getSprite());
+		}
+		// конец погибшие монстры
+		
 		// курсор
-		for (int j = 0; j < monster.size(); j++)
+		for (int j = 0; j < m_monster.size(); j++)
 		{
-			if ((spriteCrosshair1.getGlobalBounds().intersects(monster[j].getPosition())) && (monster[j].isAlive()))
+			if ((m_Bullet.spriteCrosshair1.getGlobalBounds().intersects(m_monster[j].getPosition())) && (m_monster[j].isAlive()))
 			{
-				window->draw(spriteCrosshair1); break;
+				m_window.draw(m_Bullet.spriteCrosshair1); break;
 			}
 			else
 			{
-				window->draw(spriteCrosshair);
+				m_window.draw(m_Bullet.spriteCrosshair);
 			}
 		}
+		
+		// игрок
+		m_player.draw(m_window);
+		
 		
 		// Интерфейс
-		window->setView(hudView);
+		m_window.setView(m_hudView);
+		
 		// Элементы интерфейса
-		spriteAmmoIcon.setPosition(20 * m_scale_x, m_resolution.y - spriteAmmoIcon.getGlobalBounds().height - 40 * m_scale_y);
-		window->draw(spriteAmmoIcon);
-		ammoText.setPosition(30 * m_scale_x + spriteAmmoIcon.getGlobalBounds().width, m_resolution.y - ammoText.getGlobalBounds().height - 40 * m_scale_y);
-		window->draw(ammoText);
-		scoreText.setPosition(100 * m_scale_x, 20 * m_scale_y);
-		window->draw(scoreText);
-		hiScoreText.setPosition(m_resolution.x - 520 * m_scale_x, 20 * m_scale_y);
-		window->draw(hiScoreText);
-		healthBar.setPosition(m_resolution.x / 2 - healthBar1.getGlobalBounds().width / 2, m_resolution.y - 100 * m_scale_y);
-		window->draw(healthBar);
-		healthBar1.setPosition(m_resolution.x / 2 - healthBar1.getGlobalBounds().width / 2, m_resolution.y - 100 * m_scale_y);
-		window->draw(healthBar1);
-		levelNumberText.setPosition(m_resolution.x / 2 - levelNumberText.getGlobalBounds().width/2, 20 * m_scale_y);
-		window->draw(levelNumberText);
-		monsterRemainingText.setPosition(m_resolution.x - 520 * m_scale_x, m_resolution.y - monsterRemainingText.getGlobalBounds().height - 40* m_scale_y);
-		window->draw(monsterRemainingText);
-		HelpText.setPosition(m_resolution.x / 2 - HelpText.getGlobalBounds().width /2, m_resolution.y - 40 * m_scale_y);
-		window->draw(HelpText);
+		m_gametext.draw(m_window);
+
+	}
+
+	//<<<<<<<<<<<<<Begin<<<<<<<<<<<<<<<<
+
+	if (m_state == State::game_load)
+	{
+		m_levels.start();
+		m_gametext.drawAssistant(m_window, 1);
+	}
+	if (m_state == State::splash_screen)
+	{
+		m_levels.splash_SCR_draw();
+	}
+
+	if (m_state == State::level)
+	{
+		m_window.clear();
+		m_window.draw(*m_levels.getSprite(m_HubText.level - 1));
+		m_gametext.drawAssistant(m_window, 1);
+	}
+
+	if (m_state == State::paused)
+	{
+		m_gametext.drawAssistant(m_window, 2);
+	}
+
+	if (m_state == State::help)
+	{
+		m_levels.help();
+	}
+
+	if (m_state == State::transition)
+	{
+		m_gametext.drawAssistant(m_window, 1);
+	}
+	if (m_state == State::game_over)
+	{
+		m_window.draw(*m_levels.getSprite(5));
+		m_gametext.drawAssistant(m_window, 1);
+		m_gametext.drawText(m_window);
+		m_gametext.drawGameOver(m_window);
 		
 	}
-	if (state == State::game_load)
-	{
-		levelText.setString(L"для продолжения нажмите пробел ");
-		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 30 * m_scale_y);
-		levels.start();
-		window->draw(levelText);		
-	}
-	if (state == State::splash_screen)
-	{
-		levels.splash_SCR_draw();
-	}
-	
-	if (state == State::level)
-	{
-		window->clear();
-		levelText.setString(L"для продолжения нажмите пробел ");
-		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 30 * m_scale_y);
-		window->draw(*levels.getSprite(level-1));
-		window->draw(levelText);
-	}
 
-	if (state == State::paused)
+	if (m_state == State::game_victory)
 	{
-		levelText.setString(L"ПАУЗА");
-		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y/2 - levelText.getGlobalBounds().height/2);
-		window->draw(levelText);	
+		m_window.draw(*m_levels.getSprite(6));
+		m_gametext.drawAssistant(m_window, 1);
+		m_gametext.drawText(m_window);
+		m_gametext.drawGameOver(m_window);
 	}
-
-	if (state == State::help)
-	{
-		levels.help();
-	}
-
-	if (state == State::transition)
-	{
-		levelText.setString(L"для продолжения нажмите пробел ");
-		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y / 2 - levelText.getGlobalBounds().height / 2);
-		window->draw(levelText);
-	}
-	if (state == State::game_over)
-	{
-		window->draw(*levels.getSprite(5));
-		levelText.setString(L"для продолжения нажмите пробел ");
-		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 30 * m_scale_y);
-		window->draw(levelText);
-		gtext.DrawText(*window, m_resolution.x, m_resolution.y);
-		window->draw(scoreText);
-		window->draw(hiScoreText);
-	}
-
-	if (state == State::game_victory)
-	{
-		window->draw(*levels.getSprite(6));
-		levelText.setString(L"для продолжения нажмите пробел ");
-		levelText.setPosition(m_resolution.x / 2 - levelText.getGlobalBounds().width / 2, m_resolution.y - levelText.getGlobalBounds().height - 30 * m_scale_y);
-		window->draw(levelText);
-		gtext.DrawText(*window, m_resolution.x, m_resolution.y);
-		window->draw(scoreText);
-		window->draw(hiScoreText);
-	}
-		
-	window->display();
+	//<<<<<<<<<<<<<End<<<<<<<<<<<<<<<<
+	m_window.display();
 }
 
-void GameEngine::restart()
-{
-	player.resetPlayerStats();
-	score = 0;
-	level = 0;
-	mainView.setSize(m_resolution.x, m_resolution.y);
-	bulletsSpare = 300;
-	bulletsInClip = 50;
-	clipSize = 50;
-	planet.left = 0;
-	planet.top = 0;	
-
-}
-
-void GameEngine::start_complexity()
-{
-	level = 0;
-	mainView.setSize(m_resolution.x, m_resolution.y);
-	planet.left = 0;
-	planet.top = 0;
-}
-
-
-
-void GameEngine::newLevel()
-{   
-	planet.width = 10000*level;
-	planet.height = 10000*level;
-
-	for (int i = 0; i < bullets.size(); i++) {
-		if (bullets[i].isInFlight() == true) bullets[i].stop();
-	}
-
-	background.clear();
-	monster.clear();
-	pickup.clear();
-	int tileSize = createBackground(background, planet,level);
-	player.spawn(planet, m_resolution, tileSize);
-	numMonsterAlive = createHorde(50*level, monster, sf::Vector2i(0, level-1), planet,m_complexity);
-}
-
-void GameEngine::recharge()
-{
-	if (bulletsSpare > 0)
-	{
-		if (bulletsInClip < clipSize)
-		{
-			if (bulletsSpare >= (clipSize - bulletsInClip))
-			{
-				int myammo = clipSize - bulletsInClip;
-				bulletsInClip += myammo;
-				bulletsSpare -= myammo;
-			}
-			else
-			{
-				bulletsInClip += bulletsSpare;
-				bulletsSpare = 0;
-			}
-		}
-
-	}
-}
-
-void GameEngine::saveHiScore()
-{
-	std::ofstream outputFile("gamedata/scores.txt", std::ios::binary | std::ios::out);
-	outputFile.write((char*)&hiScore, sizeof hiScore);
-	outputFile.close();
-}
 
 void GameEngine::run()
 {
 	// Объявление переменной часы
 	sf::Clock clock;
 	// Цикл работает пока окно открыто
-	while (window->isOpen())
+	while (m_window.isOpen())
 	{
 		// Текущее время присваиваем переменной времени dt
 		sf::Time dt = clock.restart();
+
 		input();
 		update(dt);
 		draw();
 	}
-
 }
+
+void GameEngine::restart() {   // рестарт
+
+	m_player.resetPlayerStats();
+	m_HubText.score = 0;
+	m_HubText.level = 0;
+	m_HubText.bulletsSpare = 300;
+	m_HubText.bulletsInClip = 50;
+	m_Bullet.clipSize = 50;
+}
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+void GameEngine::start_complexity()
+{
+	m_HubText.level = 0;
+}
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+void GameEngine::newLevel() {
+
+	m_planet.width = 10000 * m_HubText.level;
+	m_planet.height = 10000 * m_HubText.level;
+	m_background.clear();
+	int tileSize = createBackground(m_background, m_planet, m_HubText.level);
+	m_player.spawn(m_planet, m_resolution, tileSize);
+
+	m_monster.clear();
+	m_HubText.numMonsterAlive = createHorde(50 * m_HubText.level, m_monster, sf::Vector2i(0, m_HubText.level - 1), m_planet, m_HubText.complexity);
+	
+	
+	for (int i = 0; i < m_Bullet.bullets.size(); i++) {     // останавливаем полёт всех пуль
+	if (m_Bullet.bullets[i].isInFlight() == true) m_Bullet.bullets[i].stop();
+	}
+	// очищаем массив пикапов
+	pickup.clear();
+	
+}
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+void GameEngine::saveHiScore()
+{
+	std::ofstream outputFile("gamedata/scores.txt", std::ios::binary | std::ios::out);
+	outputFile.write((char*)&m_HubText.hiScore, sizeof m_HubText.hiScore);
+	outputFile.close();
+}
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            
+
+void GameEngine::recharge() {         // Перезарядка патронов   
+	
+	if (m_HubText.bulletsSpare > 0)	{  // Ящик с патронами больше нуля
+
+		if (m_HubText.bulletsInClip < m_Bullet.clipSize) {   // Обойма не заполнена
+
+			// В ящике больше или столько же патронов, сколько нехватает в обойме
+			if (m_HubText.bulletsSpare >= (m_Bullet.clipSize - m_HubText.bulletsInClip)) 
+			{
+				int myammo = m_Bullet.clipSize - m_HubText.bulletsInClip;
+				m_HubText.bulletsInClip += myammo;  // добавляем патроны в обойму
+				m_HubText.bulletsSpare -= myammo;   // отнимаем патроны в ящике
+			}
+			else
+			{
+				m_HubText.bulletsInClip += m_HubText.bulletsSpare; // Добавляем остаток патронов в обойму
+				m_HubText.bulletsSpare = 0;                        // Обозначаем что в ящике ноль патронов
+			}
+		}
+
+	}
+}
+

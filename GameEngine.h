@@ -1,128 +1,84 @@
 #pragma once
 #include<iostream>
-#include <fstream>
-#include"AssetManager.h"
-#include"Player.h"
-#include"Monster.h"
+#include "AssetManager.h"
+#include "Player.h"
 #include "MonsterPlanet.h"
-#include "Bullet.h"
-#include "Pickup.h"
-#include "array"
-#include <vector>
-#include <deque>
-#include "GameSound.h"
-#include <algorithm>
-#include <iterator>
-#include "Levels.h"
 #include "GameText.h"
-
+#include "Pickup.h"   
+#include "GameSound.h" 
+#include "Levels.h"		 //<<<<<<<<<<<<<<<<<<<
 class GameEngine
 {
 public:
+	// конструктор
 	GameEngine();
-	
-	// Метод запуска игрового цикла
+	// метод запуска игрового цикла
 	void run();
 private:
+	// менеджер ресурсов
+	AssetManager m_manager; 
 	// разрешение экрана
-	sf::Vector2f m_resolution = sf::Vector2f(static_cast<float>(sf::VideoMode::getDesktopMode().width),
+	sf::Vector2f m_resolution = sf::Vector2f(static_cast<float>(sf::VideoMode::getDesktopMode().width), 
 		static_cast<float>(sf::VideoMode::getDesktopMode().height));
-	// Менеджер ресурсов
-	AssetManager manager; 
-	// Графическое окно
-	std::unique_ptr<sf::RenderWindow> window = std::make_unique<sf::RenderWindow>(sf::VideoMode(m_resolution.x, m_resolution.y),L"Мясорубка", sf::Style::Fullscreen);
-	sf::Image icon;
+	// графическое окно 
+	sf::RenderWindow m_window; 
+	// игра всегда будет в одном из перечисленных состояний
+	enum class State { paused, level, level_up, game_over, playing, 
+		game_victory, game_load, splash_screen, transition, help };
+	// cостояние игры
+	State m_state;
+	Levels m_levels = Levels(m_window, m_resolution.x, m_resolution.y); //<<<<<<<<<<<<<<
+	// иконка
+	sf::Image m_icon;
+	
+	// окно mainView
+	sf::View m_mainView = sf::View(sf::FloatRect(0, 0, 1920, 1080));
+	// Игровая музыка
 	GameSound m_musik;
-	// Метод обработки событий 
-	void input();
-	
-	// Метод обновления переменных, свойств и методов 
-	void update(sf::Time const& deltaTime);
-	
-	// Метод отрисовки объектов в графическом окне
-	void draw();
-	
-	// Игра всегда будет в одном из четырех состояний
-	enum class State {paused, level, level_up,game_over, playing, game_victory,game_load, splash_screen, transition,help };
-	
-	// Состояние игры
-	State state;
-	Levels levels=Levels(*window, m_resolution.x, m_resolution.y);
-	
-	// Окно mainView
-	sf::View mainView=sf::View(sf::FloatRect(0, 0, 1920, 1080));
-	// Общее игровое время
-	sf::Time gameTimeTotal;
-	// мировые координаты мышки
-	sf::Vector2f mouseWorldPosition;
-	// координаты мышки в окне
-	sf::Vector2i mouseScreenPosition;
-	// игрок
-	Player player;
-	// Размер уровня
-	sf::IntRect planet;
 
-	//масштаб
-	float m_scale_x;
-	float m_scale_y;
-	
-	// фон уровня
-	sf::VertexArray background;
-	sf::Transform transform;
-	
-
-	// Количество монстров
-	int numMonsterAlive;
-	// массив монстров
-	std::deque<Monster> monster;
-	// 100 патронов
-	std::array<Bullet,100> bullets;
-	int currentBullet = 0;
-	// Ящик с патронами
-	int bulletsSpare;
-	// Обойма
-	int bulletsInClip;
-	// Максимальный размер обоймы
-	int clipSize;
-	// сложность
-	int m_complexity = 1;
+	// oбщее игровое время
+	sf::Time m_gameTimeTotal;
 	// интервал стрельбы
-	Time lastPressed;
-    
-	// Прицел
-	Sprite spriteCrosshair;
-	Sprite spriteCrosshair1;
+	sf::Time m_lastPressed;
+	// мировые координаты мышки
+	sf::Vector2f m_mouseWorldPosition;
+	// координаты мышки в окне
+	sf::Vector2i m_mouseScreenPosition;
+	// игрок
+	Player m_player;
+
+	// массив монстров
+	std::deque<Monster> m_monster;
 	// Придметы для подъёма
-    std::vector<Pickup>  pickup;
-	// очки
-	int score;
-	// рекорд
-	int hiScore = 0;
-	void saveHiScore();
-	// рестарт
-	void restart();
-	void start_complexity();
-	// новый уровень
-	void newLevel();
-	int level=1;
-	sf::Time timewave;
+	std::vector<Pickup>  pickup; 
+	// патроны 
+	GameBullet m_Bullet;   
 	// перезарядка оружия
 	void recharge();
+	
+	// размер игрового уровня
+	sf::IntRect m_planet;
+	// фон игрового уровня
+	sf::VertexArray m_background;
+		
+	// метод обработки событий 
+	void input();
+	// метод обновления переменных, свойств и методов 
+	void update(sf::Time const& deltaTime);
+	// метод отрисовки объектов в графическом окне
+	void draw();
+	// рестарт игры
+	void restart();
+	// рестарт более сложный уровень
+	void start_complexity(); // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	// новый уровень
+	void newLevel();
+	// запись рекорда
+	void saveHiScore(); // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	// окно HUD
-	View hudView=sf::View(sf::FloatRect(0, 0, m_resolution.x, m_resolution.y));
-	// патроны в интерфейсе
-	Sprite spriteAmmoIcon;
-	// текст
-	Text levelText;
-	Text ammoText;
-	Text scoreText;
-	Text hiScoreText;
-	Text monsterRemainingText;
-	Text levelNumberText;
-	Text HelpText;
-	// линия жизни
-	RectangleShape healthBar;
-	RectangleShape healthBar1;
-	GameText gtext;
+	sf::View m_hudView = sf::View(sf::FloatRect(0, 0, m_resolution.x, m_resolution.y));
+	
+	GameHubText m_HubText;
+	GameText m_gametext= GameText(m_resolution);
 };
 

@@ -1,15 +1,13 @@
+
 #include "Bullet.h"
 
-Bullet::Bullet()
-{	
+Bullet::Bullet() {	
 	m_BulletShape.setFillColor(sf::Color::Red);
 	m_BulletShape.setRadius(10);
 	m_BulletShape.setOrigin(5,5);
 }
-
 void Bullet::shoot(float startX, float startY,
-	float targetX, float targetY)
-{
+	float targetX, float targetY) {	
 	// Пуля в полёте
 	m_InFlight = true;
 	m_Position.x = startX;
@@ -17,8 +15,7 @@ void Bullet::shoot(float startX, float startY,
 	// Рассчитать градиент траектории полета
 	float gradient = (startX - targetX) / (startY - targetY);
 	// Градиент меньше 1 должен быть отрицательным
-	if (gradient < 0)
-	{
+	if (gradient < 0) {
 		gradient *= -1;
 	}
 	// Вычислить отношение между x и y
@@ -27,12 +24,10 @@ void Bullet::shoot(float startX, float startY,
 	m_BulletDistance.y = ratioXY;
 	m_BulletDistance.x = ratioXY * gradient;
 	// Направьте пулю в правильном направлении
-	if (targetX < startX)
-	{
+	if (targetX < startX) {
 		m_BulletDistance.x *= -1;
 	}
-	if (targetY < startY)
-	{
+	if (targetY < startY) {
 		m_BulletDistance.y *= -1;
 	}
 	// Установите максимальный диапазон 1000 пикселей
@@ -45,26 +40,24 @@ void Bullet::shoot(float startX, float startY,
 	m_BulletShape.setPosition(m_Position);
 }
 
-void Bullet::stop()
-{
+void Bullet::stop() {
 	m_InFlight = false;
 }
-bool Bullet::isInFlight()
-{
+
+bool Bullet::isInFlight() {
 	return m_InFlight;
 }
-FloatRect Bullet::getPosition()
-{
+
+FloatRect Bullet::getPosition() {
 	return m_BulletShape.getGlobalBounds();
 }
-CircleShape Bullet::getShape()
-{
+
+CircleShape Bullet::getShape() {
 	return m_BulletShape;
 }
 
-void Bullet::update(float elapsedTime)
-{
-	
+void Bullet::update(float elapsedTime) {
+	if (m_InFlight) {
 	// Обновите переменные позиции маркера
 	m_Position.x += m_BulletDistance.x * elapsedTime;
 	m_Position.y += m_BulletDistance.y * elapsedTime;
@@ -72,8 +65,17 @@ void Bullet::update(float elapsedTime)
 	m_BulletShape.setPosition(m_Position);
 	// Пуля вышла за пределы досягаемости?
 	if (m_Position.x < m_Min.x || m_Position.x > m_Max.x ||
-		m_Position.y < m_Min.y || m_Position.y > m_Max.y)
-	{
+		m_Position.y < m_Min.y || m_Position.y > m_Max.y) {
 		m_InFlight = false;
 	}
+	}
 }
+
+
+
+
+
+
+
+
+

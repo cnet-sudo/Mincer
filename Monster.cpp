@@ -1,9 +1,7 @@
 #include "Monster.h"
 
+Monster::Monster() {
 
-
-Monster::Monster()
-{
 	auto& d2 = m_AnimPlayer.CreateAnimation("d2", "graphics/mon4.png", sf::seconds(0.5), false);
 	d2.AddFrames(sf::Vector2i(0, 1098), sf::Vector2i(170, 140), 4, 1);
 	auto& d1 = m_AnimPlayer.CreateAnimation("d1", "graphics/mon4.png", sf::seconds(0.5), false);
@@ -22,38 +20,41 @@ Monster::Monster()
 	m_Type = 0;
 	m_Speed = 0;
 	m_Health = 0;
+
 }
 
-void Monster::spawn(float startX, float startY, int type, int complexity)
-{
+void Monster::spawn(float startX, float startY, int type, int complexity) {
+
 	std::array<std::string, 5> name_monster{ "mon1","mon2","mon3","mon4","mon5" };
+	
 	m_Type = type;
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_int_distribution<> speed_plus(0,9);
+
 	m_complexity = complexity;
 	m_AnimPlayer.SwitchAnimation(name_monster[type]);
 	m_Speed = 1-(type*0.1f)+(speed_plus(gen)*0.01f);
 	m_Health = type+m_complexity;
 		
-	//Инициализировать его местоположение
+	//инициализировать его местоположение
 	m_Position.x = startX;
 	m_Position.y = startY;
-	// Отцентровуем объект
+	// отцентровуем объект
 	m_Sprite.setOrigin(25, 25);
-	// Устанавливаем место положения на карте
+	// устанавливаем место положения на карте
 	m_Sprite.setPosition(m_Position);
 }
 
 
 
-bool Monster::hit()
-{
+bool Monster::hit() {
+
 	if (m_Health <= 0) return false;
 	m_Health--;
 	if (m_Health <= 0)
 	{
-		// dead
+		// смерть моба
 		if (m_AnimPlayer.GetCurrentAnimationName() == "mon2" || m_AnimPlayer.GetCurrentAnimationName() == "mon3")
 		{if (m_AnimPlayer.GetCurrentAnimationName() != "d2") m_AnimPlayer.SwitchAnimation("d2");}
 		else 
@@ -64,39 +65,39 @@ bool Monster::hit()
 	return false;
 }
 
-bool Monster::isAlive()
-{
+bool Monster::isAlive() {
+
 	return m_Alive;
 }
 
-bool Monster::getnovisible()
-{
+bool Monster::getnovisible() {
+
 	return m_novisible;
 }
 
-void Monster::novisible()
-{
+void Monster::novisible() {
+
 	if (!m_Alive) m_novisible = true;
 }
 
-sf::FloatRect Monster::getPosition()
-{
+sf::FloatRect Monster::getPosition() {
+
 	auto myGlobalBounds = sf::FloatRect(m_Sprite.getGlobalBounds().left+40,	m_Sprite.getGlobalBounds().top+40, 
 	m_Sprite.getGlobalBounds().width-80, m_Sprite.getGlobalBounds().height - 80);
 	
 	return myGlobalBounds;
 }
 
-sf::Sprite Monster::getSprite() const
-{
+sf::Sprite Monster::getSprite() const {
+
 	return m_Sprite;
 }
 
-void Monster::update(sf::Time deltaTime, sf::Vector2f playerLocation, sf::Vector2f resolution)
-{
+void Monster::update(sf::Time deltaTime, sf::Vector2f playerLocation, sf::Vector2f resolution) {
+
 	m_AnimPlayer.Update(deltaTime);
-	if (m_AnimPlayer.getEndAnim())
-	{
+	if (m_AnimPlayer.getEndAnim())	{
+
 		m_Alive = false;
 	}
 
@@ -107,22 +108,25 @@ void Monster::update(sf::Time deltaTime, sf::Vector2f playerLocation, sf::Vector
 	float playerY = playerLocation.y;
 	m_moveTime = sf::microseconds(0);
 
-	if (playerX > m_Position.x)
-	{
+	if (playerX > m_Position.x) {
+
 		m_Position.x = m_Position.x + m_Speed;
 	}
-	if (playerY > m_Position.y)
-	{
+
+	if (playerY > m_Position.y) {
+
 		m_Position.y = m_Position.y +m_Speed / (100 / (resolution.y / (resolution.x / 100)));
 
 	}
-	if (playerX < m_Position.x)
-	{
+
+	if (playerX < m_Position.x) {
+
 		m_Position.x = m_Position.x - m_Speed;
 
 	}
-	if (playerY < m_Position.y)
-	{
+
+	if (playerY < m_Position.y) {
+
 		m_Position.y = m_Position.y - m_Speed / (100 / (resolution.y / (resolution.x / 100)));
 
 	}
@@ -133,8 +137,8 @@ void Monster::update(sf::Time deltaTime, sf::Vector2f playerLocation, sf::Vector
 	}
 }
 
-int Monster::getTypeMonster() const
-{
+int Monster::getTypeMonster() const {
+
 	return m_Type;
 }
 

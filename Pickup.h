@@ -1,3 +1,4 @@
+
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <random>
@@ -8,11 +9,10 @@ private:
 	
 	// Спрайт, представляющий этот пикап
 	sf::Sprite m_Sprite;
-	// Сколько стоит этот пикап?
+	// Размер боннуса который содержит пикап
 	int m_Value;
-	// Что это за пикап?
-    // 1 = здоровье, 2 = патроны
-	int m_Type;
+	// Что это за пикап (здоровье, патроны и т.д.)
+    int m_Type;
 	// Обработка появления и исчезновения пикапа
 	bool m_Spawned=true;
 	float m_SecondsSinceSpawn;
@@ -20,18 +20,22 @@ private:
 	float m_SecondsToLive=15;
 		
 public:
-	// Готовим новый пикап
+	// Создаём новый пикап
 	void spawn(sf::Vector2f pos, int type);
 	// Проверяем положение пикапа
 	sf::FloatRect getPosition() const;
 	// Получаем спрайт для рисования
 	sf::Sprite getSprite() const;
-	// Разрешить пикапу обновлять себя каждый кадр
+	// Обновляем пикап каждый кадр
 	void update(float elapsedTime);
-	// Создан ли этот пикап в настоящее время?
+	// Существует или нет пикап
 	bool isSpawned() const;
-	// Получаем добро из пикапа
+	// Подбор пикапа
 	int gotIt();
-	// Получаем тип
+	// Получаем тип пикапа
 	int getType() const;
 };
+
+
+
+

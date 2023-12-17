@@ -22,6 +22,11 @@ sf::Sprite* Levels::getSprite(int index)
 	return m_bkgr;
 }
 
+bool Levels::getVstup()
+{
+	return vstup;
+}
+
 void Levels::splash_SCR_update(sf::Time deltaTime)
 {
 	m_time_frame += deltaTime;
@@ -34,11 +39,12 @@ void Levels::splash_SCR_update(sf::Time deltaTime)
 	
 		m_time_frame = sf::seconds(0);
 
-		if (m_frame < 6) { m_frame++; m_play = true; 
-		int step = 1920 * m_frame;
-		m_splash_screen.setTextureRect(sf::IntRect(step, 0, 1920, 1080));
+		if (m_frame < 6) {
+			m_frame++; m_play = true;
+			int step = 1920 * m_frame;
+			m_splash_screen.setTextureRect(sf::IntRect(step, 0, 1920, 1080));
 		}
-		
+		else vstup = true;
 	}
 }
 

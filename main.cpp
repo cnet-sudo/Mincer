@@ -5,7 +5,8 @@ using namespace sf;
 
 int main()
 {
-    auto myGame = std::make_unique<GameEngine>();
+    
+    std::unique_ptr <GameEngine> myGame = std::make_unique<GameEngine>();
         
     myGame->run();
 

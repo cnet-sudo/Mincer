@@ -71,6 +71,7 @@ bool Player::hit(sf::Time timeHit) {
 
 		return false;
 	}
+	
 }
 
 // область нахождения игрока
@@ -131,7 +132,7 @@ void Player::upgradeHealth(float heal) {
 }
 
 
-// востановление жизни игрока
+// восстановление жизни игрока
 void Player::increaseHealthLevel(float amount) {
 
 	if (m_Health > 0 && m_Health< m_MaxHealth) {
@@ -231,7 +232,6 @@ void Player::update(sf::Time deltaTime, sf::Vector2i mousePosition)
 			// Вычислить угол, на который смотрит игрок
 			auto angle = static_cast<float>((atan2(static_cast<float>(mousePosition.y) - m_Resolution.y / 2, 
 			static_cast<float>(mousePosition.x) - m_Resolution.x / 2)* 180) / 3.141);
-		
 			m_Sprite.setPosition(m_Position);
 			m_Sprite.setRotation(angle);
 		}

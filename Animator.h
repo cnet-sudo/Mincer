@@ -2,7 +2,6 @@
 #include<iostream>
 #include<vector>
 #include<list>
-#include <SFML/Graphics.hpp>
 #include "AssetManager.h"
 
 class Animator
@@ -60,13 +59,11 @@ public:
 
 	bool getEndAnim() const
 	{
-		return endAnim;
+		return m_endAnim;
 	}
 
 private:
 
-	// введите имя анимации
-	// возвращает nullptr, если такая анимация не найдена
 	Animator::Animation* FindAnimation(std::string const& name);
 
 	void SwitchAnimation(Animator::Animation* animation);
@@ -76,6 +73,6 @@ private:
 	sf::Time m_CurrentTime;
 	std::list<Animator::Animation> m_Animations;
 	Animator::Animation* m_CurrentAnimation;
-	bool endAnim = false;
+	bool m_endAnim = false;
 };
 
