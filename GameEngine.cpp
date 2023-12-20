@@ -17,7 +17,7 @@ GameEngine::GameEngine() {
 	m_planet.left = 0;
 	m_planet.top = 0;
 	// иконка игрового окна
-	if (!m_icon.loadFromFile("game.png")) exit(3); 
+	if (!m_icon.loadFromFile("graphics/game.png")) exit(3); 
 	m_window.setIcon(194, 256, m_icon.getPixelsPtr());
 	// прячем курсор
 	m_window.setMouseCursorVisible(false); //<<<<<<<<<<<<<<<<<<<<<<<<
