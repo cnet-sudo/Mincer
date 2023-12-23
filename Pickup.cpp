@@ -57,7 +57,6 @@ bool Pickup::isSpawned() const
 int Pickup::gotIt()
 {
 	m_Spawned = false;
-	m_SecondsSinceDeSpawn = 0;
 	return m_Value;
 }
 
@@ -72,15 +71,10 @@ void Pickup::update(float elapsedTime)
 	{
 		m_SecondsSinceSpawn += elapsedTime;
 	}
-	else
-	{
-		m_SecondsSinceDeSpawn += elapsedTime;
-	}
-	
+		
 	if (m_SecondsSinceSpawn > m_SecondsToLive && m_Spawned)
 	{
 		m_Spawned = false;
-		m_SecondsSinceDeSpawn = 0;
 	}
 	
 }

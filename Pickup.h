@@ -16,7 +16,6 @@ private:
 	// Обработка появления и исчезновения пикапа
 	bool m_Spawned=true;
 	float m_SecondsSinceSpawn;
-	float m_SecondsSinceDeSpawn;
 	float m_SecondsToLive=15;
 		
 public:
