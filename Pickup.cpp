@@ -70,12 +70,15 @@ void Pickup::update(float elapsedTime)
 	if (m_Spawned)
 	{
 		m_SecondsSinceSpawn += elapsedTime;
-	}
-		
-	if (m_SecondsSinceSpawn > m_SecondsToLive && m_Spawned)
-	{
-		m_Spawned = false;
-	}
-	
+
+		if (m_SecondsSinceSpawn > m_SecondsToLive)
+		{
+			m_Spawned = false;
+		}
+	}		
 }
+
+
+
+
 

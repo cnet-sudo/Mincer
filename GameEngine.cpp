@@ -1,11 +1,10 @@
 #include "GameEngine.h"
-
 GameEngine::GameEngine() {
 	// параметры игрового окна
 	m_window.create(sf::VideoMode(m_resolution.x, m_resolution.y), L"Проект Кощей", sf::Style::Fullscreen);
 	// этап загрузки игры
 	m_state = State::game_load;
-	//<<<<<<<<<<<<<Begin<<<<<<<<<<<<<<<<
+	//<<<<<<<<<<<<<<<<<<<<<<<Begin<<<<<<<<<<<<<<<<<<<<<<<<<<
 	m_levels.start();
 	m_gametext.drawAssistant(m_window,0);
 	m_window.display();
@@ -17,7 +16,7 @@ GameEngine::GameEngine() {
 	m_planet.left = 0;
 	m_planet.top = 0;
 	// иконка игрового окна
-	if (!m_icon.loadFromFile("graphics/game.png")) exit(3); 
+	if (!m_icon.loadFromFile("game.png")) exit(3); 
 	m_window.setIcon(194, 256, m_icon.getPixelsPtr());
 	// прячем курсор
 	m_window.setMouseCursorVisible(false); //<<<<<<<<<<<<<<<<<<<<<<<<
@@ -33,7 +32,7 @@ GameEngine::GameEngine() {
 	m_Bullet.spriteCrosshair1.setOrigin(25, 25);
 	m_Bullet.spriteCrosshair1.setScale(m_gametext.getScale().x, m_gametext.getScale().y);
 	
-	//<<<<<<<<<<<<<Begin<<<<<<<<<<<<<<<<
+	//<<<<<<<<<<<<<<<<<<<<<<<Begin<<<<<<<<<<<<<<<<<<<<<<<<<<
 	// Загрузка рекорда 
 	std::ifstream inputFile("gamedata/scores.txt", std::ios::binary | std::ios::in);
 	if (inputFile.is_open())
@@ -405,10 +404,9 @@ void GameEngine::update(sf::Time const& deltaTime) {
 		{
 
 			for (int i = 0; i < pickup.size(); i++)
-			{
+			{	pickup[i].update(deltaTime.asSeconds());
 				if (pickup[i].isSpawned())
 				{
-					pickup[i].update(deltaTime.asSeconds());
 					// Подбор предметов
 					if (m_player.getPosition().intersects(pickup[i].getPosition()))
 					{
@@ -494,6 +492,13 @@ void GameEngine::draw() {
 		m_window.setView(m_mainView);
 		// фон
 		m_window.draw(m_background, &AssetManager::GetTexture("graphics/plan.png"));
+				
+		// погибшие монстры  
+		for (int i = 0; i < m_monster.size(); i++) {
+			// погибшие монстры
+			if ((!m_monster[i].isAlive()) && (!m_monster[i].getnovisible()))  m_window.draw(m_monster[i].getSprite());
+		}
+		// конец погибшие монстры
 		
 		// Пикапы 
 		if (!pickup.empty())
@@ -504,7 +509,7 @@ void GameEngine::draw() {
 
 			}
 		}
-				
+
 		// пули                       
 		for (int i = 0; i < m_Bullet.bullets.size(); i++)
 		{
@@ -513,16 +518,14 @@ void GameEngine::draw() {
 				m_window.draw(m_Bullet.bullets[i].getShape());
 			}
 		}
-		
-		// погибшие монстры  
+
+		// живые монстры  
 		for (int i = 0; i < m_monster.size(); i++) {
-			// погибшие монстры
-			if ((!m_monster[i].isAlive()) && (!m_monster[i].getnovisible()))  m_window.draw(m_monster[i].getSprite());
 			// живые монстры
 			if (m_monster[i].isAlive()) m_window.draw(m_monster[i].getSprite());
 		}
-		// конец погибшие монстры
-		
+		// конец живых монстров
+
 		// курсор
 		for (int j = 0; j < m_monster.size(); j++)
 		{
@@ -538,8 +541,7 @@ void GameEngine::draw() {
 		
 		// игрок
 		m_player.draw(m_window);
-		
-		
+				
 		// Интерфейс
 		m_window.setView(m_hudView);
 		
@@ -644,13 +646,11 @@ void GameEngine::newLevel() {
 	m_monster.clear();
 	m_HubText.numMonsterAlive = createHorde(50 * m_HubText.level, m_monster, sf::Vector2i(0, m_HubText.level - 1), m_planet, m_HubText.complexity);
 	
-	
 	for (int i = 0; i < m_Bullet.bullets.size(); i++) {     // останавливаем полёт всех пуль
 	if (m_Bullet.bullets[i].isInFlight() == true) m_Bullet.bullets[i].stop();
 	}
 	// очищаем массив пикапов
 	pickup.clear();
-	
 }
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 void GameEngine::saveHiScore()
