@@ -1,4 +1,5 @@
 #pragma once
+
 #include<iostream>
 #include "AssetManager.h"
 #include "Player.h"
@@ -6,15 +7,19 @@
 #include "GameText.h"
 #include "Pickup.h"   
 #include "GameSound.h" 
-#include "Levels.h"		 //<<<<<<<<<<<<<<<<<<<
+#include "Levels.h"		
+
 class GameEngine
 {
 public:
+
 	// конструктор
 	GameEngine();
 	// метод запуска игрового цикла
 	void run();
+
 private:
+
 	// менеджер ресурсов
 	AssetManager m_manager; 
 	// разрешение экрана
@@ -27,7 +32,7 @@ private:
 		game_victory, game_load, splash_screen, transition, help };
 	// cостояние игры
 	State m_state;
-	Levels m_levels = Levels(m_window, m_resolution.x, m_resolution.y); //<<<<<<<<<<<<<<
+	Levels m_levels = Levels(m_window, m_resolution.x, m_resolution.y); 
 	// иконка
 	sf::Image m_icon;
 	
@@ -69,12 +74,10 @@ private:
 	void draw();
 	// рестарт игры
 	void restart();
-	// рестарт более сложный уровень
-	void start_complexity(); // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	// новый уровень
 	void newLevel();
 	// запись рекорда
-	void saveHiScore(); // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	void saveHiScore(); 
 	// окно HUD
 	sf::View m_hudView = sf::View(sf::FloatRect(0, 0, m_resolution.x, m_resolution.y));
 	

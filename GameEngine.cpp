@@ -4,12 +4,10 @@ GameEngine::GameEngine() {
 	m_window.create(sf::VideoMode(m_resolution.x, m_resolution.y), L"Проект Кощей", sf::Style::Fullscreen);
 	// этап загрузки игры
 	m_state = State::game_load;
-	//<<<<<<<<<<<<<<<<<<<<<<<Begin<<<<<<<<<<<<<<<<<<<<<<<<<<
 	m_levels.start();
 	m_gametext.drawAssistant(m_window,0);
 	m_window.display();
 	m_levels.createLevels();
-	// <<<<<<<<<<<<<<<<<<<<<<<End<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	// размер вида
 	m_mainView.setSize(m_resolution.x, m_resolution.y);
 	// начальные координаты игрового поля
@@ -19,7 +17,7 @@ GameEngine::GameEngine() {
 	if (!m_icon.loadFromFile("game.png")) exit(3); 
 	m_window.setIcon(194, 256, m_icon.getPixelsPtr());
 	// прячем курсор
-	m_window.setMouseCursorVisible(false); //<<<<<<<<<<<<<<<<<<<<<<<<
+	m_window.setMouseCursorVisible(false); 
     //загрузка массива музыки 
 	std::vector<std::string> str{ "sound/level1.wav","sound/plasma.wav","sound/mobv.wav","sound/per.wav",
 	"sound/mobb.wav","sound/hit1.wav","sound/bonus1.wav" };
@@ -31,8 +29,6 @@ GameEngine::GameEngine() {
 	m_Bullet.spriteCrosshair1.setTexture(AssetManager::GetTexture("graphics/crosshair1.png")); 
 	m_Bullet.spriteCrosshair1.setOrigin(25, 25);
 	m_Bullet.spriteCrosshair1.setScale(m_gametext.getScale().x, m_gametext.getScale().y);
-	
-	//<<<<<<<<<<<<<<<<<<<<<<<Begin<<<<<<<<<<<<<<<<<<<<<<<<<<
 	// Загрузка рекорда 
 	std::ifstream inputFile("gamedata/scores.txt", std::ios::binary | std::ios::in);
 	if (inputFile.is_open())
@@ -41,7 +37,6 @@ GameEngine::GameEngine() {
 		inputFile.read((char*)&m_HubText.hiScore, sizeof m_HubText.hiScore);
 		inputFile.close();
 	}
-	// <<<<<<<<<<<<<<<<<<<<<<<End<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	restart();	
 }
 
@@ -68,7 +63,7 @@ void GameEngine::input() {
 
 				if ((event.key.code == sf::Keyboard::Space)) {
 
-					m_levels.stop_sound();//<<<<<<<<<<<<<<<<<<<<<<<
+					m_levels.stop_sound();
 					m_state = State::level_up;
 					return;
 				}
@@ -90,7 +85,7 @@ void GameEngine::input() {
 
 				if ((event.key.code == sf::Keyboard::Space) ) {
 
-					restart(); //<<<<<<<<<<<<<
+					restart(); 
 					m_state = State::level_up;
 				}
 			}
@@ -99,8 +94,8 @@ void GameEngine::input() {
 
 				if ((event.key.code == sf::Keyboard::Space)) {
 
-					start_complexity();           //<<<<<<<<<<<
-					m_HubText.complexity++;       // <<<<<<<<<<<<<<<<<<<<
+					m_HubText.level = 0;          
+					m_HubText.complexity++;       
 					m_state = State::level_up;
 				}
 			}
@@ -125,7 +120,7 @@ void GameEngine::input() {
 				
 			}
 			
-			// включение выключение музыки    
+			// выключение музыки    
 			if ((event.key.code == sf::Keyboard::M)) {
 				
 				if (m_musik.play(0, true)) {
@@ -138,7 +133,7 @@ void GameEngine::input() {
 			// выход из игры
 			if ((event.key.code == sf::Keyboard::Escape) || (event.type == sf::Event::Closed)) {
 
-				saveHiScore(); //<<<<<<<<<<<<<<<<<<<<<<<<<<<
+				saveHiScore(); 
 				
 				m_window.close();
 			}
@@ -298,19 +293,18 @@ void GameEngine::update(sf::Time const& deltaTime) {
 	std::mt19937 gen(rd());              
 	std::uniform_int_distribution<> tis(1, 20);
 	///------конец рандома -----------------------
-	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	// Проигривание предыстории
 	if (m_state == State::splash_screen)
 	{
 		m_levels.splash_SCR_update(deltaTime);
 		if (m_levels.getVstup()) m_state = State::level_up;
 	}
-	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	// Игровая сцена
 	if (m_state == State::playing || m_state == State::transition)
 	{
 		// обновление общего игрового времени
 		m_gameTimeTotal += deltaTime;
-		//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		// Конец игры
 		if (!m_player.getLive()) {
 			m_state = State::game_over;
 
@@ -318,7 +312,6 @@ void GameEngine::update(sf::Time const& deltaTime) {
 
 			saveHiScore();
 		}
-		//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		// Положение мышки                    
 		m_mouseScreenPosition = sf::Mouse::getPosition();
 		// Конвертируем положение мышки в мировые координаты окна mainView
@@ -471,10 +464,10 @@ void GameEngine::update(sf::Time const& deltaTime) {
 	{
 		m_HubText.level++;
 		if (m_HubText.level > 5) {
+			// игрок победил
 			m_state = State::game_victory;
-			
-			m_gametext.genText("vic"); //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-			saveHiScore();			   //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+			m_gametext.genText("vic"); 
+			saveHiScore();			   
 		}
 		else {
 			newLevel();
@@ -550,8 +543,6 @@ void GameEngine::draw() {
 
 	}
 
-	//<<<<<<<<<<<<<Begin<<<<<<<<<<<<<<<<
-
 	if (m_state == State::game_load)
 	{
 		m_levels.start();
@@ -599,7 +590,7 @@ void GameEngine::draw() {
 		m_gametext.drawText(m_window);
 		m_gametext.drawGameOver(m_window);
 	}
-	//<<<<<<<<<<<<<End<<<<<<<<<<<<<<<<
+	
 	m_window.display();
 }
 
@@ -629,12 +620,7 @@ void GameEngine::restart() {   // рестарт
 	m_HubText.bulletsInClip = 50;
 	m_Bullet.clipSize = 50;
 }
-//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-void GameEngine::start_complexity()
-{
-	m_HubText.level = 0;
-}
-//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 void GameEngine::newLevel() {
 
 	m_planet.width = 10000 * m_HubText.level;
@@ -646,21 +632,21 @@ void GameEngine::newLevel() {
 	m_monster.clear();
 	m_HubText.numMonsterAlive = createHorde(50 * m_HubText.level, m_monster, sf::Vector2i(0, m_HubText.level - 1), m_planet, m_HubText.complexity);
 	
-	for (int i = 0; i < m_Bullet.bullets.size(); i++) {     // останавливаем полёт всех пуль
+	for (int i = 0; i < m_Bullet.bullets.size(); i++) {     
+	// останавливаем полёт всех пуль
 	if (m_Bullet.bullets[i].isInFlight() == true) m_Bullet.bullets[i].stop();
 	}
 	// очищаем массив пикапов
 	pickup.clear();
 }
-//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 void GameEngine::saveHiScore()
 {
 	std::ofstream outputFile("gamedata/scores.txt", std::ios::binary | std::ios::out);
 	outputFile.write((char*)&m_HubText.hiScore, sizeof m_HubText.hiScore);
 	outputFile.close();
 }
-//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-            
+ 
 
 void GameEngine::recharge() {         // Перезарядка патронов   
 	

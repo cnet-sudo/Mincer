@@ -80,8 +80,6 @@ GameText::GameText(sf::Vector2f m_resolution):m_resolution(m_resolution)
 	healthBar1.setSize(sf::Vector2f(800, 50));
 	healthBar1.setScale(m_scale.x, m_scale.y);
 
-
-	//<<<<<<<<<<<<<<<<< Начало <<<<<<<<<<<<<<<<<<<<<<<<<<
 	levelText.setFont(AssetManager::GetFont("fonts/Broken.ttf"));
 	levelText.setCharacterSize(40);
 	levelText.setFillColor(sf::Color::Yellow);
@@ -92,8 +90,7 @@ GameText::GameText(sf::Vector2f m_resolution):m_resolution(m_resolution)
 	m_text.setFillColor(sf::Color::Yellow);
 	m_text.setOutlineColor(sf::Color::Black);
 	m_text.setOutlineThickness(1);
-
-	//<<<<<<<<<<<<<<<<<< Конец <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	
 }
 
 
@@ -143,7 +140,6 @@ sf::Vector2f GameText::getScale()  // возвращает масштаб
 	return m_scale;
 }
 
-//<<<<<<<<<<<<<<<<< Начало <<<<<<<<<<<<<<<<<<<<<<<<<<
 void GameText::drawText(sf::RenderWindow& window) {
 
 	m_text.setPosition(m_resolution.x / 2 - m_text.getGlobalBounds().width / 2, m_resolution.y / 2 - m_text.getGlobalBounds().height / 2);
@@ -194,7 +190,7 @@ void GameText::drawAssistant(sf::RenderWindow& window, int num)
 	window.draw(levelText);
 }
 
-//<<<<<<<<<<<<<<<<<< Конец <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 
 
 
